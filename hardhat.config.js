@@ -7,6 +7,7 @@ require("hardhat-contract-sizer");
 
 const { InfuraKey, mnemonic, Wallet, BscScanApiKey, EtherscanApiKey } = require('./.secret.json');
 
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -32,7 +33,7 @@ task("balance", "Prints an account's balance")
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
- module.exports = {
+module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
@@ -54,14 +55,14 @@ task("balance", "Prints an account's balance")
       chainId: 97,
       gas: 8812388,
       // gasPrice: 20000000000,
-      accounts: {mnemonic: mnemonic},
+      accounts: { mnemonic: mnemonic },
       from: Wallet
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
       gasPrice: 20000000000,
-      accounts: {mnemonic: mnemonic}
+      accounts: { mnemonic: mnemonic }
     }
   },
   etherscan: {
