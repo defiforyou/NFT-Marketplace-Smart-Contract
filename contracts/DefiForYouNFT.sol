@@ -30,19 +30,15 @@ contract DefiForYouNFT is
     address payable public originalCreator;
     uint256 public defaultRoyaltyRate;
     string public collectionCID;
-    mapping(uint256 => string) public CIDByToken;
     mapping(uint256 => uint256) public royaltyRateByToken;
 
-    event NFTCreated(address owner, uint256 tokenId, string tokenCID);
+    event NFTCreated(
+        address owner,
+        uint256 tokenID,
+        string tokenCID
+    );
 
-    // event NFTTransfered(
-    //     address indexed from,
-    //     address indexed to,
-    //     uint256 indexed tokenId,
-    //     uint256 timestamp
-    // );
-
-    constructor(
+    constructor( 
         string memory _name,
         string memory _symbol,
         address payable _owner,
@@ -64,12 +60,13 @@ contract DefiForYouNFT is
         onlyRole(MINTER_ROLE)
     {
         uint256 tokenID = _tokenIdCounter.current();
-        _safeMint(_owner, tokenID);
-        CIDByToken[tokenID] = _tokenCID;
+        _safeMint(_to, tokenID);
 
+        _setTokenURI(tokenID, _cid);
+        
         _tokenIdCounter.increment();
 
-        emit NFTCreated(msg.sender, tokenID, _tokenCID);
+        emit NFTCreated(_to, tokenID, _cid);
     }
 
     function tokensOfOwner(address _owner)
@@ -101,16 +98,6 @@ contract DefiForYouNFT is
     function _baseURI() internal pure override returns (string memory) {
         return CollectionURI;
     }
-
-    // function safeTransferFrom(
-    //     address from,
-    //     address to,
-    //     uint256 tokenId
-    // ) public virtual override {
-    //     safeTransferFrom(from, to, tokenId, "");
-
-    //     emit NFTTransfered(from, to, tokenId, block.timestamp);
-    // }
 
     // The following functions are overrides required by Solidity.
 
