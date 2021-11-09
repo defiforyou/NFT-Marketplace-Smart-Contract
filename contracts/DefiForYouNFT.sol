@@ -29,7 +29,6 @@ contract DefiForYouNFT is
     address payable public originalCreator;
     uint256 public defaultRoyaltyRate;
     string public collectionCID;
-    mapping(uint256 => string) public CIDByToken;
     mapping(uint256 => uint256) public royaltyRateByToken;
 
     event NFTCreated(
@@ -58,7 +57,8 @@ contract DefiForYouNFT is
     function safeMint(address _to, string memory _cid) public onlyRole(MINTER_ROLE) {
         uint256 tokenID = _tokenIdCounter.current();
         _safeMint(_to, tokenID);
-        CIDByToken[tokenID] = _cid;
+
+        _setTokenURI(tokenID, _cid);
         
         _tokenIdCounter.increment();
 
