@@ -55,7 +55,7 @@ contract DefiForYouNFT is
         factory = msg.sender;
     }
 
-    function safeMint(address _owner, string memory _tokenCID)
+    function safeMint(address _to, string memory _cid)
         public
         onlyRole(MINTER_ROLE)
     {

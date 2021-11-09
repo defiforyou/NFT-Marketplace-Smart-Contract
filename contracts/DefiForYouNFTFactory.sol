@@ -96,7 +96,7 @@ contract DefiForYouNFTFactory is
         uint256 _royaltyRate,
         string memory _collectionCID
     ) external onlyRole(OPERATOR_ROLE) returns (address newCollection) {
-        DefiForYouNFT newCollection = new DefiForYouNFT(
+        DefiForYouNFT dfyNFT = new DefiForYouNFT(
             _name,
             _symbol,
             payable(msg.sender),
@@ -104,14 +104,16 @@ contract DefiForYouNFTFactory is
             _collectionCID
         );
 
-        collectionsByOwner[msg.sender].push(newCollection);
+        collectionsByOwner[msg.sender].push(dfyNFT);
+
+        newCollection = address(dfyNFT);
 
         if (collectionCreatingFee > 0) {
             // TODO: transfer minting fee in crypto to fee wallet
         }
 
         emit CollectionCreated(
-            address(newCollection),
+            newCollection,
             msg.sender,
             _name,
             _symbol,
