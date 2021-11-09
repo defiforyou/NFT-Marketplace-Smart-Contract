@@ -21,9 +21,10 @@ contract DefiForYouNFT is
     // Define Minter role
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    string public constant CollectionURI = "https://defiforyou.mypinata.cloud/ipfs/";
+    string public constant CollectionURI =
+        "https://defiforyou.mypinata.cloud/ipfs/";
     uint256 public constant ZOOM = 10**5;
-    
+
     Counters.Counter private _tokenIdCounter;
     address public factory;
     address payable public originalCreator;
@@ -32,56 +33,57 @@ contract DefiForYouNFT is
     mapping(uint256 => string) public CIDByToken;
     mapping(uint256 => uint256) public royaltyRateByToken;
 
-    event NFTCreated(
-        address owner,
-        uint256 tokenID,
-        string tokenCID,
-        uint256 createdTime
-    );
+    event NFTCreated(address owner, uint256 tokenId, string tokenCID);
 
     // event NFTTransfered(
-    //     address indexed from, 
-    //     address indexed to, 
+    //     address indexed from,
+    //     address indexed to,
     //     uint256 indexed tokenId,
     //     uint256 timestamp
     // );
 
-    constructor( 
+    constructor(
         string memory _name,
         string memory _symbol,
         address payable _owner,
         uint256 _royaltyRate,
-        string memory _cid
+        string memory _collectionCID
     ) ERC721(_name, _symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
         _setupRole(MINTER_ROLE, _owner);
 
         originalCreator = _owner;
         defaultRoyaltyRate = _royaltyRate;
-        collectionCID = _cid;
+        collectionCID = _collectionCID;
 
         factory = msg.sender;
     }
 
-    function safeMint(address _to, string memory _cid) public onlyRole(MINTER_ROLE) {
+    function safeMint(address _owner, string memory _tokenCID)
+        public
+        onlyRole(MINTER_ROLE)
+    {
         uint256 tokenID = _tokenIdCounter.current();
-        _safeMint(_to, tokenID);
-        CIDByToken[tokenID] = _cid;
-        
+        _safeMint(_owner, tokenID);
+        CIDByToken[tokenID] = _tokenCID;
+
         _tokenIdCounter.increment();
 
-        emit NFTCreated(_to, tokenID, _cid, block.timestamp);
+        emit NFTCreated(msg.sender, tokenID, _tokenCID);
     }
 
-    function tokensOfOwner(address _owner) external view returns (uint256[] memory) {
+    function tokensOfOwner(address _owner)
+        external
+        view
+        returns (uint256[] memory)
+    {
         // get the number of token being hold by _owner
         uint256 tokenCount = balanceOf(_owner);
 
         if (tokenCount == 0) {
             // If _owner has no balance return an empty array
-            return new uint[](0);
-        }
-        else {
+            return new uint256[](0);
+        } else {
             // Query _owner's tokens by index and add them to the token array
             uint256[] memory tokenList = new uint256[](tokenCount);
             for (uint256 i = 0; i < tokenCount; i++) {
@@ -106,7 +108,7 @@ contract DefiForYouNFT is
     //     uint256 tokenId
     // ) public virtual override {
     //     safeTransferFrom(from, to, tokenId, "");
-        
+
     //     emit NFTTransfered(from, to, tokenId, block.timestamp);
     // }
 

@@ -21,13 +21,13 @@ contract DefiForYouNFTFactory is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
-    mapping(address => mapping(uint256 => DefiForYouNFT))
-        public collectionsByOwner;
-    mapping(address => uint256) public numberOfCollectionByOwner;
+    mapping(address => DefiForYouNFT[]) public collectionsByOwner;
     mapping(address => bool) public whitelistedFeeTokens;
 
     uint256 public collectionCreatingFee;
     address public feeWallet;
+
+    // uint256 public indexOfCollection;
 
     function initialize() public initializer {
         __UUPSUpgradeable_init();
@@ -68,12 +68,20 @@ contract DefiForYouNFTFactory is
         whitelistedFeeTokens[_feeToken] = whitelistStatus;
     }
 
+    function setFeeWallet(address wallet)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        feeWallet = wallet;
+    }
+
     /** ==================== NFT collection operation ==================== */
     enum CollectionStatus {
         OPEN
     }
 
     event CollectionCreated(
+        address collection,
         address creator,
         string name,
         string symbol,
@@ -86,35 +94,29 @@ contract DefiForYouNFTFactory is
         string memory _name,
         string memory _symbol,
         uint256 _royaltyRate,
-        string memory _cid
+        string memory _collectionCID
     ) external onlyRole(OPERATOR_ROLE) returns (address newCollection) {
-        uint256 totalCollectionByOwner = numberOfCollectionByOwner[msg.sender];
-        collectionsByOwner[msg.sender][
-            totalCollectionByOwner
-        ] = new DefiForYouNFT(
+        DefiForYouNFT newCollection = new DefiForYouNFT(
             _name,
             _symbol,
             payable(msg.sender),
             _royaltyRate,
-            _cid
+            _collectionCID
         );
 
-        ++numberOfCollectionByOwner[msg.sender];
+        collectionsByOwner[msg.sender].push(newCollection);
 
         if (collectionCreatingFee > 0) {
             // TODO: transfer minting fee in crypto to fee wallet
         }
 
-        newCollection = address(
-            collectionsByOwner[msg.sender][totalCollectionByOwner]
-        );
-
         emit CollectionCreated(
+            address(newCollection),
             msg.sender,
             _name,
             _symbol,
             _royaltyRate,
-            _cid,
+            _collectionCID,
             CollectionStatus.OPEN
         );
     }
