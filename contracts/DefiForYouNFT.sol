@@ -35,16 +35,8 @@ contract DefiForYouNFT is
     event NFTCreated(
         address owner,
         uint256 tokenID,
-        string tokenCID,
-        uint256 createdTime
+        string tokenCID
     );
-
-    // event NFTTransfered(
-    //     address indexed from, 
-    //     address indexed to, 
-    //     uint256 indexed tokenId,
-    //     uint256 timestamp
-    // );
 
     constructor( 
         string memory _name,
@@ -70,7 +62,7 @@ contract DefiForYouNFT is
         
         _tokenIdCounter.increment();
 
-        emit NFTCreated(_to, tokenID, _cid, block.timestamp);
+        emit NFTCreated(_to, tokenID, _cid);
     }
 
     function tokensOfOwner(address _owner) external view returns (uint256[] memory) {
@@ -99,16 +91,6 @@ contract DefiForYouNFT is
     function _baseURI() internal pure override returns (string memory) {
         return CollectionURI;
     }
-
-    // function safeTransferFrom(
-    //     address from,
-    //     address to,
-    //     uint256 tokenId
-    // ) public virtual override {
-    //     safeTransferFrom(from, to, tokenId, "");
-        
-    //     emit NFTTransfered(from, to, tokenId, block.timestamp);
-    // }
 
     // The following functions are overrides required by Solidity.
 
