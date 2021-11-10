@@ -1,0 +1,9 @@
+{
+    "DefaultSettings": {
+        "Name": "DefiForYou_Soft_NFT",
+        "Symbol": "DFY-NFT",
+        "Owner": "0x832dbe8bCB706F6ab0aC1C3d4C13c739FA7B8f6F",
+        "Royalty": 0,
+        "CollectionCID": "QmTgmpjvyvenyYw8MkCQYobaWn1qjaKmmec5EDKnPu6ZLx"
+    }
+}

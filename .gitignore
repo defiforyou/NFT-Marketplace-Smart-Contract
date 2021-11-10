@@ -7,3 +7,4 @@ artifacts
 .secret.json
 package-lock.json
 .env
+metadata_template/collectionURI-010-test.json

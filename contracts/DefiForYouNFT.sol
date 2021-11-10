@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 contract DefiForYouNFT is
     ERC721,
@@ -17,15 +18,16 @@ contract DefiForYouNFT is
     AccessControl
 {
     using Counters for Counters.Counter;
+    using Address for address;
 
     // Define Minter role
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    string public constant CollectionURI =
+    string public constant CollectionBaseURI =
         "https://defiforyou.mypinata.cloud/ipfs/";
-    uint256 public constant ZOOM = 10**5;
 
     Counters.Counter private _tokenIdCounter;
+
     address public factory;
     address payable public originalCreator;
     uint256 public defaultRoyaltyRate;
@@ -37,6 +39,18 @@ contract DefiForYouNFT is
         uint256 tokenID,
         uint256 royaltyRate,
         string tokenCID
+    );
+
+    event CollectionRoyaltyRateChanged(
+        uint256 previousRoyaltyRate,
+        uint256 newRoyaltyRate
+    );
+
+    event TokenRoyaltyRateChanged(
+        uint256 tokenId,
+        uint256 previousTokenRoyaltyRate,
+        uint256 newTokenRoyaltyRate,
+        address owner
     );
 
     constructor(
@@ -53,21 +67,26 @@ contract DefiForYouNFT is
         defaultRoyaltyRate = _royaltyRate;
         collectionCID = _collectionCID;
 
-        factory = msg.sender;
+        if (msg.sender.isContract()) {
+            factory = msg.sender;
+        }
     }
 
     function safeMint(
-        address payable _owner,
-        uint256 _royaltyRate,
-        string memory _tokenCID
-    ) public onlyRole(MINTER_ROLE) {
+        address owner,
+        uint256 royaltyRate,
+        string memory tokenCID
+    ) external onlyRole(MINTER_ROLE) {
         uint256 tokenID = _tokenIdCounter.current();
-        _safeMint(_owner, tokenID);
-        _setTokenURI(tokenID, _tokenCID);
-        _tokenIdCounter.increment();
-        royaltyRateByToken[tokenID] = _royaltyRate;
+        _safeMint(owner, tokenID);
 
-        emit NFTCreated(_owner, tokenID, _royaltyRate, _tokenCID);
+        _setTokenURI(tokenID, tokenCID);
+
+        royaltyRateByToken[tokenID] = royaltyRate;
+
+        _tokenIdCounter.increment();
+
+        emit NFTCreated(owner, tokenID, royaltyRate, tokenCID);
     }
 
     function tokensOfOwner(address _owner)
@@ -92,12 +111,33 @@ contract DefiForYouNFT is
         }
     }
 
+    function setCollectionDefaultRoyaltyRate(uint256 newRoyaltyRate)
+        external 
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        uint256 currentRoyaltyRate = defaultRoyaltyRate;
+
+        defaultRoyaltyRate = newRoyaltyRate;
+
+        emit CollectionRoyaltyRateChanged(currentRoyaltyRate, newRoyaltyRate);
+    }
+
+    function setTokenRoyaltyRate(uint256 tokenId, uint256 newRoyaltyRate) external {
+        address owner = ERC721.ownerOf(tokenId);
+        require(msg.sender == owner, "DFY-NFT: Token ownership is required");
+        
+        uint256 currentTokenRoyaltyRate = royaltyRateByToken[tokenId];
+        royaltyRateByToken[tokenId] = newRoyaltyRate;
+
+        emit TokenRoyaltyRateChanged(tokenId, currentTokenRoyaltyRate, newRoyaltyRate, owner);
+    }
+
     function contractURI() public view returns (string memory) {
         return string(abi.encodePacked(_baseURI(), collectionCID));
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return CollectionURI;
+        return CollectionBaseURI;
     }
 
     // The following functions are overrides required by Solidity.
