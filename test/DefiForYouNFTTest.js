@@ -106,7 +106,7 @@ describe("Deploy DFY Factory", (done) => {
             expect(defaultRoyaltyRate).to.equal(_royaltyRate); // royalty 
             expect(factory.toString()).to.equal(_DFYFactoryContract.address); // factory
             expect(_royaltyRateDFY).to.equal(royaltyRateNFT); // royaltyRate NFT
-            expect(defaultRoyaltyRate).to.equal(_royaltyRate); // royaltyRate Factory
+            expect(defaultRoyalty).to.equal(_royaltyRate); // royaltyRate Factory
         });
     });
 });
