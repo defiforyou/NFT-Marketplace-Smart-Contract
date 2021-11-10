@@ -52,6 +52,8 @@ module.exports = {
     },
     bsctest: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      // url: "https://speedy-nodes-nyc.moralis.io/0754f82e57bb3af6fd3b97b7/bsc/testnet",
+
       chainId: 97,
       gas: 8812388,
       // gasPrice: 20000000000,
