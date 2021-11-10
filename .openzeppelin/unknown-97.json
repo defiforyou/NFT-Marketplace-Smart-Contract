@@ -15,6 +15,11 @@
       "address": "0xfBa7bFDbFA769cD1C9CF977Dada1131F36F362A1",
       "txHash": "0xfa3fd49304f17a0f28427e286d6e2647c36f5ed30b357d07c15f07b0f8e8e06f",
       "kind": "uups"
+    },
+    {
+      "address": "0x46dF77abf626C28714bB096829Ee886f6473afb8",
+      "txHash": "0x58bb47908aa0a4a4b003057ec199fe43eb72d7977ff5084874d4c9b0a72f6484",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -250,6 +255,146 @@
             "label": "contract DefiForYouNFT[]"
           },
           "t_contract(DefiForYouNFT)5477": {
+            "label": "contract DefiForYouNFT"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)43_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_struct(RoleData)43_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32"
+              }
+            ]
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "a210c8b085589b05e086c92350b8e6b2b2965180d3c593012f7f977598f440b3": {
+      "address": "0xf43523eD98401018f230AcdD7bd2162D4d67e456",
+      "txHash": "0x00a0b47db4a9e56866f266f81e863f709874a1c4e0291f3d0683b3d07fe76aed",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:214"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:80"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:35"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)43_storage)",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:63"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:219"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "DefiForYouNFTFactory",
+            "label": "collectionsByOwner",
+            "type": "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)5048)dyn_storage)",
+            "src": "contracts/DefiForYouNFTFactory.sol:24"
+          },
+          {
+            "contract": "DefiForYouNFTFactory",
+            "label": "whitelistedFeeTokens",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/DefiForYouNFTFactory.sol:25"
+          },
+          {
+            "contract": "DefiForYouNFTFactory",
+            "label": "collectionCreatingFee",
+            "type": "t_uint256",
+            "src": "contracts/DefiForYouNFTFactory.sol:27"
+          },
+          {
+            "contract": "DefiForYouNFTFactory",
+            "label": "feeWallet",
+            "type": "t_address",
+            "src": "contracts/DefiForYouNFTFactory.sol:28"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)5048)dyn_storage)": {
+            "label": "mapping(address => contract DefiForYouNFT[])"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_contract(DefiForYouNFT)5048)dyn_storage": {
+            "label": "contract DefiForYouNFT[]"
+          },
+          "t_contract(DefiForYouNFT)5048": {
             "label": "contract DefiForYouNFT"
           },
           "t_mapping(t_address,t_bool)": {
