@@ -1,7 +1,6 @@
 const hre = require('hardhat');
+const { DefaultSettings } = require('./.deployment_data_test.json');
 const NFTCollectionBuildName = "DefiForYouNFT";
-
-const collectionOwner = "0x55F163E6fbF8165E9efc5941d0F76b8D0F6C1A95";
 
 const decimals = 10 ** 18;
 
@@ -16,12 +15,12 @@ async function main() {
     const NFTCollectionFactory = await hre.ethers.getContractFactory(NFTCollectionBuildName);
     const NFTCollectionArtifact = await hre.artifacts.readArtifact(NFTCollectionBuildName);
 
-    const NFTCollectionContract = await NFTCollectionFactory.deploy(
-        "DefiForYou_Soft_NFT",
-        "DFYNFT",
-        collectionOwner,
-        1000,
-        "QmPYA8eJCgh4WJohWqSa3XtUwBBnRbpa22S1wt1H1JrUr6"
+    const NFTCollectionContract  = await NFTCollectionFactory.deploy(
+        DefaultSettings.Name,           // Token name
+        DefaultSettings.Symbol,         // Token symbol
+        DefaultSettings.Owner,          // Collection owner
+        DefaultSettings.Royalty,        // Royalty rate
+        DefaultSettings.CollectionCID   // Collection CID
     );
 
     await NFTCollectionContract.deployed();

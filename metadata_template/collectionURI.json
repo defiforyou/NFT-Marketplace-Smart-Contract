@@ -1,11 +1,11 @@
 {
     "name": "DefiForYou NFT collection",
     "description": "",
-    "image": "https://", # Image URL 
+    "image": "https://defiforyou.mypinata.cloud/ipfs/", # Image URL 
     "external_link": "",
     "cover_cid": "", # Cover image CID 
     "avatar_cid": "", # Avatar image CID
     "feature_cid": "", # Feature image CID
-    "seller_fee_basis_points": 100, # Indicates a 1% seller fee. 
+    "seller_fee_basis_points": 100, # Indicates a 1% seller fee.
     "fee_recipient": "", # Where seller fees will be paid to.
 }
