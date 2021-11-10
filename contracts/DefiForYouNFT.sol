@@ -35,10 +35,11 @@ contract DefiForYouNFT is
     event NFTCreated(
         address owner,
         uint256 tokenID,
+        uint256 royaltyRate,
         string tokenCID
     );
 
-    constructor( 
+    constructor(
         string memory _name,
         string memory _symbol,
         address payable _owner,
@@ -55,18 +56,18 @@ contract DefiForYouNFT is
         factory = msg.sender;
     }
 
-    function safeMint(address _to, string memory _cid)
-        public
-        onlyRole(MINTER_ROLE)
-    {
+    function safeMint(
+        address payable _owner,
+        uint256 _royaltyRate,
+        string memory _tokenCID
+    ) public onlyRole(MINTER_ROLE) {
         uint256 tokenID = _tokenIdCounter.current();
-        _safeMint(_to, tokenID);
-
-        _setTokenURI(tokenID, _cid);
-        
+        _safeMint(_owner, tokenID);
+        _setTokenURI(tokenID, _tokenCID);
         _tokenIdCounter.increment();
+        royaltyRateByToken[tokenID] = _royaltyRate;
 
-        emit NFTCreated(_to, tokenID, _cid);
+        emit NFTCreated(_owner, tokenID, _royaltyRate, _tokenCID);
     }
 
     function tokensOfOwner(address _owner)

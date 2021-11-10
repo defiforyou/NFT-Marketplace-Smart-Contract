@@ -1,6 +1,7 @@
 require('@nomiclabs/hardhat-ethers');
 
 const hre = require('hardhat');
+const decimals = 10 ** 18;
 
 const CollectionMgrBuildName = "DefiForYouNFTFactory";
 

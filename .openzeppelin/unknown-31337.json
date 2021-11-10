@@ -3,14 +3,14 @@
   "proxies": [
     {
       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0xfec5777fe6cb1c812ba2a3c5cda0793febaa58f3b54068e73883968f3a4f8195",
+      "txHash": "0x0ddcded082d46619483a0a6a25186e19b8c81f7c1033543244d8eed64e86a196",
       "kind": "uups"
     }
   ],
   "impls": {
-    "b1bccd01f98d3e42915c0a388bf0d4ed2118144784c38c5790c6bf4e5337cbb8": {
+    "0bcbfcffcae7ac7660353feba63696d44a4143dcd46f73374b2065dbdcc1e519": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0xbe4c61a2daeafe7331d96c65031d73e62b9aae39bb3ffd10ebad7410c2624984",
+      "txHash": "0xcbb1f76bc9341b0fa54f90b9a1778f960bf251727f5ae0c5e54161bca59debd4",
       "layout": {
         "storage": [
           {
@@ -76,7 +76,7 @@
           {
             "contract": "DefiForYouNFTFactory",
             "label": "collectionsByOwner",
-            "type": "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)4958)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)5488)dyn_storage)",
             "src": "contracts\\DefiForYouNFTFactory.sol:24"
           },
           {
@@ -99,16 +99,16 @@
           }
         ],
         "types": {
-          "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)4958)dyn_storage)": {
+          "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)5488)dyn_storage)": {
             "label": "mapping(address => contract DefiForYouNFT[])"
           },
           "t_address": {
             "label": "address"
           },
-          "t_array(t_contract(DefiForYouNFT)4958)dyn_storage": {
+          "t_array(t_contract(DefiForYouNFT)5488)dyn_storage": {
             "label": "contract DefiForYouNFT[]"
           },
-          "t_contract(DefiForYouNFT)4958": {
+          "t_contract(DefiForYouNFT)5488": {
             "label": "contract DefiForYouNFT"
           },
           "t_mapping(t_address,t_bool)": {
