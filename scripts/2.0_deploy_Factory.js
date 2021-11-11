@@ -9,7 +9,7 @@ const proxyType = { kind: "uups" };
 
 
 async function main() {
-    const [deployer, proxyAdmin] = await hre.ethers.getSigners();
+    const [deployer] = await hre.ethers.getSigners();
 
     console.log("============================================================\n\r");
     console.log("Deploying contracts with the account:", deployer.address);

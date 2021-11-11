@@ -15,7 +15,7 @@ async function main() {
     const NFTCollectionFactory = await hre.ethers.getContractFactory(NFTCollectionBuildName);
     const NFTCollectionArtifact = await hre.artifacts.readArtifact(NFTCollectionBuildName);
 
-    const NFTCollectionContract  = await NFTCollectionFactory.deploy(
+    const NFTCollectionContract = await NFTCollectionFactory.deploy(
         DefaultSettings.Name,           // Token name
         DefaultSettings.Symbol,         // Token symbol
         DefaultSettings.Owner,          // Collection owner
