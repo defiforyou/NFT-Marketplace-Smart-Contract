@@ -46,13 +46,6 @@ contract DefiForYouNFT is
         uint256 newRoyaltyRate
     );
 
-    event TokenRoyaltyRateChanged(
-        uint256 tokenId,
-        uint256 previousTokenRoyaltyRate,
-        uint256 newTokenRoyaltyRate,
-        address owner
-    );
-
     constructor(
         string memory _name,
         string memory _symbol,
