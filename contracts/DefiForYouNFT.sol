@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 contract DefiForYouNFT is
     ERC721,
@@ -17,15 +18,16 @@ contract DefiForYouNFT is
     AccessControl
 {
     using Counters for Counters.Counter;
+    using Address for address;
 
     // Define Minter role
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    string public constant CollectionURI =
+    string public constant CollectionBaseURI =
         "https://defiforyou.mypinata.cloud/ipfs/";
-    uint256 public constant ZOOM = 10**5;
 
     Counters.Counter private _tokenIdCounter;
+
     address public factory;
     address payable public originalCreator;
     uint256 public defaultRoyaltyRate;
@@ -35,10 +37,16 @@ contract DefiForYouNFT is
     event NFTCreated(
         address owner,
         uint256 tokenID,
+        uint256 royaltyRate,
         string tokenCID
     );
 
-    constructor( 
+    event CollectionRoyaltyRateChanged(
+        uint256 previousRoyaltyRate,
+        uint256 newRoyaltyRate
+    );
+
+    constructor(
         string memory _name,
         string memory _symbol,
         address payable _owner,
@@ -52,23 +60,38 @@ contract DefiForYouNFT is
         defaultRoyaltyRate = _royaltyRate;
         collectionCID = _collectionCID;
 
-        factory = msg.sender;
+        if (msg.sender.isContract()) {
+            factory = msg.sender;
+        }
     }
 
-    function safeMint(address _owner, string memory _tokenCID)
-        public
-        onlyRole(MINTER_ROLE)
-    {
+    /**
+     * @dev Mint an NFT token and transfer to a user address
+     * @param owner is the owner of the token being minted
+     * @param royaltyRate is the percentage of the NFT's value that will be paid to the collection creator when it is sold
+     * @param tokenCID is the CID string acquired when uploading collection's metadata file to IPFS
+     */
+    function safeMint(
+        address owner,
+        uint256 royaltyRate,
+        string memory tokenCID
+    ) external onlyRole(MINTER_ROLE) {
         uint256 tokenID = _tokenIdCounter.current();
-        _safeMint(_to, tokenID);
+        _safeMint(owner, tokenID);
 
-        _setTokenURI(tokenID, _cid);
-        
+        _setTokenURI(tokenID, tokenCID);
+
+        royaltyRateByToken[tokenID] = royaltyRate;
+
         _tokenIdCounter.increment();
 
-        emit NFTCreated(_to, tokenID, _cid);
+        emit NFTCreated(owner, tokenID, royaltyRate, tokenCID);
     }
 
+    /**
+     * @dev get all tokens held by a user address
+     * @param _owner is the token holder
+     */
     function tokensOfOwner(address _owner)
         external
         view
@@ -91,12 +114,27 @@ contract DefiForYouNFT is
         }
     }
 
+    /**
+     * @dev set the default royalty rate of the collection
+     * @param newRoyaltyRate is the value being set as collection's default royalty rate
+     */
+    function setCollectionDefaultRoyaltyRate(uint256 newRoyaltyRate)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        uint256 currentRoyaltyRate = defaultRoyaltyRate;
+
+        defaultRoyaltyRate = newRoyaltyRate;
+
+        emit CollectionRoyaltyRateChanged(currentRoyaltyRate, newRoyaltyRate);
+    }
+
     function contractURI() public view returns (string memory) {
         return string(abi.encodePacked(_baseURI(), collectionCID));
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return CollectionURI;
+        return CollectionBaseURI;
     }
 
     // The following functions are overrides required by Solidity.

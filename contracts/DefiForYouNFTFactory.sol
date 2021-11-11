@@ -18,17 +18,19 @@ contract DefiForYouNFTFactory is
     AccessControlUpgradeable,
     PausableUpgradeable
 {
+    /** ==================== All state variables ==================== */
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
-    mapping(address => DefiForYouNFT[]) public collectionsByOwner;
+    address public feeWallet;
+    uint256 public collectionCreatingFee;
     mapping(address => bool) public whitelistedFeeTokens;
 
-    uint256 public collectionCreatingFee;
-    address public feeWallet;
+    mapping(address => DefiForYouNFT[]) public collectionsByOwner;
 
-    // uint256 public indexOfCollection;
+    // TODO: New state variables must go below this line -----------------------------
 
+    /** ==================== Contract initializing & configuration ==================== */
     function initialize() public initializer {
         __UUPSUpgradeable_init();
         __Pausable_init();
@@ -90,13 +92,20 @@ contract DefiForYouNFTFactory is
         CollectionStatus status
     );
 
+    /**
+     * @dev create new collection using DefiForYouNFT template
+     * @param _name is new collection's name
+     * @param _symbol is new collection's symbol
+     * @param _royaltyRate is new collection's default royalty rate
+     * @param _collectionCID is new collection's metadata CID
+     */
     function createCollection(
         string memory _name,
         string memory _symbol,
         uint256 _royaltyRate,
         string memory _collectionCID
-    ) external onlyRole(OPERATOR_ROLE) returns (address newCollection) {
-        DefiForYouNFT newCollection = new DefiForYouNFT(
+    ) external returns (address newCollection) {
+        DefiForYouNFT dfyNFT = new DefiForYouNFT(
             _name,
             _symbol,
             payable(msg.sender),
@@ -104,14 +113,16 @@ contract DefiForYouNFTFactory is
             _collectionCID
         );
 
-        collectionsByOwner[msg.sender].push(newCollection);
+        collectionsByOwner[msg.sender].push(dfyNFT);
+
+        newCollection = address(dfyNFT);
 
         if (collectionCreatingFee > 0) {
             // TODO: transfer minting fee in crypto to fee wallet
         }
 
         emit CollectionCreated(
-            address(newCollection),
+            newCollection,
             msg.sender,
             _name,
             _symbol,

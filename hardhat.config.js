@@ -5,7 +5,7 @@ require("@nomiclabs/hardhat-web3");
 require("@openzeppelin/hardhat-upgrades");
 require("hardhat-contract-sizer");
 
-const { InfuraKey, mnemonic, Wallet, BscScanApiKey, EtherscanApiKey } = require('./.secret.json');
+const { InfuraKey, mnemonic, Wallet, BscScanApiKey, EtherscanApiKey, PrivateKey } = require('./.secret.json');
 
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -52,10 +52,12 @@ module.exports = {
     },
     bsctest: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      // url: "https://speedy-nodes-nyc.moralis.io/0754f82e57bb3af6fd3b97b7/bsc/testnet",
+
       chainId: 97,
       gas: 8812388,
       // gasPrice: 20000000000,
-      accounts: { mnemonic: mnemonic },
+      accounts: PrivateKey,
       from: Wallet
     },
     mainnet: {
@@ -74,8 +76,7 @@ module.exports = {
       optimizer: {
         enabled: true,
         runs: 200
-      },
-      // evmVersion: "byzantium"
+      }
     }
   },
   paths: {
