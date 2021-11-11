@@ -3,7 +3,7 @@ const Web3 = require('web3');
 const web3 = new Web3("https://data-seed-prebsc-1-s1.binance.org:8545");
 
 const { Proxies } = require('../.deployment_data_test.json');
-const proxies = Proxies.Test2;
+const proxies = Proxies.Test1;
 
 var FactoryContract = require('../../artifacts/contracts/DefiForYouNFTFactory.sol/DefiForYouNFTFactory.json');
 var factory = new web3.eth.Contract(FactoryContract.abi, proxies.NFT_FACTORY_ADDRESS);

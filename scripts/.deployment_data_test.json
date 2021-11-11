@@ -8,7 +8,7 @@
     },
     "Proxies": {
         "Test1": {
-            "NFT_FACTORY_ADDRESS": "0x46dF77abf626C28714bB096829Ee886f6473afb8"
+            "NFT_FACTORY_ADDRESS": "0x4DDc1Fb968D0a5E4A172A75aB195edb5e041Feb4"
         },
         "Test2": {
             "NFT_FACTORY_ADDRESS": "0x23fedc388a7c61bb8d277486d3e9a8fc88c6c5f9"

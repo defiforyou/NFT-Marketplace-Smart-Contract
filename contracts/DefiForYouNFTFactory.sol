@@ -27,6 +27,7 @@ contract DefiForYouNFTFactory is
     mapping(address => bool) public whitelistedFeeTokens;
 
     mapping(address => DefiForYouNFT[]) public collectionsByOwner;
+
     // TODO: New state variables must go below this line -----------------------------
 
     /** ==================== Contract initializing & configuration ==================== */
@@ -92,18 +93,18 @@ contract DefiForYouNFTFactory is
     );
 
     /**
-    * @dev create new collection using DefiForYouNFT template
-    * @param _name is new collection's name
-    * @param _symbol is new collection's symbol
-    * @param _royaltyRate is new collection's default royalty rate
-    * @param _collectionCID is new collection's metadata CID
+     * @dev create new collection using DefiForYouNFT template
+     * @param _name is new collection's name
+     * @param _symbol is new collection's symbol
+     * @param _royaltyRate is new collection's default royalty rate
+     * @param _collectionCID is new collection's metadata CID
      */
     function createCollection(
         string memory _name,
         string memory _symbol,
         uint256 _royaltyRate,
         string memory _collectionCID
-    ) external onlyRole(OPERATOR_ROLE) returns (address newCollection) {
+    ) external returns (address newCollection) {
         DefiForYouNFT dfyNFT = new DefiForYouNFT(
             _name,
             _symbol,
