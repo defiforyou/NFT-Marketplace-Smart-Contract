@@ -72,6 +72,12 @@ contract DefiForYouNFT is
         }
     }
 
+    /**
+     * @dev Mint an NFT token and transfer to a user address
+     * @param owner is the owner of the token being minted
+     * @param royaltyRate is the percentage of the NFT's value that will be paid to the collection creator when it is sold
+     * @param tokenCID is the CID string acquired when uploading collection's metadata file to IPFS
+     */
     function safeMint(
         address owner,
         uint256 royaltyRate,
@@ -89,6 +95,10 @@ contract DefiForYouNFT is
         emit NFTCreated(owner, tokenID, royaltyRate, tokenCID);
     }
 
+    /**
+     * @dev get all tokens held by a user address
+     * @param _owner is the token holder
+     */
     function tokensOfOwner(address _owner)
         external
         view
@@ -111,8 +121,12 @@ contract DefiForYouNFT is
         }
     }
 
+    /**
+     * @dev set the default royalty rate of the collection
+     * @param newRoyaltyRate is the value being set as collection's default royalty rate
+     */
     function setCollectionDefaultRoyaltyRate(uint256 newRoyaltyRate)
-        external 
+        external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         uint256 currentRoyaltyRate = defaultRoyaltyRate;
@@ -120,16 +134,6 @@ contract DefiForYouNFT is
         defaultRoyaltyRate = newRoyaltyRate;
 
         emit CollectionRoyaltyRateChanged(currentRoyaltyRate, newRoyaltyRate);
-    }
-
-    function setTokenRoyaltyRate(uint256 tokenId, uint256 newRoyaltyRate) external {
-        address owner = ERC721.ownerOf(tokenId);
-        require(msg.sender == owner, "DFY-NFT: Token ownership is required");
-        
-        uint256 currentTokenRoyaltyRate = royaltyRateByToken[tokenId];
-        royaltyRateByToken[tokenId] = newRoyaltyRate;
-
-        emit TokenRoyaltyRateChanged(tokenId, currentTokenRoyaltyRate, newRoyaltyRate, owner);
     }
 
     function contractURI() public view returns (string memory) {

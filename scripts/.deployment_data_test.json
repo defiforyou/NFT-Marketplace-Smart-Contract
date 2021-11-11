@@ -5,5 +5,13 @@
         "Owner": "0x832dbe8bCB706F6ab0aC1C3d4C13c739FA7B8f6F",
         "Royalty": 0,
         "CollectionCID": "QmTgmpjvyvenyYw8MkCQYobaWn1qjaKmmec5EDKnPu6ZLx"
+    },
+    "Proxies": {
+        "Test1": {
+            "NFT_FACTORY_ADDRESS": "0x46dF77abf626C28714bB096829Ee886f6473afb8"
+        },
+        "Test2": {
+            "NFT_FACTORY_ADDRESS": "0x23fedc388a7c61bb8d277486d3e9a8fc88c6c5f9"
+        }
     }
 }
