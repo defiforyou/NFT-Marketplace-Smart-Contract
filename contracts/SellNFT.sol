@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -18,7 +17,6 @@ contract SellNFT is
     Initializable,
     UUPSUpgradeable,
     AccessControlUpgradeable,
-    ERC721HolderUpgradeable,
     PausableUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -33,14 +31,12 @@ contract SellNFT is
         uint256 tokenId;
         address collectionAddress;
         address currency;
-        address buyer;
         uint256 price;
-        uint256 royaltyFee;
         uint256 timeOfPurchase;
         uint256 numberOfCopies;
     }
 
-    IBEP20 public ibepDFY;
+    // IBEP20 public ibepDFY;
     IERC721 public assetNFT;
 
     mapping(uint256 => Orders) public orderOf;
@@ -116,7 +112,6 @@ contract SellNFT is
         marketFee = fee;
     }
 
-    // nếu seller muốn thay đổi address collection và currency thì sẽ ntn ?
     function putOnSales(
         uint256 tokenId,
         uint256 price,
@@ -141,11 +136,7 @@ contract SellNFT is
             tokenId: tokenId,
             collectionAddress: collectionAddress,
             currency: currency,
-            buyer: address(0),
             price: price,
-            royaltyFee: DefiForYouNFT(collectionAddress).royaltyRateByToken(
-                tokenId
-            ),
             timeOfPurchase: block.timestamp,
             numberOfCopies: 1
         });
@@ -169,6 +160,9 @@ contract SellNFT is
     }
 
     function buyNFT(uint256 orderId) external payable whenContractNotPaused {
+        // todo : marketFee : 2,5 % of price nft
+        // 10% of royalty Fee
+
         Orders storage obj = orderOf[orderId];
 
         // buyer transfer to contract
@@ -180,20 +174,19 @@ contract SellNFT is
         );
 
         uint256 zoom = 1e5;
-        uint256 royaltyFee = DfyNFTLib.calculateSystemFee(
+
+        uint256 buyNFTFee = DfyNFTLib.calculateSystemFee(
             obj.price,
-            obj.royaltyFee,
+            marketFee,
             zoom
         );
 
-        marketFee = DfyNFTLib.calculateSystemFee(obj.price, marketFee, zoom);
+        // marketFee = DfyNFTLib.calculateSystemFee(obj.price, marketFee, zoom);
 
-        uint256 remainMoney = obj.price.sub(marketFee); // remaining amount after - marketFee
-        uint256 afterN1 = obj.price.sub(marketFee).sub(royaltyFee); // remaining amount after - royaltyFee
+        uint256 remainMoney = obj.price.sub(buyNFTFee); // remaining amount after - marketFee
 
         // if có royalty fee
         if (
-            obj.royaltyFee != 0 &&
             DefiForYouNFT(obj.collectionAddress).originalCreator() == obj.seller
         ) {
             // origin creator pay - 2,5% phí sàn
@@ -202,19 +195,28 @@ contract SellNFT is
                 address(this),
                 obj.seller,
                 remainMoney
-            ); // 87,5 % of NFT to seller
+            ); // 97,5 % of NFT to seller
             DfyNFTLib.safeTransfer(
                 obj.currency,
                 address(this),
                 walletFeeMarket,
-                marketFee
+                buyNFTFee
             ); // 2,5 % of NFT to fee wallet
         } else {
             // if royaltyFee và origin creater != seller
+            uint256 royaltyFee = DfyNFTLib.calculateSystemFee(
+                obj.price,
+                DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
+                    obj.tokenId
+                ),
+                zoom
+            );
+            uint256 afterN1 = obj.price.sub(buyNFTFee).sub(royaltyFee); // remaining amount after - royaltyFee
+
             if (
-                obj.royaltyFee != 0 &&
-                assetNFT.ownerOf(obj.tokenId) !=
-                DefiForYouNFT(obj.collectionAddress).originalCreator()
+                DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
+                    obj.tokenId
+                ) != 0
             ) {
                 DfyNFTLib.safeTransfer(
                     obj.currency,
@@ -222,47 +224,35 @@ contract SellNFT is
                     DefiForYouNFT(obj.collectionAddress).originalCreator(),
                     royaltyFee
                 ); // transfer 10% royaltyFee to origin creator
-
-                DfyNFTLib.safeTransfer(
-                    obj.currency,
-                    address(this),
-                    walletFeeMarket,
-                    marketFee
-                ); // transfer 2,5 % of price NFT for FeeMarket
-
-                DfyNFTLib.safeTransfer(
-                    obj.currency,
-                    address(this),
-                    obj.seller,
-                    afterN1
-                ); // remain transfer to seller
             }
-            // đối với token không có royaltyFee chỉ chịu 2,5 % phí sàn
-            DfyNFTLib.safeTransfer(
-                obj.currency,
-                address(this),
-                obj.seller,
-                remainMoney
-            ); // transfer to seller
+
             DfyNFTLib.safeTransfer(
                 obj.currency,
                 address(this),
                 walletFeeMarket,
-                marketFee
-            ); // transfer to feeWallet
+                buyNFTFee
+            ); // transfer 2,5 % of price NFT for FeeMarket
+
+            DfyNFTLib.safeTransfer(
+                obj.currency,
+                address(this),
+                obj.seller,
+                afterN1
+            ); // remain transfer to seller
         }
 
         assetNFT.safeTransferFrom(address(this), msg.sender, obj.tokenId);
-        obj.buyer = msg.sender;
 
         emit NFTBought(
             orderId,
             obj.tokenId,
             obj.collectionAddress,
-            obj.buyer,
+            msg.sender,
             obj.price,
             marketFee,
-            obj.royaltyFee,
+            DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
+                obj.tokenId
+            ),
             obj.timeOfPurchase,
             OrderStatus.NFT_BOUGHT
         );
