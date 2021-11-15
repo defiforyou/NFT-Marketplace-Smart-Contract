@@ -2,38 +2,49 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "./DefiForYouNFT.sol";
 import "./dfy-nft/DfyNFTLib.sol";
+import "./IBEP20.sol";
 
-contract SellNFT is Ownable, ERC721Holder, Pausable {
-    using SafeERC20 for IERC20;
-    using SafeMath for uint256;
-    IERC721 public assetNFT;
-    using Counters for Counters.Counter;
+contract SellNFT is
+    Initializable,
+    UUPSUpgradeable,
+    AccessControlUpgradeable,
+    ERC721HolderUpgradeable,
+    PausableUpgradeable
+{
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeMathUpgradeable for uint256;
+    using CountersUpgradeable for CountersUpgradeable.Counter;
+
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     struct Orders {
         address payable seller;
-        uint256 orderId;
         uint256 tokenId;
         address collectionAddress;
         address currency;
         address buyer;
         uint256 price;
-        uint256 marketFee;
         uint256 royaltyFee;
         uint256 timeOfPurchase;
         uint256 numberOfCopies;
     }
 
+    IBEP20 public ibepDFY;
+    IERC721 public assetNFT;
+
     mapping(uint256 => Orders) public orderOf;
-    Counters.Counter private _orderIdCounter;
+    CountersUpgradeable.Counter private _orderIdCounter;
 
     uint256 public marketFee;
     address payable public walletFeeMarket;
@@ -69,13 +80,39 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
 
     event NFTCancelSales(uint256 orderId);
 
-    constructor() Ownable() {}
+    function initialize() public initializer {
+        __UUPSUpgradeable_init();
+        __Pausable_init();
 
-    function setFeeWallet(address _walletFeeMarket) public onlyOwner {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(PAUSER_ROLE, msg.sender);
+    }
+
+    modifier whenContractNotPaused() {
+        _whenNotPaused();
+        _;
+    }
+
+    function _whenNotPaused() private view {
+        require(!paused(), "Pausable: paused");
+    }
+
+    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
+    }
+
+    function unPause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _unpause();
+    }
+
+    function setFeeWallet(address _walletFeeMarket)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         walletFeeMarket = payable(_walletFeeMarket);
     }
 
-    function setMarketFee(uint256 fee) public onlyOwner {
+    function setMarketFee(uint256 fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
         marketFee = fee;
     }
 
@@ -85,7 +122,7 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
         uint256 price,
         address currency,
         address collectionAddress
-    ) external {
+    ) external whenContractNotPaused {
         assetNFT = IERC721(collectionAddress);
         require(
             assetNFT.ownerOf(tokenId) == msg.sender,
@@ -95,19 +132,17 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
             assetNFT.getApproved(tokenId) == address(this),
             "tokenId is not approved"
         );
-        require(price >= 0 && price != 0, "invalid price");
+        require(price > 0, "invalid price");
 
         uint256 orderId = _orderIdCounter.current();
 
         orderOf[orderId] = Orders({
             seller: payable(msg.sender),
-            orderId: orderId,
             tokenId: tokenId,
             collectionAddress: collectionAddress,
             currency: currency,
             buyer: address(0),
             price: price,
-            marketFee: marketFee,
             royaltyFee: DefiForYouNFT(collectionAddress).royaltyRateByToken(
                 tokenId
             ),
@@ -128,12 +163,12 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
             obj.numberOfCopies,
             price,
             currency,
-            obj.marketFee,
+            marketFee,
             OrderStatus.ON_SALES
         );
     }
 
-    function buyNFT(uint256 orderId) external payable {
+    function buyNFT(uint256 orderId) external payable whenContractNotPaused {
         Orders storage obj = orderOf[orderId];
 
         // buyer transfer to contract
@@ -151,21 +186,17 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
             zoom
         );
 
-        marketFee = DfyNFTLib.calculateSystemFee(
-            obj.price,
-            obj.marketFee,
-            zoom
-        );
+        marketFee = DfyNFTLib.calculateSystemFee(obj.price, marketFee, zoom);
 
-        uint256 remainMoney = obj.price.sub(marketFee); // remaining amount - số tiền còn lại sau khi trừ phí sàn
-        uint256 afterN1 = obj.price.sub(marketFee).sub(royaltyFee); // số tiền còn lại sau khi trừ phí bản quyền
+        uint256 remainMoney = obj.price.sub(marketFee); // remaining amount after - marketFee
+        uint256 afterN1 = obj.price.sub(marketFee).sub(royaltyFee); // remaining amount after - royaltyFee
 
         // if có royalty fee
         if (
             obj.royaltyFee != 0 &&
             DefiForYouNFT(obj.collectionAddress).originalCreator() == obj.seller
         ) {
-            // origin creator chỉ chịu - 2,5% phí sàn
+            // origin creator pay - 2,5% phí sàn
             DfyNFTLib.safeTransfer(
                 obj.currency,
                 address(this),
@@ -179,7 +210,7 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
                 marketFee
             ); // 2,5 % of NFT to fee wallet
         } else {
-            // if có royaltyFee và origin creater != seller
+            // if royaltyFee và origin creater != seller
             if (
                 obj.royaltyFee != 0 &&
                 assetNFT.ownerOf(obj.tokenId) !=
@@ -222,7 +253,7 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
         }
 
         assetNFT.safeTransferFrom(address(this), msg.sender, obj.tokenId);
-        obj.buyer = msg.sender; // làm thay đổi struct nên sử dụng storage
+        obj.buyer = msg.sender;
 
         emit NFTBought(
             orderId,
@@ -230,14 +261,27 @@ contract SellNFT is Ownable, ERC721Holder, Pausable {
             obj.collectionAddress,
             obj.buyer,
             obj.price,
-            obj.marketFee,
+            marketFee,
             obj.royaltyFee,
             obj.timeOfPurchase,
             OrderStatus.NFT_BOUGHT
         );
     }
 
-    // function cancelListing(uint256 orderId) external {
-    //     Orders memory obj = orderOf[orderId];
-    // }
+    /** ==================== Standard interface function implementations ==================== */
+
+    function _authorizeUpgrade(address)
+        internal
+        override
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {}
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControlUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 }
