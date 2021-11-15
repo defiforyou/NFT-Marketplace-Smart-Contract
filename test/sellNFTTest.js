@@ -32,10 +32,8 @@ describe("Deploy DFY Factory", (done) => {
     let _addressETH = "0xf827916F754297d7fF595e77c8dF8287fDE74BA4";
     let _collectionURI = "https://defiforyou.mypinata.cloud/ipfs/";
     let _contractURI = "https://defiforyou.mypinata.cloud/ipfs/QmZfey7KWSZwwkU4DeBch6jsXSjdNp2UYYhVq4RZYPGr4Z";
-
     let _firstToken = 0;
     let _secondToken = 1;
-
 
     before(async () => {
         [
@@ -69,11 +67,16 @@ describe("Deploy DFY Factory", (done) => {
         );
         _DFYTokenContract = await dfyContract.deployed();
 
-
         // Sell NFT 
         const sellNFTFactory = await hre.ethers.getContractFactory(artifactSellNFT);
-        const sellNFTContract = await sellNFTFactory.deploy();
+        const sellNFTContract = await hre.upgrades.deployProxy(
+            sellNFTFactory,
+            [_zoom],
+            { kind: "uups" }
+
+        );
         _sellNFTContract = await sellNFTContract.deployed();
+        console.log(_sellNFTContract.address, "address SellNFT contract : ");
 
         // DFY NFT
         let getOperatorRole = await _DFYFactoryContract.OPERATOR_ROLE();
@@ -95,11 +98,11 @@ describe("Deploy DFY Factory", (done) => {
             await _tiaContract.connect(_deployer).transfer(_buyer.address, BigInt(10 * 10 ** 18));
             await _tiaContract.connect(_buyer).approve(_sellNFTContract.address, BigInt(10 * 10 ** 18));
 
-            // // safe mint 
+            // safe mint 
             await _DFYContract.connect(_seller).safeMint(_seller.address, 0, _cidOfNFT);
             await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _firstToken);
 
-            // // put on sale 
+            // put on sale 
             await _sellNFTContract.connect(_deployer).setFeeWallet(_feeWallet.address);
             await _sellNFTContract.connect(_deployer).setMarketFee(_marketFee);
             await _sellNFTContract.connect(_seller).putOnSales(_firstToken, _price, _tiaContract.address, _DFYContract.address);
@@ -107,10 +110,9 @@ describe("Deploy DFY Factory", (done) => {
             let spenderOfNFT = await _DFYContract.ownerOf(_firstToken);
             let originRoyaltyFee = await _DFYContract.royaltyRateByToken(_firstToken);
             let marketFee = await _sellNFTContract.marketFee();
-            let info = await _sellNFTContract.orderOf(0);
-            let feeWallet = await _sellNFTContract.walletFeeMarket();
+            let info = await _sellNFTContract.orders(0);
+            let feeWallet = await _sellNFTContract.marketFeeWallet();
             let balanceOfBuyerBeforeBuy = await _tiaContract.balanceOf(_buyer.address);
-
 
             expect(spenderOfNFT === true); // spender 
             expect(info.currency.toString()).to.equal(_tiaContract.address); // currency
@@ -124,7 +126,6 @@ describe("Deploy DFY Factory", (done) => {
             await _sellNFTContract.connect(_buyer).buyNFT(0);
 
             // after buy NFT
-
             let balanceOfFeeWallet = await _tiaContract.balanceOf(_feeWallet.address) / decimals.toString();
             let balanceOfSeller = await _tiaContract.balanceOf(_seller.address) / decimals.toString();
             let balanceOfBuyerAfterBuy = await _tiaContract.balanceOf(_buyer.address);
@@ -146,9 +147,7 @@ describe("Deploy DFY Factory", (done) => {
             expect(balanceOfFeeWallet.toString()).to.equal(feeMarketOfNFT.toString()); // check balance of fee wallet 
             expect(balanceOfSeller.toString()).to.equal(remainMoneyOfSeller.toString()); // check balance of seller 
             expect(spendAmountOfBuyer.toString()).to.equal(info.price.toString()); // check balance of buyer 
-
         });
-
 
         it("put on sale and buy with transaction N1 with royaltyRate of NFT and check it information use BNB", async () => {
 
@@ -188,7 +187,7 @@ describe("Deploy DFY Factory", (done) => {
             console.log("after transaction =====================================================");
 
             let feeGasBuy = 154719399627909;
-            let info = await _sellNFTContract.orderOf(1);
+            let info = await _sellNFTContract.orders(1);
 
             // calculator 
             let spendAmountOfBuyer = BigInt(info.price) + BigInt(feeGasBuy);
@@ -218,9 +217,17 @@ describe("Deploy DFY Factory", (done) => {
 
             // != origin creater of NFT with transaction 
 
-            // await _sellNFTContract.connect(_buyer).putOnSales(_firstToken, _price, , _DFYContract.address);
+            await _DFYTokenContract.transfer(_buyer2.address, BigInt(10 * 10 ** 18));
+            await _DFYTokenContract.approve(_sellNFTContract.address, BigInt(10 * 10 ** 18));
 
-            // await _DFYTokenContract.transfer()
+            await _DFYContract.connect(_buyer2).approve(_sellNFTContract.address, _firstToken);
+
+            await _sellNFTContract.connect(_buyer).putOnSales(_firstToken, _price, _DFYTokenContract.address, _DFYContract.address);
+            await _sellNFTContract.connect(_buyer2).buyNFT(1);
+
+
+
+
 
 
         });

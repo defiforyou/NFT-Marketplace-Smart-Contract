@@ -2,16 +2,17 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "./DefiForYouNFT.sol";
 import "./dfy-nft/DfyNFTLib.sol";
-import "./IBEP20.sol";
 
 contract SellNFT is
     Initializable,
@@ -26,38 +27,30 @@ contract SellNFT is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
-    struct Orders {
-        address payable seller;
-        uint256 tokenId;
+    uint256 public marketFee;
+    address public marketFeeWallet;
+    uint256 public ZOOM;
+
+    CountersUpgradeable.Counter private _orderIdCounter;
+    mapping(uint256 => Order) public orders;
+
+    struct Order {
         address collectionAddress;
-        address currency;
-        uint256 price;
-        uint256 timeOfPurchase;
+        address seller;
+        uint256 tokenId;
         uint256 numberOfCopies;
+        uint256 price;
+        address currency;
     }
 
-    // IBEP20 public ibepDFY;
-    IERC721 public assetNFT;
-
-    mapping(uint256 => Orders) public orderOf;
-    CountersUpgradeable.Counter private _orderIdCounter;
-
-    uint256 public marketFee;
-    address payable public walletFeeMarket;
-
     enum OrderStatus {
-        NFT_BOUGHT,
-        ON_SALES
+        ON_SALES,
+        NFT_BOUGHT
     }
 
     event NFTPutOnSales(
         uint256 orderId,
-        address collection,
-        address owner,
-        uint256 tokenId,
-        uint256 numberOfCopies,
-        uint256 price,
-        address currency,
+        Order order,
         uint256 marketFee,
         OrderStatus orderStatus
     );
@@ -76,12 +69,14 @@ contract SellNFT is
 
     event NFTCancelSales(uint256 orderId);
 
-    function initialize() public initializer {
+    function initialize(uint256 _zoom) public initializer {
         __UUPSUpgradeable_init();
         __Pausable_init();
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(PAUSER_ROLE, msg.sender);
+
+        ZOOM = _zoom;
     }
 
     modifier whenContractNotPaused() {
@@ -101,11 +96,11 @@ contract SellNFT is
         _unpause();
     }
 
-    function setFeeWallet(address _walletFeeMarket)
+    function setFeeWallet(address _feeWallet)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
-        walletFeeMarket = payable(_walletFeeMarket);
+        marketFeeWallet = _feeWallet;
     }
 
     function setMarketFee(uint256 fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -118,52 +113,38 @@ contract SellNFT is
         address currency,
         address collectionAddress
     ) external whenContractNotPaused {
-        assetNFT = IERC721(collectionAddress);
+        //TODO: Extend support to other NFT standards
+
         require(
-            assetNFT.ownerOf(tokenId) == msg.sender,
+            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
             "seller not owner of tokenId"
         );
         require(
-            assetNFT.getApproved(tokenId) == address(this),
+            DefiForYouNFT(collectionAddress).getApproved(tokenId) ==
+                address(this),
             "tokenId is not approved"
         );
         require(price > 0, "invalid price");
 
         uint256 orderId = _orderIdCounter.current();
 
-        orderOf[orderId] = Orders({
-            seller: payable(msg.sender),
-            tokenId: tokenId,
-            collectionAddress: collectionAddress,
-            currency: currency,
-            price: price,
-            timeOfPurchase: block.timestamp,
-            numberOfCopies: 1
-        });
+        Order storage _order = orders[orderId];
+        _order.seller = msg.sender;
+        _order.tokenId = tokenId;
+        _order.collectionAddress = collectionAddress;
+        _order.currency = currency;
+        _order.price = price;
+
+        // TODO: Get number of copies from function input
+        _order.numberOfCopies = 1;
 
         _orderIdCounter.increment();
-        Orders memory obj = orderOf[orderId];
 
-        assetNFT.safeTransferFrom(msg.sender, address(this), tokenId);
-
-        emit NFTPutOnSales(
-            orderId,
-            collectionAddress,
-            msg.sender,
-            tokenId,
-            obj.numberOfCopies,
-            price,
-            currency,
-            marketFee,
-            OrderStatus.ON_SALES
-        );
+        emit NFTPutOnSales(orderId, _order, marketFee, OrderStatus.ON_SALES);
     }
 
     function buyNFT(uint256 orderId) external payable whenContractNotPaused {
-        // todo : marketFee : 2,5 % of price nft
-        // 10% of royalty Fee
-
-        Orders storage obj = orderOf[orderId];
+        Order storage obj = orders[orderId];
 
         // buyer transfer to contract
         DfyNFTLib.safeTransfer(
@@ -173,19 +154,14 @@ contract SellNFT is
             obj.price
         );
 
-        uint256 zoom = 1e5;
-
         uint256 buyNFTFee = DfyNFTLib.calculateSystemFee(
             obj.price,
             marketFee,
-            zoom
+            ZOOM
         );
-
-        // marketFee = DfyNFTLib.calculateSystemFee(obj.price, marketFee, zoom);
-
+        marketFee = DfyNFTLib.calculateSystemFee(obj.price, marketFee, ZOOM);
         uint256 remainMoney = obj.price.sub(buyNFTFee); // remaining amount after - marketFee
 
-        // if có royalty fee
         if (
             DefiForYouNFT(obj.collectionAddress).originalCreator() == obj.seller
         ) {
@@ -199,17 +175,16 @@ contract SellNFT is
             DfyNFTLib.safeTransfer(
                 obj.currency,
                 address(this),
-                walletFeeMarket,
+                marketFeeWallet,
                 buyNFTFee
             ); // 2,5 % of NFT to fee wallet
         } else {
-            // if royaltyFee và origin creater != seller
             uint256 royaltyFee = DfyNFTLib.calculateSystemFee(
                 obj.price,
                 DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
                     obj.tokenId
                 ),
-                zoom
+                ZOOM
             );
             uint256 afterN1 = obj.price.sub(buyNFTFee).sub(royaltyFee); // remaining amount after - royaltyFee
 
@@ -223,13 +198,13 @@ contract SellNFT is
                     address(this),
                     DefiForYouNFT(obj.collectionAddress).originalCreator(),
                     royaltyFee
-                ); // transfer 10% royaltyFee to origin creator
+                ); // remain transfer to origin
             }
 
             DfyNFTLib.safeTransfer(
                 obj.currency,
                 address(this),
-                walletFeeMarket,
+                marketFeeWallet,
                 buyNFTFee
             ); // transfer 2,5 % of price NFT for FeeMarket
 
@@ -241,7 +216,11 @@ contract SellNFT is
             ); // remain transfer to seller
         }
 
-        assetNFT.safeTransferFrom(address(this), msg.sender, obj.tokenId);
+        DefiForYouNFT(obj.collectionAddress).safeTransferFrom(
+            obj.seller,
+            msg.sender,
+            obj.tokenId
+        );
 
         emit NFTBought(
             orderId,
@@ -253,7 +232,7 @@ contract SellNFT is
             DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
                 obj.tokenId
             ),
-            obj.timeOfPurchase,
+            block.timestamp,
             OrderStatus.NFT_BOUGHT
         );
     }
