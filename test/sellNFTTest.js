@@ -8,8 +8,6 @@ const { expect, assert } = require("chai");
 const BNB_ADDRESS = "0x0000000000000000000000000000000000000000";
 const decimals = 10 ** 18;
 
-
-
 describe("Deploy DFY Factory", (done) => {
 
     let _DFYFactoryContract = null;
@@ -23,17 +21,18 @@ describe("Deploy DFY Factory", (done) => {
     let _royaltyRateFactory = 2000;
     let _royaltyRateDFY = 10 * 10 ** 5;
     let _zoom = 1e5;
+    let _royaltyFee = 10 * 10 ** 5;
     let _marketFee = 2.5 * 10 ** 5; // 2,5 % 
     let _price = BigInt(1 * 10 ** 18);
     let _cidOfCollection = "QmZfey7KWSZwwkU4DeBch6jsXSjdNp2UYYhVq4RZYPGr4Z";
     let _cidOfNFT = "QmbDE5EDoiGAYLTQzmftDx96L4UDMT6Ra2km5HqtU89JWn";
     let _feeCreateCollection = 1000;
-    let _addressBNB = "0x0000000000000000000000000000000000000000";
-    let _addressETH = "0xf827916F754297d7fF595e77c8dF8287fDE74BA4";
     let _collectionURI = "https://defiforyou.mypinata.cloud/ipfs/";
     let _contractURI = "https://defiforyou.mypinata.cloud/ipfs/QmZfey7KWSZwwkU4DeBch6jsXSjdNp2UYYhVq4RZYPGr4Z";
     let _firstToken = 0;
     let _secondToken = 1;
+    let _thirdToken = 2;
+    let _fourthToken = 3;
 
     before(async () => {
         [
@@ -105,7 +104,7 @@ describe("Deploy DFY Factory", (done) => {
             // put on sale 
             await _sellNFTContract.connect(_deployer).setFeeWallet(_feeWallet.address);
             await _sellNFTContract.connect(_deployer).setMarketFeeRate(_marketFee);
-            await _sellNFTContract.connect(_seller).putOnSales(_firstToken, _price, _tiaContract.address, _DFYContract.address);
+            await _sellNFTContract.connect(_seller).putOnSales(_firstToken, 1, _price, _tiaContract.address, _DFYContract.address);
 
             let spenderOfNFT = await _DFYContract.ownerOf(_firstToken);
             let originRoyaltyFee = await _DFYContract.royaltyRateByToken(_firstToken);
@@ -123,7 +122,7 @@ describe("Deploy DFY Factory", (done) => {
             expect(marketFee.toString()).to.equal(_marketFee.toString()); // marketFee
 
             // buy NFT 
-            await _sellNFTContract.connect(_buyer).buyNFT(0);
+            await _sellNFTContract.connect(_buyer).buyNFT(0, 1);
 
             // after buy NFT
             let balanceOfFeeWallet = await _tiaContract.balanceOf(_feeWallet.address) / decimals.toString();
@@ -156,36 +155,44 @@ describe("Deploy DFY Factory", (done) => {
         it("put on sale and buy with transaction N2 with royaltyRate of NFT and check it information use Bep 20", async () => {
 
             // mintNFT with royalty fee and test it 
-
             await _DFYTokenContract.connect(_deployer).transfer(_buyer.address, BigInt(10 * 10 ** 18));
             await _DFYTokenContract.connect(_deployer).transfer(_buyer2.address, BigInt(10 * 10 ** 18));
             await _DFYTokenContract.connect(_buyer).approve(_sellNFTContract.address, BigInt(10 * 10 ** 18));
             await _DFYTokenContract.connect(_buyer2).approve(_sellNFTContract.address, BigInt(10 * 10 ** 18));
-
-            await _DFYContract.connect(_seller).safeMint(_seller.address, BigInt(100000000000000000), _cidOfNFT);
+            await _DFYContract.connect(_seller).safeMint(_seller.address, _royaltyFee, _cidOfNFT);
             await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _secondToken);
-
-            await _sellNFTContract.connect(_seller).putOnSales(_secondToken, _price, _DFYTokenContract.address, _DFYContract.address);
-            await _sellNFTContract.connect(_buyer).buyNFT(1);
+            await _sellNFTContract.connect(_seller).putOnSales(_secondToken, 1, _price, _DFYTokenContract.address, _DFYContract.address);
+            await _sellNFTContract.connect(_buyer).buyNFT(1, 1);
 
             let owner = await _DFYContract.ownerOf(_secondToken);
-
             expect(owner).to.equal(_buyer.address);
 
 
             // != origin creater of NFT with transaction 
 
             await _DFYContract.connect(_buyer).approve(_sellNFTContract.address, _secondToken);
-            await _sellNFTContract.connect(_buyer).putOnSales(_secondToken, _price, _DFYTokenContract.address, _DFYContract.address);
+            await _sellNFTContract.connect(_buyer).putOnSales(_secondToken, 1, _price, _DFYTokenContract.address, _DFYContract.address);
 
-            let feeMarket = await _sellNFTContract.marketFeeRate();
-            console.log(feeMarket.toString(), "market fee");
+            let marketFeeRate = await _sellNFTContract.marketFeeRate();
+            console.log(marketFeeRate, "default market fee rate")
 
-            let royaltyFee = await _DFYContract.royaltyRateByToken(_secondToken);
-            console.log(royaltyFee.toString(), "royalty fee of second token");
+            let royaltyFeeDefault = await _DFYContract.royaltyRateByToken(_secondToken);
+            console.log(royaltyFeeDefault.toString(), "default royalty rate");
 
             let info = await _sellNFTContract.orders(2);
             console.log(info.price.toString(), "price");
+
+            // calculator 
+            let marketFee = (info.price * marketFeeRate) / (_zoom * 100);
+            console.log(marketFee.toString(), "current marketFee");
+
+            let royaltyFee = (info.price * royaltyFeeDefault) / (_zoom * 100);
+            console.log(royaltyFee.toString(), "current royalty fee");
+
+            let totalFeeCharged = BigInt(marketFee) + BigInt(royaltyFee);
+            console.log(totalFeeCharged.toString(), "totalFeeCharged ");
+
+            let remainingMoney = BigInt(info.price) - BigInt(totalFeeCharged);
 
             let balanceOfOriginCreatorBefore = await _DFYTokenContract.balanceOf(_seller.address);
             let balanceOfSellerBeforeSale = await _DFYTokenContract.balanceOf(_buyer.address);
@@ -198,101 +205,101 @@ describe("Deploy DFY Factory", (done) => {
             console.log("balance of buyer before buy : ", balanceOfBuyerBeforeBuy.toString());
             console.log("balance of fee wallet before transaction : ", balanceOfFeeWalletBeforeSale.toString());
 
-            // tổng phí phải trả = priceNFT - (marketFee + royaltyFee) 
-            // marketFee = 250000
-            // royaltyFee = 100000000000000000
-            // price = 1000000000000000000
+            let check = await _sellNFTContract.connect(_buyer2).buyNFT(2, 1);
+            // let receipt = await check.wait();
+            // console.log(receipt.events[0].args[0].toString(), "event");
 
-            // await _sellNFTContract.connect(_buyer2).buyNFT(2);
+            let balanceOfOriginCreatorAfter = await _DFYTokenContract.balanceOf(_seller.address);
+            let balanceOfSellerAfterSale = await _DFYTokenContract.balanceOf(_buyer.address);
+            let balanceOfBuyerAfterBuy = await _DFYTokenContract.balanceOf(_buyer2.address);
+            let balanceOfFeeWalletAfterSale = await _DFYTokenContract.balanceOf(_feeWallet.address);
 
-            // let balanceOfOriginCreatorAfter = await _DFYTokenContract.balanceOf(_seller.address);
-            // let balanceOfSellerAfterSale = await _DFYTokenContract.balanceOf(_buyer.address);
-            // let balanceOfBuyerAfterBuy = await _DFYTokenContract.balanceOf(_buyer2.address);
-            // let balanceOfFeeWalletAfterSale = await _DFYTokenContract.balanceOf(_feeWallet.address);
+            console.log("after buy : ==========================================================");
+            console.log("balance of origin creator after transaction : ", balanceOfOriginCreatorAfter.toString());
+            console.log("balance of seller after sell : ", balanceOfSellerAfterSale.toString());
+            console.log("balance of buyer after buy  : ", balanceOfBuyerAfterBuy.toString());
+            console.log("balance of fee wallet after transaction : ", balanceOfFeeWalletAfterSale.toString());
 
-            // console.log("after buy : ==========================================================");
-            // console.log("balance of origin creator after transaction : ", balanceOfOriginCreatorAfter.toString());
-            // console.log("balance of seller after sell : ", balanceOfSellerAfterSale.toString());
-            // console.log("balance of buyer after buy  : ", balanceOfBuyerAfterBuy.toString());
-            // console.log("balance of fee wallet after transaction : ", balanceOfFeeWalletAfterSale.toString());
+            let ownerOfNFT = await _DFYContract.ownerOf(_secondToken);
+            expect(ownerOfNFT).to.equal(_buyer2.address);
+            expect(balanceOfOriginCreatorBefore).to.equal(BigInt(balanceOfOriginCreatorAfter) - BigInt(royaltyFee));
+            expect(balanceOfSellerBeforeSale).to.equal(BigInt(balanceOfSellerAfterSale) - BigInt(remainingMoney));
+            expect(balanceOfBuyerBeforeBuy).to.equal(BigInt(balanceOfBuyerAfterBuy) + BigInt(info.price));
+            expect(balanceOfFeeWalletBeforeSale).to.equal(BigInt(balanceOfFeeWalletAfterSale) - BigInt(marketFee));
 
-
-            // let ownerOfNFT = await _DFYContract.ownerOf(_firstToken);
-            // expect(ownerOfNFT).to.equal(_buyer2.address);
         });
 
-        // it("put on sale and buy with transaction N1 with royaltyRate of NFT and check it information use BNB", async () => {
+        it("put on sale and buy with transaction N1 with royaltyRate of NFT and check it information use BNB", async () => {
 
-        //     // case test lỗi : không chuyển được bnb giữa các tài khoản với nhau 
+            // case test lỗi : không chuyển được bnb giữa các tài khoản với nhau 
 
-        //     // create collection 2 
-        //     await _DFYFactoryContract.connect(_seller).createCollection(_tokenName, _symbol, _royaltyRateFactory, _cidOfCollection.toString());
-        //     this.DFYNFTFactory2 = await hre.ethers.getContractFactory("DefiForYouNFT");
-        //     let getAddressContractOfCreatetor2 = await _DFYFactoryContract.collectionsByOwner(_seller.address, 1);
-        //     _DFYContract = this.DFYNFTFactory.attach(getAddressContractOfCreatetor2);
+            // safe mint     
+            await _DFYContract.connect(_seller).safeMint(_seller.address, _royaltyRateDFY, _cidOfNFT);
+            await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _thirdToken);
 
-        //     // safe mint     
-        //     await _DFYContract.connect(_seller).safeMint(_seller.address, _royaltyRateDFY, _cidOfNFT);
-        //     await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _firstToken);
+            // put on sale 
+            await _sellNFTContract.setMarketFeeRate(_marketFee) // 2,5 % of NFT price
+            await _sellNFTContract.connect(_seller).putOnSales(_thirdToken, 1, _price, BNB_ADDRESS, _DFYContract.address);
 
-        //     // put on sale 
+            // balance of buyer , seller , feeWallet before transaction : 
+            console.log("before transaction ================================================== ")
 
-        //     await _sellNFTContract.setMarketFeeRate(_marketFee) // 2,5 % of NFT price
+            let balanceOfBuyerBeforeBuy = await _buyer.getBalance();
+            let balanceOfSellerBeforeSell = await _seller.getBalance();
+            let balanceOfFeeWalletBeforeBuy = await _feeWallet.getBalance();
 
-        //     await _sellNFTContract.connect(_seller).putOnSales(_firstToken, _price, BNB_ADDRESS, _DFYContract.address);
+            console.log(balanceOfBuyerBeforeBuy.toString(), "balance Of Buyer before buy");
+            console.log(balanceOfSellerBeforeSell.toString(), "balance of seller before sell ");
+            console.log(balanceOfFeeWalletBeforeBuy.toString(), "balance of fee wallet before transaction");
 
-        //     // balance of buyer , seller , feeWallet before transaction : 
-        //     console.log("before transaction ================================================== ")
-        //     console.log("balance of buyer : ", ((await _buyer.getBalance() / decimals)).toString()); // 9999.99970380835
-        //     console.log("balance of seller : ", ((await _seller.getBalance() / decimals)).toString()) // 9999.992623663818
-        //     console.log("balance of FeeWallet : ", ((await _feeWallet.getBalance() / decimals)).toString()) // 10000
+            // buy NFT 
+            await _sellNFTContract.connect(_buyer).buyNFT(3, 1, { value: BigInt(1 * 10 ** 18) });
 
-        //     let balanceOfBuyerBeforeBuy = await _buyer.getBalance();
-        //     let balanceOfSellerBeforeSell = await _seller.getBalance();
-        //     let balanceOfFeeWalletBeforeBuy = await _feeWallet.getBalance();
+            // after buy NFT
+            console.log("after transaction =====================================================");
 
-        //     console.log(balanceOfBuyerBeforeBuy.toString(), "buyer before");
-        //     console.log(balanceOfSellerBeforeSell.toString(), "seller before");
-        //     console.log(balanceOfFeeWalletBeforeBuy.toString(), "Fee Wallet before");
+            let feeGasBuy = 154719399627909;
+            let info = await _sellNFTContract.orders(3);
 
-        //     // buy NFT 
-        //     await _sellNFTContract.connect(_buyer).buyNFT(1, { value: BigInt(1 * 10 ** 18) });
+            // calculator 
+            let spendAmountOfBuyer = BigInt(info.price) + BigInt(feeGasBuy);
+            console.log(spendAmountOfBuyer.toString(), "spendAmout"); // 1000154719399627909
 
-        //     // after buy NFT
-        //     console.log("after transaction =====================================================");
+            let payForFeewallet = (info.price * _marketFee) / (_zoom * 100);
+            console.log(payForFeewallet.toString(), "payForFeewallet");
 
-        //     let feeGasBuy = 154719399627909;
-        //     let info = await _sellNFTContract.orders(1);
+            let remainingMoney = BigInt(info.price) - BigInt(payForFeewallet);
+            console.log(remainingMoney.toString(), "remain pay for seller ");
 
-        //     // calculator 
-        //     let spendAmountOfBuyer = BigInt(info.price) + BigInt(feeGasBuy);
-        //     console.log(spendAmountOfBuyer.toString(), "spendAmout"); // 1000154719399627909
+            let balanceOfSellerAfterSell = await _seller.getBalance();
+            let balanceOfFeeWalletAfterBuy = await _feeWallet.getBalance();
+            let balanceOfBuyerAfterBuy = await _buyer.getBalance();
 
-        //     let payForFeewallet = (info.price * _marketFee) / (_zoom * 100);
-        //     console.log(payForFeewallet.toString(), "pay");
+            console.log(balanceOfBuyerAfterBuy.toString(), "balance of buyer after buy");
+            console.log(balanceOfSellerAfterSell.toString(), "balance of seller after sell");
+            console.log(balanceOfFeeWalletAfterBuy.toString(), "balance of fee wallet after transaction");
 
-        //     let remainingMoney = BigInt(info.price) - BigInt(payForFeewallet);
-        //     console.log(remainingMoney.toString(), "remain ");
-
-        //     let balanceOfSellerAfterSell = await _seller.getBalance();
-        //     let balanceOfFeeWalletAfterBuy = await _feeWallet.getBalance();
-        //     let balanceOfBuyerAfterBuy = await _buyer.getBalance();
-
-        //     console.log(balanceOfBuyerAfterBuy.toString(), "buyer after");
-        //     console.log(balanceOfSellerAfterSell.toString(), "seller after");
-        //     console.log(balanceOfFeeWalletAfterBuy.toString(), "fee wallet after");
-
-        //     // seller before : 9999993227850451505246 
-        //     // seller after : 9999993227850451505246
+            // seller before : 9999993227850451505246 
+            // seller after : 9999993227850451505246
 
 
-        //     expect(spendAmountOfBuyer.toString()).to.equal((BigInt(info.price) + BigInt(feeGasBuy)).toString()); // spendAmount of buyer  
-        //     expect(balanceOfSellerBeforeSell.toString()).to.equal((BigInt(balanceOfSellerAfterSell) - BigInt(remainingMoney)).toString()); // remainAmount of seller 
-        //     // expect(balanceOfFeeWalletAfterBuy.toString()).to.equal((BigInt(balanceOfFeeWalletBeforeBuy) + BigInt(payForFeewallet)).toString()); // remainAmout of feeWallet 
+            // expect(spendAmountOfBuyer.toString()).to.equal((BigInt(info.price) + BigInt(feeGasBuy)).toString()); // spendAmount of buyer  
+            // expect(balanceOfSellerBeforeSell.toString()).to.equal((BigInt(balanceOfSellerAfterSell) - BigInt(remainingMoney)).toString()); // remainAmount of seller 
+            // expect(balanceOfFeeWalletAfterBuy.toString()).to.equal((BigInt(balanceOfFeeWalletBeforeBuy) + BigInt(payForFeewallet)).toString()); // remainAmout of feeWallet 
 
-        //     // console.log((await _DFYContract.ownerOf(_firstToken)), "owner ");
-        //     // console.log(_buyer.address, "buyer");
-        // });
+            // console.log((await _DFYContract.ownerOf(_firstToken)), "owner ");
+            // console.log(_buyer.address, "buyer");
+        });
+
+        it("cancel order and check it ", async () => {
+
+            await _DFYContract.connect(_seller).safeMint(_seller.address, _royaltyFee, _cidOfNFT);
+            await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _fourthToken);
+            await _sellNFTContract.connect(_seller).putOnSales(_fourthToken, 1, _price, _DFYTokenContract.address, _DFYContract.address);
+            let cancel = await _sellNFTContract.connect(_seller).cancelListing(3);
+            expect(cancel === true);
+
+        });
 
 
 

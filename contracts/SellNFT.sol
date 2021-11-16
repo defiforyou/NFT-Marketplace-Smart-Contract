@@ -174,6 +174,8 @@ contract SellNFT is
         emit NFTCancelSales(orderId);
     }
 
+    event test(uint256 totalFeeCharged, uint256 price);
+
     function buyNFT(uint256 orderId, uint256 numberOfCopies)
         external
         payable
@@ -231,12 +233,14 @@ contract SellNFT is
             );
 
             uint256 totalFeeCharged = marketFee + royaltyFee;
+            emit test(totalFeeCharged, _order.price);
+
             (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
                 totalFeeCharged
             );
+            require(success, "trySub a < b");
 
-            require(success);
-
+            // require(false, "dasdasdsad");
             if (royaltyFee > 0) {
                 // Transfer royalty fee to original creator of the collection
                 DfyNFTLib.safeTransfer(

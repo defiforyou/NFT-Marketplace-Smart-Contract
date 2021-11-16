@@ -37,6 +37,7 @@ library DfyNFTLib {
                 require(success);
             } else {
                 // Send from other address to another address
+                // todo: approve , send value
                 // require(false, "send from other address to onother address ");
             }
         } else {
@@ -53,7 +54,7 @@ library DfyNFTLib {
                 require(
                     IERC20Upgradeable(asset).allowance(from, address(this)) >=
                         amount,
-                    "balance of owner < amount"
+                    "approve balance of from is < amount"
                 );
                 IERC20Upgradeable(asset).safeTransferFrom(from, to, amount);
             }
