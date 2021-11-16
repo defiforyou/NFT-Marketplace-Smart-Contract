@@ -37,7 +37,7 @@ library DfyNFTLib {
                 require(success);
             } else {
                 // Send from other address to another address
-                require(false);
+                // require(false, "send from other address to onother address ");
             }
         } else {
             // Handle ERC20

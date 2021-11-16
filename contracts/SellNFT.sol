@@ -9,8 +9,8 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./DefiForYouNFT.sol";
 import "./dfy-nft/DfyNFTLib.sol";
 
@@ -46,7 +46,12 @@ contract SellNFT is
 
     enum OrderStatus {
         ON_SALES,
-        NFT_BOUGHT
+        COMPLETED
+    }
+
+    enum CollectionStandard {
+        ERC721,
+        ERC1155
     }
 
     event NFTPutOnSales(
@@ -58,10 +63,12 @@ contract SellNFT is
 
     event NFTBought(
         uint256 orderId,
-        uint256 tokenId,
-        address collection,
         address buyer,
+        address collection,
+        uint256 tokenId,
+        uint256 numberOfCopies,
         uint256 price,
+        address currency,
         uint256 marketFee,
         uint256 royaltyFee,
         uint256 timeOfPurchase,
@@ -113,11 +120,14 @@ contract SellNFT is
 
     function putOnSales(
         uint256 tokenId,
+        uint256 numberOfCopies,
         uint256 price,
         address currency,
         address collectionAddress
     ) external whenContractNotPaused {
         //TODO: Extend support to other NFT standards
+        // CollectionStandard _standard;
+        // if(ERC721(collectionAddress).supportsInterface(interfaceId))
 
         require(
             DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
@@ -139,9 +149,8 @@ contract SellNFT is
         _order.currency = currency;
         _order.price = price;
         _order.status = OrderStatus.ON_SALES;
-
-        // TODO: Get number of copies from function input
-        _order.numberOfCopies = 1;
+        // TODO: Check against NFT standards for valid number of copies from function input
+        _order.numberOfCopies = numberOfCopies;
 
         _orderIdCounter.increment();
 
@@ -154,12 +163,29 @@ contract SellNFT is
         emit NFTPutOnSales(orderId, _order, marketFee, _order.status);
     }
 
-    // event test(uint256 fee, uint256 royalty, uint256 zoom);
-
-    function buyNFT(uint256 orderId) external payable whenContractNotPaused {
+    function cancelListing(uint256 orderId) external whenContractNotPaused {
         Order storage _order = orders[orderId];
 
+        require(msg.sender == _order.seller, "Order's seller is required");
+
+        // Delete order from order list
+        delete orders[orderId];
+
+        emit NFTCancelSales(orderId);
+    }
+
+    function buyNFT(uint256 orderId, uint256 numberOfCopies)
+        external
+        payable
+        whenContractNotPaused
+    {
+        Order storage _order = orders[orderId];
+
+        require(msg.sender != _order.seller, "Buying owned NFT");
+
         uint256 royaltyFee;
+
+        // Calculate market fee
         uint256 marketFee = DfyNFTLib.calculateSystemFee(
             _order.price,
             marketFeeRate,
@@ -171,17 +197,19 @@ contract SellNFT is
             _order.seller
         ) {
             // Seller is original creator -> only charge market fee
-            (bool success, uint256 remainMoney) = _order.price.trySub(
+
+            // Calculate amount paid to seller = purchase price - market fee
+            (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
                 marketFee
             );
-            require(success, "market fee");
+            require(success);
 
             // origin creator pay - 2,5% phí sàn
             DfyNFTLib.safeTransfer(
                 _order.currency,
                 msg.sender,
                 _order.seller,
-                remainMoney
+                amountPaidToSeller
             ); // 97,5 % of NFT to seller
 
             DfyNFTLib.safeTransfer(
@@ -192,6 +220,8 @@ contract SellNFT is
             ); // 2,5 % of NFT to fee wallet
         } else {
             // Seller is not the original creator -> charge royalty fee & market fee
+
+            // Calculate royalty fee
             royaltyFee = DfyNFTLib.calculateSystemFee(
                 _order.price,
                 DefiForYouNFT(_order.collectionAddress).royaltyRateByToken(
@@ -201,50 +231,60 @@ contract SellNFT is
             );
 
             uint256 totalFeeCharged = marketFee + royaltyFee;
-            (bool success, uint256 remainMoney) = _order.price.trySub(
+            (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
                 totalFeeCharged
             );
 
-            require(success, "remain money");
+            require(success);
 
             if (royaltyFee > 0) {
+                // Transfer royalty fee to original creator of the collection
                 DfyNFTLib.safeTransfer(
                     _order.currency,
                     msg.sender,
                     DefiForYouNFT(_order.collectionAddress).originalCreator(),
                     royaltyFee
-                ); // remain transfer to origin
+                );
             }
 
+            // Transfer market fee to fee wallet
             DfyNFTLib.safeTransfer(
                 _order.currency,
                 msg.sender,
                 marketFeeWallet,
                 marketFee
-            ); // transfer 2,5 % of price NFT for FeeMarket
+            );
 
+            // Transfer remaining amount to seller after deducting market fee and royalty fee
             DfyNFTLib.safeTransfer(
                 _order.currency,
                 msg.sender,
                 _order.seller,
-                remainMoney
-            ); // remain transfer to seller
+                amountPaidToSeller
+            );
         }
 
+        // Transfer NFT to buyer
         DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
             _order.seller,
             msg.sender,
             _order.tokenId
         );
 
-        _order.status = OrderStatus.NFT_BOUGHT;
+        // If number of copies being purchased equal to listed number of copies,
+        // mark the order as completed
+        if (numberOfCopies == _order.numberOfCopies) {
+            _order.status = OrderStatus.COMPLETED;
+        }
 
         emit NFTBought(
             orderId,
-            _order.tokenId,
-            _order.collectionAddress,
             msg.sender,
+            _order.collectionAddress,
+            _order.tokenId,
+            numberOfCopies,
             _order.price,
+            _order.currency,
             marketFee,
             royaltyFee,
             block.timestamp,
