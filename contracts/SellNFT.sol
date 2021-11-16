@@ -27,7 +27,7 @@ contract SellNFT is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
-    uint256 public marketFee;
+    uint256 public marketFeeRate;
     address public marketFeeWallet;
     uint256 public ZOOM;
 
@@ -41,6 +41,7 @@ contract SellNFT is
         uint256 numberOfCopies;
         uint256 price;
         address currency;
+        OrderStatus status;
     }
 
     enum OrderStatus {
@@ -103,8 +104,11 @@ contract SellNFT is
         marketFeeWallet = _feeWallet;
     }
 
-    function setMarketFee(uint256 fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        marketFee = fee;
+    function setMarketFeeRate(uint256 rate)
+        public
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        marketFeeRate = rate;
     }
 
     function putOnSales(
@@ -134,106 +138,116 @@ contract SellNFT is
         _order.collectionAddress = collectionAddress;
         _order.currency = currency;
         _order.price = price;
+        _order.status = OrderStatus.ON_SALES;
 
         // TODO: Get number of copies from function input
         _order.numberOfCopies = 1;
 
         _orderIdCounter.increment();
 
-        emit NFTPutOnSales(orderId, _order, marketFee, OrderStatus.ON_SALES);
-    }
-
-    function buyNFT(uint256 orderId) external payable whenContractNotPaused {
-        Order storage obj = orders[orderId];
-
-        // buyer transfer to contract
-        DfyNFTLib.safeTransfer(
-            obj.currency,
-            msg.sender,
-            address(this),
-            obj.price
-        );
-
-        uint256 buyNFTFee = DfyNFTLib.calculateSystemFee(
-            obj.price,
-            marketFee,
+        uint256 marketFee = DfyNFTLib.calculateSystemFee(
+            _order.price,
+            marketFeeRate,
             ZOOM
         );
-        marketFee = DfyNFTLib.calculateSystemFee(obj.price, marketFee, ZOOM);
-        uint256 remainMoney = obj.price.sub(buyNFTFee); // remaining amount after - marketFee
+
+        emit NFTPutOnSales(orderId, _order, marketFee, _order.status);
+    }
+
+    event test(uint256 fee, uint256 royalty, uint256 zoom);
+
+    function buyNFT(uint256 orderId) external payable whenContractNotPaused {
+        Order storage _order = orders[orderId];
+
+        uint256 royaltyFee;
+        uint256 marketFee = DfyNFTLib.calculateSystemFee(
+            _order.price,
+            marketFeeRate,
+            ZOOM
+        );
 
         if (
-            DefiForYouNFT(obj.collectionAddress).originalCreator() == obj.seller
+            DefiForYouNFT(_order.collectionAddress).originalCreator() ==
+            _order.seller
         ) {
+            // Seller is original creator -> only charge market fee
+            (bool success, uint256 remainMoney) = _order.price.trySub(
+                marketFee
+            );
+            require(success, "market fee");
+
             // origin creator pay - 2,5% phí sàn
             DfyNFTLib.safeTransfer(
-                obj.currency,
-                address(this),
-                obj.seller,
+                _order.currency,
+                msg.sender,
+                _order.seller,
                 remainMoney
             ); // 97,5 % of NFT to seller
             DfyNFTLib.safeTransfer(
-                obj.currency,
-                address(this),
+                _order.currency,
+                msg.sender,
                 marketFeeWallet,
-                buyNFTFee
+                marketFee
             ); // 2,5 % of NFT to fee wallet
         } else {
-            uint256 royaltyFee = DfyNFTLib.calculateSystemFee(
-                obj.price,
-                DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
-                    obj.tokenId
+            // Seller is not the original creator -> charge royalty fee & market fee
+            royaltyFee = DfyNFTLib.calculateSystemFee(
+                _order.price,
+                DefiForYouNFT(_order.collectionAddress).royaltyRateByToken(
+                    _order.tokenId
                 ),
                 ZOOM
             );
-            uint256 afterN1 = obj.price.sub(buyNFTFee).sub(royaltyFee); // remaining amount after - royaltyFee
 
-            if (
-                DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
-                    obj.tokenId
-                ) != 0
-            ) {
+            uint256 totalFeeCharged = marketFee + royaltyFee;
+            (bool success, uint256 remainMoney) = _order.price.trySub(
+                totalFeeCharged
+            );
+
+            require(success, "remain money");
+
+            if (royaltyFee > 0) {
                 DfyNFTLib.safeTransfer(
-                    obj.currency,
-                    address(this),
-                    DefiForYouNFT(obj.collectionAddress).originalCreator(),
+                    _order.currency,
+                    msg.sender,
+                    DefiForYouNFT(_order.collectionAddress).originalCreator(),
                     royaltyFee
                 ); // remain transfer to origin
             }
 
             DfyNFTLib.safeTransfer(
-                obj.currency,
-                address(this),
+                _order.currency,
+                msg.sender,
                 marketFeeWallet,
-                buyNFTFee
+                marketFee
             ); // transfer 2,5 % of price NFT for FeeMarket
 
             DfyNFTLib.safeTransfer(
-                obj.currency,
-                address(this),
-                obj.seller,
-                afterN1
+                _order.currency,
+                msg.sender,
+                _order.seller,
+                remainMoney
             ); // remain transfer to seller
         }
 
-        DefiForYouNFT(obj.collectionAddress).safeTransferFrom(
-            obj.seller,
+        DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
+            _order.seller,
             msg.sender,
-            obj.tokenId
+            _order.tokenId
         );
+
+        _order.status = OrderStatus.NFT_BOUGHT;
 
         emit NFTBought(
             orderId,
-            obj.tokenId,
-            obj.collectionAddress,
+            _order.tokenId,
+            _order.collectionAddress,
             msg.sender,
-            obj.price,
+            _order.price,
             marketFee,
-            DefiForYouNFT(obj.collectionAddress).royaltyRateByToken(
-                obj.tokenId
-            ),
+            royaltyFee,
             block.timestamp,
-            OrderStatus.NFT_BOUGHT
+            _order.status
         );
     }
 
