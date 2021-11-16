@@ -31,7 +31,7 @@ contract SellNFT is
     uint256 public marketFee;
     address public marketFeeWallet;
     uint256 public ZOOM;
-    
+
     CountersUpgradeable.Counter private _orderIdCounter;
     mapping(uint256 => Order) public orders;
 
@@ -114,7 +114,6 @@ contract SellNFT is
         address currency,
         address collectionAddress
     ) external whenContractNotPaused {
-
         //TODO: Extend support to other NFT standards
 
         require(
@@ -122,7 +121,8 @@ contract SellNFT is
             "seller not owner of tokenId"
         );
         require(
-            DefiForYouNFT(collectionAddress).getApproved(tokenId) == address(this),
+            DefiForYouNFT(collectionAddress).getApproved(tokenId) ==
+                address(this),
             "tokenId is not approved"
         );
         require(price > 0, "invalid price");
@@ -143,12 +143,18 @@ contract SellNFT is
 
         // DefiForYouNFT(collectionAddress).safeTransferFrom(msg.sender, address(this), tokenId);
 
-        emit NFTPutOnSales(
-            orderId,
-            _order,
-            marketFee,
-            OrderStatus.ON_SALES
-        );
+        emit NFTPutOnSales(orderId, _order, marketFee, OrderStatus.ON_SALES);
+    }
+
+    function cancelListing(uint256 orderId) external whenContractNotPaused{
+        Order storage _order = orders[orderId];
+
+        require(msg.sender == _order.seller, "Order's seller is required");
+
+        // Delete order from order list
+        delete orders[orderId];
+
+        emit NFTCancelSales(orderId);
     }
 
     function buyNFT(uint256 orderId) external payable whenContractNotPaused {
@@ -249,6 +255,26 @@ contract SellNFT is
             OrderStatus.NFT_BOUGHT
         );
     }
+
+    // function buyNFT(uint256 orderId) external whenContractNotPaused {
+    //     Order storage _order = orders[orderId];
+
+    //     require(msg.sender != _order.seller, "Buying owned NFT");
+
+    //     uint256 _royaltyFee = DefiForYouNFT(_order.collectionAddress).royaltyRateByToken(_order.tokenId);
+
+    //     emit NFTBought(
+    //         orderId,
+    //         _order.tokenId,
+    //         _order.collectionAddress,
+    //         msg.sender,
+    //         _order.price,
+    //         marketFee,
+    //         _royaltyFee,
+    //         block.timestamp,
+    //         OrderStatus.NFT_BOUGHT
+    //     );
+    // }
 
     /** ==================== Standard interface function implementations ==================== */
 
