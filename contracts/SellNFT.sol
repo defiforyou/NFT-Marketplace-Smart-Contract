@@ -154,7 +154,7 @@ contract SellNFT is
         emit NFTPutOnSales(orderId, _order, marketFee, _order.status);
     }
 
-    event test(uint256 fee, uint256 royalty, uint256 zoom);
+    // event test(uint256 fee, uint256 royalty, uint256 zoom);
 
     function buyNFT(uint256 orderId) external payable whenContractNotPaused {
         Order storage _order = orders[orderId];
@@ -183,6 +183,7 @@ contract SellNFT is
                 _order.seller,
                 remainMoney
             ); // 97,5 % of NFT to seller
+
             DfyNFTLib.safeTransfer(
                 _order.currency,
                 msg.sender,
