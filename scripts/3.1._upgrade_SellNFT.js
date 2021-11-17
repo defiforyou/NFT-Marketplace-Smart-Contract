@@ -1,7 +1,7 @@
 require('@nomiclabs/hardhat-ethers');
 
 const { Proxies } = require('./.deployment_data_test.json');
-const proxies = Proxies.Dev2;
+const proxies = Proxies.Staging;
 
 const NFTSalesProxyAddr = proxies.NFT_SALES_ADDRESS;
 const NFTSalesBuildNameV1 = "SellNFT";

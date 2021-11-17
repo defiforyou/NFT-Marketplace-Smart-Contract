@@ -185,6 +185,9 @@ contract SellNFT is
 
         require(msg.sender != _order.seller, "Buying owned NFT");
 
+        // Transfer fund to contract
+        DfyNFTLib.safeTransfer(_order.currency, msg.sender, address(this), _order.price);
+
         uint256 royaltyFee;
 
         // Calculate market fee
@@ -209,14 +212,14 @@ contract SellNFT is
             // origin creator pay - 2,5% phí sàn
             DfyNFTLib.safeTransfer(
                 _order.currency,
-                msg.sender,
+                address(this),
                 _order.seller,
                 amountPaidToSeller
             ); // 97,5 % of NFT to seller
 
             DfyNFTLib.safeTransfer(
                 _order.currency,
-                msg.sender,
+                address(this),
                 marketFeeWallet,
                 marketFee
             ); // 2,5 % of NFT to fee wallet
@@ -245,7 +248,7 @@ contract SellNFT is
                 // Transfer royalty fee to original creator of the collection
                 DfyNFTLib.safeTransfer(
                     _order.currency,
-                    msg.sender,
+                    address(this),
                     DefiForYouNFT(_order.collectionAddress).originalCreator(),
                     royaltyFee
                 );
@@ -254,7 +257,7 @@ contract SellNFT is
             // Transfer market fee to fee wallet
             DfyNFTLib.safeTransfer(
                 _order.currency,
-                msg.sender,
+                address(this),
                 marketFeeWallet,
                 marketFee
             );
@@ -262,7 +265,7 @@ contract SellNFT is
             // Transfer remaining amount to seller after deducting market fee and royalty fee
             DfyNFTLib.safeTransfer(
                 _order.currency,
-                msg.sender,
+                address(this),
                 _order.seller,
                 amountPaidToSeller
             );

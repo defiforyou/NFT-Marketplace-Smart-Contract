@@ -27,25 +27,24 @@ library DfyNFTLib {
         uint256 amount
     ) internal {
         if (asset == address(0)) {
-            require(from.balance >= amount, "bnb balance of from < amount");
+            require(from.balance >= amount, "0"); // balance
             // Handle BNB
             if (to == address(this)) {
                 // Send to this contract
             } else if (from == address(this)) {
                 // Send from this contract
                 (bool success, ) = to.call{value: amount}("");
-                require(success);
+                require(success, "1"); //fail-trans-bnb
             } else {
                 // Send from other address to another address
-                // todo: approve , send value
-                // require(false, "send from other address to onother address ");
+                require(false, "2"); //not-allow-transfer
             }
         } else {
             // Handle ERC20
             uint256 prebalance = IERC20Upgradeable(asset).balanceOf(to);
             require(
                 IERC20Upgradeable(asset).balanceOf(from) >= amount,
-                "erc20 balance of from < amount"
+                "3" //not-enough-balance
             );
             if (from == address(this)) {
                 // transfer direct to to
@@ -54,12 +53,13 @@ library DfyNFTLib {
                 require(
                     IERC20Upgradeable(asset).allowance(from, address(this)) >=
                         amount,
-                    "approve balance of from is < amount"
+                    "4" //not-allowance
                 );
                 IERC20Upgradeable(asset).safeTransferFrom(from, to, amount);
             }
             require(
-                IERC20Upgradeable(asset).balanceOf(to) - amount == prebalance
+                IERC20Upgradeable(asset).balanceOf(to) - amount == prebalance,
+                "5" //not-trans-enough
             );
         }
     }
