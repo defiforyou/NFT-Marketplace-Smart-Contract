@@ -283,12 +283,12 @@ describe("Deploy DFY Factory", (done) => {
             // seller after : 9999993227850451505246
 
 
-            // expect(spendAmountOfBuyer.toString()).to.equal((BigInt(info.price) + BigInt(feeGasBuy)).toString()); // spendAmount of buyer  
-            // expect(balanceOfSellerBeforeSell.toString()).to.equal((BigInt(balanceOfSellerAfterSell) - BigInt(remainingMoney)).toString()); // remainAmount of seller 
-            // expect(balanceOfFeeWalletAfterBuy.toString()).to.equal((BigInt(balanceOfFeeWalletBeforeBuy) + BigInt(payForFeewallet)).toString()); // remainAmout of feeWallet 
+            expect(spendAmountOfBuyer.toString()).to.equal((BigInt(info.price) + BigInt(feeGasBuy)).toString()); // spendAmount of buyer  
+            expect(balanceOfSellerBeforeSell.toString()).to.equal((BigInt(balanceOfSellerAfterSell) - BigInt(remainingMoney)).toString()); // remainAmount of seller 
+            expect(balanceOfFeeWalletAfterBuy.toString()).to.equal((BigInt(balanceOfFeeWalletBeforeBuy) + BigInt(payForFeewallet)).toString()); // remainAmout of feeWallet 
 
-            // console.log((await _DFYContract.ownerOf(_firstToken)), "owner ");
-            // console.log(_buyer.address, "buyer");
+            console.log((await _DFYContract.ownerOf(_firstToken)), "owner ");
+            console.log(_buyer.address, "buyer");
         });
 
         it("cancel order and check it ", async () => {
@@ -300,8 +300,6 @@ describe("Deploy DFY Factory", (done) => {
             expect(cancel === true);
 
         });
-
-
 
     });
 });

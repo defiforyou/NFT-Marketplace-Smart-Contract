@@ -14,6 +14,8 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./DefiForYouNFT.sol";
 import "./dfy-nft/DfyNFTLib.sol";
 
+//:todo : replace transfer bettwen account -> transfer to contract
+
 contract SellNFT is
     Initializable,
     UUPSUpgradeable,
@@ -174,8 +176,6 @@ contract SellNFT is
         emit NFTCancelSales(orderId);
     }
 
-    event test(uint256 totalFeeCharged, uint256 price);
-
     function buyNFT(uint256 orderId, uint256 numberOfCopies)
         external
         payable
@@ -233,7 +233,6 @@ contract SellNFT is
             );
 
             uint256 totalFeeCharged = marketFee + royaltyFee;
-            emit test(totalFeeCharged, _order.price);
 
             (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
                 totalFeeCharged
