@@ -22,7 +22,7 @@ describe("Deploy DFY Factory", (done) => {
     let _royaltyRateDFY = 10 * 10 ** 5;
     let _zoom = 1e5;
     let _royaltyFee = 10 * 10 ** 5;
-    let _marketFee = 2.5 * 10 ** 5; // 2,5 % 
+    let _marketFeeRate = 2.5 * 10 ** 5; // 2,5 % 
     let _price = BigInt(1 * 10 ** 18);
     let _cidOfCollection = "QmZfey7KWSZwwkU4DeBch6jsXSjdNp2UYYhVq4RZYPGr4Z";
     let _cidOfNFT = "QmbDE5EDoiGAYLTQzmftDx96L4UDMT6Ra2km5HqtU89JWn";
@@ -87,6 +87,8 @@ describe("Deploy DFY Factory", (done) => {
 
     });
 
+    // todo : thay đổi approved thành approve for all -> fix unit test 
+
     describe("unit test DFY ", async () => {
 
         it("put on sale and buy with transaction N1 and no royaltyRate use ERC20 and check it information : ", async () => {
@@ -103,7 +105,7 @@ describe("Deploy DFY Factory", (done) => {
 
             // put on sale 
             await _sellNFTContract.connect(_deployer).setFeeWallet(_feeWallet.address);
-            await _sellNFTContract.connect(_deployer).setMarketFeeRate(_marketFee);
+            await _sellNFTContract.connect(_deployer).setMarketFeeRate(_marketFeeRate);
             await _sellNFTContract.connect(_seller).putOnSales(_firstToken, 1, _price, _tiaContract.address, _DFYContract.address);
 
             let spenderOfNFT = await _DFYContract.ownerOf(_firstToken);
@@ -119,7 +121,7 @@ describe("Deploy DFY Factory", (done) => {
             expect(info.royaltyFee === 0); // royaltyFee 
             expect(originRoyaltyFee === 0); // originRoyaltyFee 
             expect(feeWallet.toString()).to.equal(_feeWallet.address); // feeWallet 
-            expect(marketFee.toString()).to.equal(_marketFee.toString()); // marketFee
+            expect(marketFee.toString()).to.equal(_marketFeeRate.toString()); // marketFee
 
             // buy NFT 
             await _sellNFTContract.connect(_buyer).buyNFT(0, 1);
@@ -130,7 +132,7 @@ describe("Deploy DFY Factory", (done) => {
             let balanceOfBuyerAfterBuy = await _tiaContract.balanceOf(_buyer.address);
 
             // calculator 
-            let feeMarketOfNFT = (info.price * _marketFee) / (_zoom * 100);
+            let feeMarketOfNFT = (info.price * _marketFeeRate) / (_zoom * 100);
             let remainMoneyOfSeller = info.price - feeMarketOfNFT;
             let spendAmountOfBuyer = balanceOfBuyerBeforeBuy - balanceOfBuyerAfterBuy;
 
@@ -238,7 +240,7 @@ describe("Deploy DFY Factory", (done) => {
             await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _thirdToken);
 
             // put on sale 
-            await _sellNFTContract.setMarketFeeRate(_marketFee) // 2,5 % of NFT price
+            await _sellNFTContract.setMarketFeeRate(_marketFeeRate) // 2,5 % of NFT price
             await _sellNFTContract.connect(_seller).putOnSales(_thirdToken, 1, _price, BNB_ADDRESS, _DFYContract.address);
 
             // balance of buyer , seller , feeWallet before transaction : 
@@ -265,7 +267,7 @@ describe("Deploy DFY Factory", (done) => {
             let spendAmountOfBuyer = BigInt(info.price) + BigInt(feeGasBuy);
             console.log(spendAmountOfBuyer.toString(), "spendAmout"); // 1000154719399627909
 
-            let payForFeewallet = (info.price * _marketFee) / (_zoom * 100);
+            let payForFeewallet = (info.price * _marketFeeRate) / (_zoom * 100);
             console.log(payForFeewallet.toString(), "payForFeewallet");
 
             let remainingMoney = BigInt(info.price) - BigInt(payForFeewallet);
@@ -281,7 +283,6 @@ describe("Deploy DFY Factory", (done) => {
 
             // seller before : 9999993227850451505246 
             // seller after : 9999993227850451505246
-
 
             expect(spendAmountOfBuyer.toString()).to.equal((BigInt(info.price) + BigInt(feeGasBuy)).toString()); // spendAmount of buyer  
             expect(balanceOfSellerBeforeSell.toString()).to.equal((BigInt(balanceOfSellerAfterSell) - BigInt(remainingMoney)).toString()); // remainAmount of seller 

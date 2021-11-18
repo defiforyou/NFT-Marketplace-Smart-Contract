@@ -14,8 +14,6 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./DefiForYouNFT.sol";
 import "./dfy-nft/DfyNFTLib.sol";
 
-//:todo : replace transfer bettwen account -> transfer to contract
-
 contract SellNFT is
     Initializable,
     UUPSUpgradeable,
@@ -186,7 +184,12 @@ contract SellNFT is
         require(msg.sender != _order.seller, "Buying owned NFT");
 
         // Transfer fund to contract
-        DfyNFTLib.safeTransfer(_order.currency, msg.sender, address(this), _order.price);
+        DfyNFTLib.safeTransfer(
+            _order.currency,
+            msg.sender,
+            address(this),
+            _order.price
+        );
 
         uint256 royaltyFee;
 
@@ -209,7 +212,6 @@ contract SellNFT is
             );
             require(success);
 
-            // origin creator pay - 2,5% phí sàn
             DfyNFTLib.safeTransfer(
                 _order.currency,
                 address(this),
@@ -242,7 +244,6 @@ contract SellNFT is
             );
             require(success, "trySub a < b");
 
-            // require(false, "dasdasdsad");
             if (royaltyFee > 0) {
                 // Transfer royalty fee to original creator of the collection
                 DfyNFTLib.safeTransfer(
