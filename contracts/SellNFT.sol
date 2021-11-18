@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./DefiForYouNFT.sol";
@@ -25,12 +26,13 @@ contract SellNFT is
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
+    using ERC165CheckerUpgradeable for address;
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     uint256 public marketFeeRate;
-    address public marketFeeWallet;
+    address payable public marketFeeWallet;
     uint256 public ZOOM;
 
     CountersUpgradeable.Counter private _orderIdCounter;
@@ -38,7 +40,7 @@ contract SellNFT is
 
     struct Order {
         address collectionAddress;
-        address seller;
+        address payable seller;
         uint256 tokenId;
         uint256 numberOfCopies;
         uint256 price;
@@ -52,6 +54,7 @@ contract SellNFT is
     }
 
     enum CollectionStandard {
+        UNDEFINED,
         ERC721,
         ERC1155
     }
@@ -106,7 +109,7 @@ contract SellNFT is
         _unpause();
     }
 
-    function setFeeWallet(address _feeWallet)
+    function setFeeWallet(address payable _feeWallet)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
@@ -127,25 +130,29 @@ contract SellNFT is
         address currency,
         address collectionAddress
     ) external whenContractNotPaused {
-        //TODO: Extend support to other NFT standards
-        // CollectionStandard _standard;
-        // if(ERC721(collectionAddress).supportsInterface(interfaceId))
+        
+        _verifyOrderInfo(
+            collectionAddress,
+            tokenId,
+            numberOfCopies,
+            msg.sender
+        );
 
+        //TODO: Extend support to other NFT standards. Only ERC-721 is supported at the moment.
         require(
             DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
-            "seller not owner of tokenId"
+            "Not token owner"
         );
         require(
-            DefiForYouNFT(collectionAddress).getApproved(tokenId) ==
-                address(this),
-            "tokenId is not approved"
+            DefiForYouNFT(collectionAddress).isApprovedForAll(msg.sender, address(this)),
+            "Spender is not approved"
         );
-        require(price > 0, "invalid price");
+        require(price > 0, "Invalid price");
 
         uint256 orderId = _orderIdCounter.current();
 
         Order storage _order = orders[orderId];
-        _order.seller = msg.sender;
+        _order.seller = payable(msg.sender);
         _order.tokenId = tokenId;
         _order.collectionAddress = collectionAddress;
         _order.currency = currency;
@@ -183,18 +190,38 @@ contract SellNFT is
     {
         Order storage _order = orders[orderId];
 
+        CollectionStandard _standard = _verifyOrderInfo(
+            _order.collectionAddress,
+            _order.tokenId,
+            _order.numberOfCopies,
+            _order.seller
+        );
+
         require(msg.sender != _order.seller, "Buying owned NFT");
-
-        // Transfer fund to contract
-        DfyNFTLib.safeTransfer(_order.currency, msg.sender, address(this), _order.price);
-
-        uint256 royaltyFee;
-
+       
+        uint256 _royaltyFee;
         // Calculate market fee
-        uint256 marketFee = DfyNFTLib.calculateSystemFee(
+        uint256 _marketFee = DfyNFTLib.calculateSystemFee(
             _order.price,
             marketFeeRate,
             ZOOM
+        );
+        
+        // Buying ERC-721 token, single copy only
+        uint256 _totalPaidAmount = _order.price;
+
+        if(_standard == CollectionStandard.ERC1155) {
+            // Buying ERC-1155 token, multiple copies
+            _totalPaidAmount = _order.price * numberOfCopies;
+            _marketFee *= numberOfCopies;
+        }
+
+        // Transfer fund to contract
+        DfyNFTLib.safeTransfer(
+            _order.currency,
+            msg.sender,
+            address(this),
+            _totalPaidAmount
         );
 
         if (
@@ -205,29 +232,30 @@ contract SellNFT is
 
             // Calculate amount paid to seller = purchase price - market fee
             (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
-                marketFee
+                _marketFee
             );
             require(success);
 
-            // origin creator pay - 2,5% phí sàn
+            // Transfer remaining amount to seller after deducting market fee
             DfyNFTLib.safeTransfer(
                 _order.currency,
                 address(this),
                 _order.seller,
                 amountPaidToSeller
-            ); // 97,5 % of NFT to seller
+            );
 
+            // Transfer to market fee wallet
             DfyNFTLib.safeTransfer(
                 _order.currency,
                 address(this),
                 marketFeeWallet,
-                marketFee
-            ); // 2,5 % of NFT to fee wallet
+                _marketFee
+            );
         } else {
             // Seller is not the original creator -> charge royalty fee & market fee
 
             // Calculate royalty fee
-            royaltyFee = DfyNFTLib.calculateSystemFee(
+            _royaltyFee = DfyNFTLib.calculateSystemFee(
                 _order.price,
                 DefiForYouNFT(_order.collectionAddress).royaltyRateByToken(
                     _order.tokenId
@@ -235,21 +263,24 @@ contract SellNFT is
                 ZOOM
             );
 
-            uint256 totalFeeCharged = marketFee + royaltyFee;
+            if(_standard == CollectionStandard.ERC1155) {
+                _royaltyFee *= numberOfCopies;
+            }
+
+            uint256 _totalFeeCharged = _marketFee + _royaltyFee;
 
             (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
-                totalFeeCharged
+                _totalFeeCharged
             );
-            require(success, "trySub a < b");
+            require(success);
 
-            // require(false, "dasdasdsad");
-            if (royaltyFee > 0) {
+            if (_royaltyFee > 0) {
                 // Transfer royalty fee to original creator of the collection
                 DfyNFTLib.safeTransfer(
                     _order.currency,
                     address(this),
                     DefiForYouNFT(_order.collectionAddress).originalCreator(),
-                    royaltyFee
+                    _royaltyFee
                 );
             }
 
@@ -258,7 +289,7 @@ contract SellNFT is
                 _order.currency,
                 address(this),
                 marketFeeWallet,
-                marketFee
+                _marketFee
             );
 
             // Transfer remaining amount to seller after deducting market fee and royalty fee
@@ -271,6 +302,7 @@ contract SellNFT is
         }
 
         // Transfer NFT to buyer
+        // TODO: Extend support to ERC-1155
         DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
             _order.seller,
             msg.sender,
@@ -291,11 +323,47 @@ contract SellNFT is
             numberOfCopies,
             _order.price,
             _order.currency,
-            marketFee,
-            royaltyFee,
+            _marketFee,
+            _royaltyFee,
             block.timestamp,
             _order.status
         );
+    }
+
+    function _verifyOrderInfo(
+        address collectionAddress,
+        uint256 tokenId,
+        uint256 numberOfCopies,
+        address owner
+    ) internal view returns (CollectionStandard _standard) {
+        // Check for supported NFT standards
+        if (collectionAddress.supportsInterface(type(IERC721).interfaceId)) {
+            _standard = CollectionStandard.ERC721;
+
+            require(numberOfCopies == 1, "ERC-721: Amount not supported");
+        } else if (
+            collectionAddress.supportsInterface(type(IERC1155).interfaceId)
+        ) {
+            _standard = CollectionStandard.ERC1155;
+
+            // Check for seller's balance
+            require(
+                IERC1155(collectionAddress).balanceOf(owner, tokenId) >=
+                    numberOfCopies,
+                "ERC-1155: Insufficient balance"
+            );
+        } else {
+            _standard = CollectionStandard.UNDEFINED;
+        }
+
+        require(
+            _standard != CollectionStandard.UNDEFINED,
+            "ERC-721 or ERC-1155 standard is required"
+        );
+    }
+
+    function _calculateOrderFees(uint256 orderId, CollectionStandard standard) internal view {
+
     }
 
     /** ==================== Standard interface function implementations ==================== */
