@@ -6,9 +6,12 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "./hub/HubInterface.sol";
+import "./libs/CommonLib.sol";
 
 contract DefiForYouNFT is
     ERC721,
@@ -17,6 +20,7 @@ contract DefiForYouNFT is
     ERC721Burnable,
     AccessControl
 {
+    using SafeERC20 for IERC20;
     using Counters for Counters.Counter;
     using Address for address;
 
@@ -33,6 +37,8 @@ contract DefiForYouNFT is
     uint256 public defaultRoyaltyRate;
     string public collectionCID;
     mapping(uint256 => uint256) public royaltyRateByToken;
+
+    address private _contractHub;
 
     event NFTCreated(
         address owner,
@@ -51,7 +57,8 @@ contract DefiForYouNFT is
         string memory _symbol,
         address payable _owner,
         uint256 _royaltyRate,
-        string memory _collectionCID
+        string memory _collectionCID,
+        address _hub
     ) ERC721(_name, _symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
         _setupRole(MINTER_ROLE, _owner);
@@ -63,6 +70,8 @@ contract DefiForYouNFT is
         if (msg.sender.isContract()) {
             factory = msg.sender;
         }
+
+        _contractHub = _hub;
     }
 
     /**
@@ -77,6 +86,17 @@ contract DefiForYouNFT is
         string memory tokenCID
     ) external onlyRole(MINTER_ROLE) {
         uint256 tokenID = _tokenIdCounter.current();
+
+        // Get fee wallet & fee token address from Hub
+        (address feeWallet, address feeToken) = HubInterface(_contractHub).getSystemConfig();
+
+        // Get minting fee from Hub
+        (, uint256 mintingFee) = HubInterface(_contractHub).getNFTCollectionConfig();
+
+        // Check allowance, balance and transfer minting fee to fee wallet
+        CommonLib.safeTransfer(feeToken, msg.sender, feeWallet, mintingFee);
+
+        // Mint NFT token to owner
         _safeMint(owner, tokenID);
 
         _setTokenURI(tokenID, tokenCID);

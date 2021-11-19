@@ -4,6 +4,8 @@ node_modules
 cache
 artifacts
 
+erc20
+
 .secret.json
 package-lock.json
 .env

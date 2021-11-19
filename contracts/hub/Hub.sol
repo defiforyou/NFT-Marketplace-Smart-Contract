@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "../libs/CommonLib.sol";
 import "../access/DFY-AccessControl.sol";
 import "./HubInterface.sol";
 
@@ -26,6 +27,9 @@ contract Hub is
 
     SystemConfig public systemConfig;
     PawnConfig public pawnConfig;
+    PawnNFTConfig public pawnNFTConfig;
+    NFTCollectionConfig public nftCollectionConfig;
+    NFTMarketConfig public nftMarketConfig;
 
     // TODO: New state variables must go below this line -----------------------------
 
@@ -75,11 +79,51 @@ contract Hub is
         systemConfig.systemFeeWallet = feeWallet;
     }
 
+    function setNFTConfiguration(
+        int256 collectionCreatingFee,
+        int256 mintingFee
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (collectionCreatingFee >= 0) {
+            nftCollectionConfig.collectionCreatingFee = CommonLib.abs(
+                collectionCreatingFee
+            );
+        }
+        if (mintingFee >= 0) {
+            nftCollectionConfig.mintingFee = CommonLib.abs(mintingFee);
+        }
+    }
+
     function registerContract(bytes4 signature, address contractAddress)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         ContractRegistry[signature] = contractAddress;
+    }
+
+    function getSystemConfig()
+        external
+        view
+        override
+        returns (address feeWallet, address feeToken)
+    {
+        feeWallet = systemConfig.systemFeeWallet;
+        feeToken = systemConfig.systemFeeToken;
+    }
+
+    function getNFTCollectionConfig()
+        external
+        view
+        override
+        returns (uint256 collectionCreatingFee, uint256 mintingFee)
+    {
+        collectionCreatingFee = nftCollectionConfig.collectionCreatingFee;
+        mintingFee = nftCollectionConfig.mintingFee;
+    }
+
+    function getNFTMarketConfig() external view override returns (uint256 zoom, uint256 marketFeeRate, address marketFeeWallet) {
+        zoom = nftMarketConfig.ZOOM;
+        marketFeeRate = nftMarketConfig.marketFeeRate;
+        marketFeeWallet = nftMarketConfig.marketFeeWallet;
     }
 
     /** ==================== Standard interface function implementations ==================== */

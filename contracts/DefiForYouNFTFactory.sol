@@ -22,13 +22,15 @@ contract DefiForYouNFTFactory is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
-    address public feeWallet;
-    uint256 public collectionCreatingFee;
-    mapping(address => bool) public whitelistedFeeTokens;
+    address public feeWallet; // TODO: will be removed on next phase, use data from Hub
+    uint256 public collectionCreatingFee; // TODO: will be removed on next phase, use data from Hub
+    mapping(address => bool) public whitelistedFeeTokens; // TODO: will be removed on next phase, use data from Hub
 
     mapping(address => DefiForYouNFT[]) public collectionsByOwner;
 
     // TODO: New state variables must go below this line -----------------------------
+
+    address public contractHub;
 
     /** ==================== Contract initializing & configuration ==================== */
     function initialize() public initializer {
@@ -56,6 +58,7 @@ contract DefiForYouNFTFactory is
         _unpause();
     }
 
+    // TODO: will be removed on next phase, use data from Hub
     function setCollectionCreatingFee(uint256 _fee)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
@@ -63,6 +66,7 @@ contract DefiForYouNFTFactory is
         collectionCreatingFee = _fee;
     }
 
+    // TODO: will be removed on next phase, use data from Hub
     function setWhitelistedFeeToken(address _feeToken, bool whitelistStatus)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
@@ -70,11 +74,19 @@ contract DefiForYouNFTFactory is
         whitelistedFeeTokens[_feeToken] = whitelistStatus;
     }
 
+    // TODO: will be removed on next phase, use data from Hub
     function setFeeWallet(address wallet)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         feeWallet = wallet;
+    }
+
+    function setContractHub(address hub)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        contractHub = hub;
     }
 
     /** ==================== NFT collection operation ==================== */
@@ -110,7 +122,8 @@ contract DefiForYouNFTFactory is
             _symbol,
             payable(msg.sender),
             _royaltyRate,
-            _collectionCID
+            _collectionCID,
+            contractHub
         );
 
         collectionsByOwner[msg.sender].push(dfyNFT);

@@ -12,18 +12,40 @@
         "SystemFeeWallet": "0xfB352202e1AaD6d0f0B7d0E50abd4AD2bAe4d81B",
         "SystemFeeToken": "0x20f1dE452e9057fe863b99d33CF82DBeE0C45B14"
     },
+    "PawnSettings": {
+        "ZOOM": 100000,
+        "SystemFee": 2000000,
+        "PenaltyRate": 15000000,
+        "PrepaidFee": 300000,
+        "LateThreshold": 3
+    },
+    "PawnNFTSettings": {
+        "ZOOM": 100000,
+        "SystemFee": 2000000,
+        "PenaltyRate": 15000000,
+        "PrepaidFee": 300000,
+        "LateThreshold": 3
+    },
+    "NFTSettings": {
+        "CollectionCreatingFee": 0,
+        "MintingFee": 10000000000000000000
+    },
+    "MarketSettings": {
+        "MarketFee": 0
+    },
     "Proxies": {
         "Test2": {
             "NFT_FACTORY_ADDRESS": "0x23fedc388a7c61bb8d277486d3e9a8fc88c6c5f9"
         },
         "Dev2": {
-            "HUB_ADDRESS": "0x7CC26288c76DB907869A0EEBA255176400108693",
+            "HUB_ADDRESS": "0xB86988247c7679857783927d00de3c32AD82d6Eb",
             "NFT_FACTORY_ADDRESS": "0x4DDc1Fb968D0a5E4A172A75aB195edb5e041Feb4",
-            "NFT_SALES_ADDRESS": "0x31D666e0F5840e037A004130Ddf761410545e9fD"
+            "NFT_SALES_ADDRESS": "0x9ccE3E6249BF3D36DA6AB684B9339D9C1893738a"
         },
         "Staging": {
+            "HUB_ADDRESS": "0xb219A3c8690eFbF9816B589a956A7473C2372c84",
             "NFT_FACTORY_ADDRESS": "0x8D3F2Cf5CbFeB1C5c6B92032F4fdE5e4d92E04dd",
-            "NFT_SALES_ADDRESS": "0x4F9cA14A576F903E8743787034c5693a11DCB1c1"
+            "NFT_SALES_ADDRESS": "0x91E031AD210901f54B75a565b4384BD4D0A7A6b3"
         }
     }
 }

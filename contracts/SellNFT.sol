@@ -13,7 +13,8 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpg
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./DefiForYouNFT.sol";
-import "./dfy-nft/DfyNFTLib.sol";
+import "./libs/CommonLib.sol";
+import "./hub/HubInterface.sol";
 
 contract SellNFT is
     Initializable,
@@ -36,9 +37,11 @@ contract SellNFT is
     CountersUpgradeable.Counter private _orderIdCounter;
     mapping(uint256 => Order) public orders;
 
+    mapping(address => mapping(uint256 => bool)) public tokenFromCollectionIsOnSales;
+
     struct Order {
         address collectionAddress;
-        address payable seller;
+        address payable owner;
         uint256 tokenId;
         uint256 numberOfCopies;
         uint256 price;
@@ -135,6 +138,9 @@ contract SellNFT is
             msg.sender
         );
 
+        // Token from collection must not be on another sales order
+        require(tokenFromCollectionIsOnSales[collectionAddress][tokenId] == false, "Token is already put on sales");
+
         //TODO: Extend support to other NFT standards. Only ERC-721 is supported at the moment.
         require(
             DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
@@ -152,7 +158,7 @@ contract SellNFT is
         uint256 orderId = _orderIdCounter.current();
 
         Order storage _order = orders[orderId];
-        _order.seller = payable(msg.sender);
+        _order.owner = payable(msg.sender);
         _order.tokenId = tokenId;
         _order.collectionAddress = collectionAddress;
         _order.currency = currency;
@@ -161,9 +167,11 @@ contract SellNFT is
         // TODO: Check against NFT standards for valid number of copies from function input
         _order.numberOfCopies = numberOfCopies;
 
+        tokenFromCollectionIsOnSales[_order.collectionAddress][_order.tokenId] = true;
+
         _orderIdCounter.increment();
 
-        uint256 marketFee = DfyNFTLib.calculateSystemFee(
+        uint256 marketFee = CommonLib.calculateSystemFee(
             _order.price,
             marketFeeRate,
             ZOOM
@@ -176,10 +184,13 @@ contract SellNFT is
     function cancelListing(uint256 orderId) external whenContractNotPaused {
         Order storage _order = orders[orderId];
 
-        require(msg.sender == _order.seller, "Order's seller is required");
+        require(msg.sender == _order.owner, "Order's seller is required");
 
         // Delete order from order list
         delete orders[orderId];
+
+        // Delete token on sales flag
+        tokenFromCollectionIsOnSales[_order.collectionAddress][_order.tokenId] = false;
 
         emit NFTCancelSales(orderId);
     }
@@ -195,14 +206,14 @@ contract SellNFT is
             _order.collectionAddress,
             _order.tokenId,
             _order.numberOfCopies,
-            _order.seller
+            _order.owner
         );
 
-        require(msg.sender != _order.seller, "Buying owned NFT");
+        require(msg.sender != _order.owner, "Buying owned NFT");
 
         uint256 _royaltyFee;
         // Calculate market fee
-        uint256 _marketFee = DfyNFTLib.calculateSystemFee(
+        uint256 _marketFee = CommonLib.calculateSystemFee(
             _order.price,
             marketFeeRate,
             ZOOM
@@ -218,7 +229,7 @@ contract SellNFT is
         }
 
         // Transfer fund to contract
-        DfyNFTLib.safeTransfer(
+        CommonLib.safeTransfer(
             _order.currency,
             msg.sender,
             address(this),
@@ -227,26 +238,26 @@ contract SellNFT is
 
         if (
             DefiForYouNFT(_order.collectionAddress).originalCreator() ==
-            _order.seller
+            _order.owner
         ) {
-            // Seller is original creator -> only charge market fee
+            // Owner is original creator -> only charge market fee
 
-            // Calculate amount paid to seller = purchase price - market fee
+            // Calculate amount paid to owner = purchase price - market fee
             (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
                 _marketFee
             );
             require(success);
 
             // Transfer remaining amount to seller after deducting market fee
-            DfyNFTLib.safeTransfer(
+            CommonLib.safeTransfer(
                 _order.currency,
                 address(this),
-                _order.seller,
+                _order.owner,
                 amountPaidToSeller
             );
 
             // Transfer to market fee wallet
-            DfyNFTLib.safeTransfer(
+            CommonLib.safeTransfer(
                 _order.currency,
                 address(this),
                 marketFeeWallet,
@@ -256,7 +267,7 @@ contract SellNFT is
             // Seller is not the original creator -> charge royalty fee & market fee
 
             // Calculate royalty fee
-            _royaltyFee = DfyNFTLib.calculateSystemFee(
+            _royaltyFee = CommonLib.calculateSystemFee(
                 _order.price,
                 DefiForYouNFT(_order.collectionAddress).royaltyRateByToken(
                     _order.tokenId
@@ -277,7 +288,7 @@ contract SellNFT is
 
             if (_royaltyFee > 0) {
                 // Transfer royalty fee to original creator of the collection
-                DfyNFTLib.safeTransfer(
+                CommonLib.safeTransfer(
                     _order.currency,
                     address(this),
                     DefiForYouNFT(_order.collectionAddress).originalCreator(),
@@ -286,7 +297,7 @@ contract SellNFT is
             }
 
             // Transfer market fee to fee wallet
-            DfyNFTLib.safeTransfer(
+            CommonLib.safeTransfer(
                 _order.currency,
                 address(this),
                 marketFeeWallet,
@@ -294,10 +305,10 @@ contract SellNFT is
             );
 
             // Transfer remaining amount to seller after deducting market fee and royalty fee
-            DfyNFTLib.safeTransfer(
+            CommonLib.safeTransfer(
                 _order.currency,
                 address(this),
-                _order.seller,
+                _order.owner,
                 amountPaidToSeller
             );
         }
@@ -305,15 +316,16 @@ contract SellNFT is
         // Transfer NFT to buyer
         // TODO: Extend support to ERC-1155
         DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
-            _order.seller,
+            _order.owner,
             msg.sender,
             _order.tokenId
         );
 
         // If number of copies being purchased equal to listed number of copies,
-        // mark the order as completed
+        // mark the order as completed and set tokenFromCollectionIsOnSales flag to false
         if (numberOfCopies == _order.numberOfCopies) {
             _order.status = OrderStatus.COMPLETED;
+            tokenFromCollectionIsOnSales[_order.collectionAddress][_order.tokenId] = false;
         }
 
         emit NFTBought(
