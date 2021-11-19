@@ -142,7 +142,8 @@ describe("Deploy DFY Factory", (done) => {
 
             _auctionNFTContract.approveAuction(0, true);
 
-            await time.increase(315);
+            await time.increase();
+
 
             // let infoAuction = await _auctionNFTContract.auctions(0);
 

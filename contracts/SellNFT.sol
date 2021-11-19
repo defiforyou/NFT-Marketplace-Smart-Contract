@@ -168,6 +168,7 @@ contract SellNFT is
             marketFeeRate,
             ZOOM
         );
+        // require(false, "error");
 
         emit NFTPutOnSales(orderId, _order, marketFee, _order.status);
     }

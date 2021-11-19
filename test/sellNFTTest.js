@@ -4,6 +4,7 @@ const artifactDFY = "DefiForYouNFT";
 const artifactTia = "TiaToken";
 const artifactDFYToken = "BEP20Token";
 const artifactSellNFT = "SellNFT";
+const artifactDFY1155 = "DefiForYouNFT1155";
 const { expect, assert } = require("chai");
 const BNB_ADDRESS = "0x0000000000000000000000000000000000000000";
 const decimals = 10 ** 18;
@@ -12,6 +13,7 @@ describe("Deploy DFY Factory", (done) => {
 
     let _DFYFactoryContract = null;
     let _DFYContract = null;
+    let _DFY1155Contract = null;
     let _tiaContract = null;
     let _sellNFTContract = null;
     let _DFYTokenContract = null;
@@ -85,6 +87,16 @@ describe("Deploy DFY Factory", (done) => {
         let getAddressContractOfCreatetor = await _DFYFactoryContract.collectionsByOwner(_seller.address, 0);
         _DFYContract = this.DFYNFTFactory.attach(getAddressContractOfCreatetor);
 
+        // DFY NFT 1155 
+        const DFYNFT1155Factory = await hre.ethers.getContractFactory(artifactDFY1155);
+        const DFYNFT1155Contract = await DFYNFT1155Factory.deploy(
+            "DFY-1155NFT",
+            "DFY",
+            _seller.address,
+            250000
+        );
+        _DFY1155Contract = await DFYNFT1155Contract.deployed();
+
     });
 
     // todo : thay đổi approved thành approve for all -> fix unit test 
@@ -101,7 +113,7 @@ describe("Deploy DFY Factory", (done) => {
 
             // safe mint 
             await _DFYContract.connect(_seller).safeMint(_seller.address, 0, _cidOfNFT);
-            await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _firstToken);
+            await _DFYContract.connect(_seller).setApprovalForAll(_sellNFTContract.address, true);
 
             // put on sale 
             await _sellNFTContract.connect(_deployer).setFeeWallet(_feeWallet.address);
@@ -162,7 +174,7 @@ describe("Deploy DFY Factory", (done) => {
             await _DFYTokenContract.connect(_buyer).approve(_sellNFTContract.address, BigInt(10 * 10 ** 18));
             await _DFYTokenContract.connect(_buyer2).approve(_sellNFTContract.address, BigInt(10 * 10 ** 18));
             await _DFYContract.connect(_seller).safeMint(_seller.address, _royaltyFee, _cidOfNFT);
-            await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _secondToken);
+            await _DFYContract.connect(_seller).setApprovalForAll(_sellNFTContract.address, _secondToken);
             await _sellNFTContract.connect(_seller).putOnSales(_secondToken, 1, _price, _DFYTokenContract.address, _DFYContract.address);
             await _sellNFTContract.connect(_buyer).buyNFT(1, 1);
 
@@ -172,7 +184,7 @@ describe("Deploy DFY Factory", (done) => {
 
             // != origin creater of NFT with transaction 
 
-            await _DFYContract.connect(_buyer).approve(_sellNFTContract.address, _secondToken);
+            await _DFYContract.connect(_buyer).setApprovalForAll(_sellNFTContract.address, _secondToken);
             await _sellNFTContract.connect(_buyer).putOnSales(_secondToken, 1, _price, _DFYTokenContract.address, _DFYContract.address);
 
             let marketFeeRate = await _sellNFTContract.marketFeeRate();
@@ -237,7 +249,7 @@ describe("Deploy DFY Factory", (done) => {
 
             // safe mint     
             await _DFYContract.connect(_seller).safeMint(_seller.address, _royaltyRateDFY, _cidOfNFT);
-            await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _thirdToken);
+            await _DFYContract.connect(_seller).setApprovalForAll(_sellNFTContract.address, _thirdToken);
 
             // put on sale 
             await _sellNFTContract.setMarketFeeRate(_marketFeeRate) // 2,5 % of NFT price
@@ -295,12 +307,19 @@ describe("Deploy DFY Factory", (done) => {
         it("cancel order and check it ", async () => {
 
             await _DFYContract.connect(_seller).safeMint(_seller.address, _royaltyFee, _cidOfNFT);
-            await _DFYContract.connect(_seller).approve(_sellNFTContract.address, _fourthToken);
+            await _DFYContract.connect(_seller).setApprovalForAll(_sellNFTContract.address, _fourthToken);
             await _sellNFTContract.connect(_seller).putOnSales(_fourthToken, 1, _price, _DFYTokenContract.address, _DFYContract.address);
             let cancel = await _sellNFTContract.connect(_seller).cancelListing(3);
             expect(cancel === true);
 
         });
+
+        it("put on sale and buy with ERC1155 use Bep20", async () => {
+
+            await _DFY1155Contract.connect(_seller).safeMint(_seller.address, 10, 250000, 0);
+
+        });
+
 
     });
 });
