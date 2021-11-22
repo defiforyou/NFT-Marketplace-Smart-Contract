@@ -57,7 +57,7 @@ module.exports = {
       chainId: 97,
       gas: 8812388,
       // gasPrice: 20000000000,
-      accounts: PrivateKey,
+      accounts: { mnemonic: mnemonic },
       from: Wallet
     },
     mainnet: {

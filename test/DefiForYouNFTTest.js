@@ -18,7 +18,6 @@ describe("Deploy DFY Factory", (done) => {
     let _feeCreateCollection = 1000;
     let _addressBNB = "0x0000000000000000000000000000000000000000";
     let _addressETH = "0xf827916F754297d7fF595e77c8dF8287fDE74BA4";
-    let _collectionURI = "https://defiforyou.mypinata.cloud/ipfs/";
     let _contractURI = "https://defiforyou.mypinata.cloud/ipfs/QmZfey7KWSZwwkU4DeBch6jsXSjdNp2UYYhVq4RZYPGr4Z";
 
     let _firstToken = 0;
@@ -81,7 +80,6 @@ describe("Deploy DFY Factory", (done) => {
             let name = await _DFYContract.name();
             let symbol = await _DFYContract.symbol();
             let collectionCID = await _DFYContract.collectionCID();
-            let collectionURI = await _DFYContract.CollectionURI();
             let contractURI = await _DFYContract.contractURI();
             let defaultRoyaltyRate = await _DFYContract.defaultRoyaltyRate();
             let factory = await _DFYContract.factory();
@@ -101,12 +99,13 @@ describe("Deploy DFY Factory", (done) => {
             expect(name.toString()).to.equal(_tokenName); // compare token name 
             expect(symbol.toString()).to.equal(_symbol); // symbol
             expect(collectionCID.toString()).to.equal(_cidOfCollection.toString()); // collectionCID 
-            expect(collectionURI.toString()).to.equal(_collectionURI); // collectionURI
             expect(contractURI.toString()).to.equal(_contractURI); // contract URI
             expect(defaultRoyaltyRate).to.equal(_royaltyRate); // royalty 
             expect(factory.toString()).to.equal(_DFYFactoryContract.address); // factory
             expect(_royaltyRateDFY).to.equal(royaltyRateNFT); // royaltyRate NFT
             expect(defaultRoyalty).to.equal(_royaltyRate); // royaltyRate Factory
+
+            // anh hoàng anh chưa xử lý vụ phí khi tạo collection 
         });
     });
 });
