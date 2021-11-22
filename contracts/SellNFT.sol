@@ -186,11 +186,11 @@ contract SellNFT is
 
         require(msg.sender == _order.owner, "Order's seller is required");
 
-        // Delete order from order list
-        delete orders[orderId];
-
         // Delete token on sales flag
         tokenFromCollectionIsOnSales[_order.collectionAddress][_order.tokenId] = false;
+
+        // Delete order from order list
+        delete orders[orderId];
 
         emit NFTCancelSales(orderId);
     }
