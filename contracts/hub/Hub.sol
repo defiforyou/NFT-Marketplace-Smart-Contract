@@ -65,6 +65,13 @@ contract Hub is
     }
 
     /** ==================== Hub operation functions ==================== */
+    function registerContract(bytes4 signature, address contractAddress)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        ContractRegistry[signature] = contractAddress;
+    }
+
     function setSystemFeeToken(address feeToken)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
@@ -93,11 +100,20 @@ contract Hub is
         }
     }
 
-    function registerContract(bytes4 signature, address contractAddress)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        ContractRegistry[signature] = contractAddress;
+    function setNFTMarketConfig(
+        int256 zoom,
+        int256 marketFeeRate, 
+        address marketFeeWallet
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if(zoom >= 0) {
+            nftMarketConfig.ZOOM = CommonLib.abs(zoom);
+        }
+        if(marketFeeRate >= 0) {
+            nftMarketConfig.marketFeeRate = CommonLib.abs(marketFeeRate);
+        }
+        if(marketFeeWallet != address(0) && !marketFeeWallet.isContract()) {
+            nftMarketConfig.marketFeeWallet = marketFeeWallet;
+        }
     }
 
     function getSystemConfig()

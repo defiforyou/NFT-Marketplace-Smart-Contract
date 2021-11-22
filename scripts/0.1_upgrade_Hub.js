@@ -3,8 +3,8 @@ require('@nomiclabs/hardhat-ethers');
 const { Proxies } = require('./.deployment_data_test.json');
 const proxies = Proxies.Dev2;
 
-const HubProxyAddr = proxies.NFT_FACTORY_ADDRESS;
-const HubBuildName = "DefiForYouNFTFactory";
+const HubProxyAddr = proxies.HUB_ADDRESS;
+const HubBuildName = "Hub";
 
 const decimals      = 10**18;
 
