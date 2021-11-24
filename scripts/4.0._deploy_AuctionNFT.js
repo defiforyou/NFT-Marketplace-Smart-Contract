@@ -2,6 +2,8 @@ require('@nomiclabs/hardhat-ethers');
 
 const hre = require('hardhat');
 const { DefaultSettings } = require('./.deployment_data_test.json');
+const xxx = require('./.deployment_data_test.json');
+
 const decimals = 10 ** 18;
 
 const NFTSalesBuildName = "AuctionNFT";
@@ -17,7 +19,7 @@ async function main() {
     console.log("============================================================\n\r");
     const NFTAuctionFactory = await hre.ethers.getContractFactory(NFTSalesBuildName);
     const NFTAuctionArtifact = await hre.artifacts.readArtifact(NFTSalesBuildName);
-    const NFTAuctionContract = await hre.upgrades.deployProxy(NFTAuctionFactory, [DefaultSettings.ZOOM], proxyType);
+    const NFTAuctionContract = await hre.upgrades.deployProxy(NFTAuctionFactory, [xxx.Proxies.Dev2.HUB_ADDRESS], proxyType);
 
     await NFTAuctionContract.deployed();
 
