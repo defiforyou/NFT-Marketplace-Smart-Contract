@@ -40,7 +40,6 @@ contract AuctionNFT is
 
     // mapping(address => mapping(uint256 => bool))
     //     public tokenFromCollectionIsOnSalesOrAuction;
-
     struct Auction {
         address owner;
         uint256 tokenId;
