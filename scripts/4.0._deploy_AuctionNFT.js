@@ -7,7 +7,7 @@ const xxx = require('./.deployment_data_test.json');
 const decimals = 10 ** 18;
 
 const NFTSalesBuildName = "AuctionNFT";
-const HubProxy = Proxies.BCTest.HUB_ADDRESS;
+const HubProxy = Proxies.Dev2.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 

@@ -94,14 +94,13 @@ library CommonLib {
 
     function getSecondsOfDuration(DurationType durationType, uint256 duration)
         internal
+        pure
         returns (uint256 inSeconds)
     {
         if (durationType == DurationType.HOUR) {
-            inSeconds = duration * 5; // For testing 1 hour = 0.5 minutes
+            inSeconds = duration * 5; // For testing 1 hour = 5 seconds
         } else if (durationType == DurationType.DAY) {
-            // require(false, "here");
-            inSeconds = duration * 120; // For testing 1 day = 1 minutes
-            // emit getTime(inSeconds);
+            inSeconds = duration * 120; // For testing 1 day = 120 seconds
         }
     }
 }
