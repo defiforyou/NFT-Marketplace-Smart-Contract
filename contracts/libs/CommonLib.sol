@@ -90,15 +90,18 @@ library CommonLib {
         return _input >= 0 ? uint256(_input) : uint256(_input * -1);
     }
 
+    // event getTime(uint256 startTime);
+
     function getSecondsOfDuration(DurationType durationType, uint256 duration)
         internal
-        pure
         returns (uint256 inSeconds)
     {
         if (durationType == DurationType.HOUR) {
-            inSeconds = duration * 30; // For testing 1 hour = 0.5 minutes
-        } else {
-            inSeconds = duration * 60; // For testing 1 day = 1 minutes
+            inSeconds = duration * 5; // For testing 1 hour = 0.5 minutes
+        } else if (durationType == DurationType.DAY) {
+            // require(false, "here");
+            inSeconds = duration * 120; // For testing 1 day = 1 minutes
+            // emit getTime(inSeconds);
         }
     }
 }

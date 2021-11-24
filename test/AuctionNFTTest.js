@@ -121,7 +121,114 @@ describe("Deploy DFY Factory", (done) => {
         // todo : != origin creator with marketFee and royaltyFee use erc20 
         // todo : != origin creator with marketFee and royaltyFee use BNB 
 
-        it("origin creator put on Auction, check bidder bid use bep 20 and finish auction with no royalty Fee", async () => {
+        // it("origin creator put on Auction, check bidder bid use bep 20 and finish auction with no royalty Fee", async () => {
+
+        //     // DFY Token air drop  
+        //     await _DFYTokenContract.connect(_deployer).transfer(_bid1.address, BigInt(20 * 10 ** 18));
+        //     await _DFYTokenContract.transfer(_bid2.address, BigInt(20 * 10 ** 18));
+        //     await _DFYTokenContract.connect(_bid1).approve(_auctionNFTContract.address, BigInt(20 * 10 ** 18));
+        //     await _DFYTokenContract.connect(_bid2).approve(_auctionNFTContract.address, BigInt(20 * 10 ** 18));
+
+        //     // safe mint and approve 
+        //     await _DFYContract.connect(_originCreator).safeMint(_originCreator.address, _royaltyRateDFY, _cidOfNFT);
+        //     await _DFYContract.connect(_originCreator).setApprovalForAll(_auctionNFTContract.address, true);
+
+        //     let ownerOfFistToken = await _DFYContract.ownerOf(_firstToken);
+        //     console.log(ownerOfFistToken, "owner ");
+        //     console.log(_originCreator.address, "origin creator ");
+
+        //     // put on auction 
+        //     // calculator : 60 = 1m / 3600 = 1h / 86400 = 24h 
+
+        //     let _startTime = Math.floor(Date.now() / 1000) + 172850; // 2days
+        //     let _endTime = Math.floor(Date.now() / 1000) + 172850 + 43300; // 2days + 12hour
+
+        //     let getTime = await _auctionNFTContract.connect(_originCreator).putOnAuction(_firstToken,
+        //         _DFYContract.address,
+        //         _startingPrice,
+        //         _buyOutPrice,
+        //         _priceStep,
+        //         _DFYTokenContract.address,
+        //         _startTime,
+        //         _endTime
+        //     );
+
+        //     let result = await getTime.wait();
+        //     console.log(result.events[2].args[0].toString(), "start time  : ");
+        //     console.log(result.events[2].args[1].toString(), "end time : ");
+        //     console.log(result.events[2].args[2].toString(), "block time : ");
+
+        //     console.log(result.events[2], "total time : ");
+
+        //     // await time.increase(173000);
+
+        //     // // grant role for deployer to approve auction
+        //     // let getOperatorRole = await _auctionNFTContract.OPERATOR_ROLE();
+        //     // await _auctionNFTContract.connect(_deployer).grantRole(getOperatorRole, _deployer.address);
+
+        //     // // admin approve for auction
+        //     // await _auctionNFTContract.connect(_deployer).approveAuction(0, 1);
+
+        //     // let balanceOfBid1BeforeTXT = await _DFYTokenContract.balanceOf(_bid1.address);
+        //     // let balanceOfBid2BeforeBidTXT = await _DFYTokenContract.balanceOf(_bid2.address);
+        //     // let balanceOfOriginCreatorBeforeTXT = await _DFYTokenContract.balanceOf(_originCreator.address);
+        //     // let balanceOfFeeWalletBeforeTXT = await _DFYTokenContract.balanceOf(_feeWallet.address);
+
+        //     // console.log("info of auction before bid value ===========================");
+        //     // console.log("balance of bid 1 before TXT ", balanceOfBid1BeforeTXT.toString());
+        //     // console.log("balance of bid 2 before TXT ", balanceOfBid2BeforeBidTXT.toString());
+        //     // console.log("balance of origin creator before TXT ", balanceOfOriginCreatorBeforeTXT.toString());
+        //     // console.log("balance of fee wallet before TXT ", balanceOfFeeWalletBeforeTXT.toString());
+
+        //     // // check status of auction 
+        //     // // let checkStatusOfAuction = await _auctionNFTContract.tokenFromCollectionIsOnSalesOrAuction(_DFYContract.address, _firstToken);
+        //     // // console.log(checkStatusOfAuction.toString(), "status : ");
+
+        //     // // bid 
+        //     // await _auctionNFTContract.connect(_bid1).bid(0, BigInt(1 * 10 ** 18));
+        //     // // bid 2 
+        //     // await _auctionNFTContract.connect(_bid2).bid(0, BigInt(2 * 10 ** 18));
+        //     // // finish 
+        //     // await time.increase(216152);
+        //     // await _auctionNFTContract.connect(_deployer).finishAuction(0);
+
+        //     // // let infoAuction = await _auctionNFTContract.auctions(0);
+        //     // // console.log(infoAuction.collectionAddress.toString(), "collectionAddress");
+        //     // // console.log(infoAuction.owner.toString(), "owner");
+        //     // // console.log(infoAuction.startingPrice.toString(), "startingPrice");
+        //     // // console.log(infoAuction.buyOutPrice.toString(), "buyOutPrice");
+        //     // // console.log(infoAuction.priceStep.toString(), "priceStep");
+        //     // // console.log(infoAuction.bidValue.toString(), "currentBidPrice");
+        //     // // console.log(infoAuction.winner.toString(), "currentBidAddress");
+        //     // // console.log(infoAuction.currency.toString(), "currency");
+        //     // // console.log(infoAuction.startTime.toString(), "startTime");
+        //     // // console.log(infoAuction.endTime.toString(), "endTime");
+        //     // // console.log(infoAuction.status.toString(), "status");
+
+        //     // console.log("info of auction after bid value ===========================");
+
+        //     // let balanceOfBid1AfterTXT = await _DFYTokenContract.balanceOf(_bid1.address);
+        //     // let balanceOfBid2AfterTXT = await _DFYTokenContract.balanceOf(_bid2.address);
+        //     // let newOwner = await _DFYContract.ownerOf(0);
+        //     // let balanceOfOriginCreatorAfterTXT = await _DFYTokenContract.balanceOf(_originCreator.address);
+        //     // let balanceOfFeeWalletAfterTXT = await _DFYTokenContract.balanceOf(_feeWallet.address);
+
+        //     // console.log("balance of bid 1 after TXT  : ", balanceOfBid1AfterTXT.toString());
+        //     // console.log("balance of bid 2 after TXT : ", balanceOfBid2AfterTXT.toString());
+        //     // console.log("balance of origin creator afer TXT : ", balanceOfOriginCreatorAfterTXT.toString());
+        //     // console.log("balance of fee market after TXT :", balanceOfFeeWalletAfterTXT.toString());
+
+        //     // // calculator 
+        //     // infoAuction = await _auctionNFTContract.auctions(0);
+        //     // let marketFee = BigInt(infoAuction.bidValue) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
+
+        //     // expect(balanceOfBid1AfterTXT).to.equal(BigInt(20 * 10 ** 18));
+        //     // expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) + BigInt(infoAuction.bidValue));
+        //     // expect(balanceOfFeeWalletAfterTXT).to.equal(BigInt(balanceOfFeeWalletBeforeTXT) + BigInt(marketFee));
+        //     // expect(newOwner === _bid2.address);
+        // });
+
+        it("To test Time with put on auction : ", async () => {
 
             // DFY Token air drop  
             await _DFYTokenContract.connect(_deployer).transfer(_bid1.address, BigInt(20 * 10 ** 18));
@@ -140,10 +247,13 @@ describe("Deploy DFY Factory", (done) => {
             // put on auction 
             // calculator : 60 = 1m / 3600 = 1h / 86400 = 24h 
 
-            let _startTime = Math.floor(Date.now() / 1000) + 172850; // 2days
-            let _endTime = Math.floor(Date.now() / 1000) + 172850 + 43300; // 2days + 12hour
+            let _startTime = Math.floor(Date.now() / 1000) + 240 + 20; // 2m
+            let _endTime = _startTime + 60 + 10; // 2days + 12hour
 
-            await _auctionNFTContract.connect(_originCreator).putOnAuction(_firstToken,
+            // console.log('start', _startTime.toString());
+            // console.log('end', _endTime.toString());
+
+            let getTime = await _auctionNFTContract.connect(_originCreator).putOnAuction(_firstToken,
                 _DFYContract.address,
                 _startingPrice,
                 _buyOutPrice,
@@ -153,256 +263,208 @@ describe("Deploy DFY Factory", (done) => {
                 _endTime
             );
 
-            await time.increase(173000);
+            // let result = await getTime.wait();
+            // console.log(result.events[0].args[0].toString(), "start time  : ");
+            // console.log(result.events[0].args[1].toString(), "end time : ");
+            // console.log(result.events[0].args[2].toString(), "block time : ");
 
-            // grant role for deployer to approve auction
             let getOperatorRole = await _auctionNFTContract.OPERATOR_ROLE();
             await _auctionNFTContract.connect(_deployer).grantRole(getOperatorRole, _deployer.address);
 
             // admin approve for auction
             await _auctionNFTContract.connect(_deployer).approveAuction(0, 1);
 
-            let balanceOfBid1BeforeTXT = await _DFYTokenContract.balanceOf(_bid1.address);
-            let balanceOfBid2BeforeBidTXT = await _DFYTokenContract.balanceOf(_bid2.address);
-            let balanceOfOriginCreatorBeforeTXT = await _DFYTokenContract.balanceOf(_originCreator.address);
-            let balanceOfFeeWalletBeforeTXT = await _DFYTokenContract.balanceOf(_feeWallet.address);
-
-            console.log("info of auction before bid value ===========================");
-            console.log("balance of bid 1 before TXT ", balanceOfBid1BeforeTXT.toString());
-            console.log("balance of bid 2 before TXT ", balanceOfBid2BeforeBidTXT.toString());
-            console.log("balance of origin creator before TXT ", balanceOfOriginCreatorBeforeTXT.toString());
-            console.log("balance of fee wallet before TXT ", balanceOfFeeWalletBeforeTXT.toString());
-
-            // check status of auction 
-            // let checkStatusOfAuction = await _auctionNFTContract.tokenFromCollectionIsOnSalesOrAuction(_DFYContract.address, _firstToken);
-            // console.log(checkStatusOfAuction.toString(), "status : ");
-
-            // bid 
+            await time.increase(265);
             await _auctionNFTContract.connect(_bid1).bid(0, BigInt(1 * 10 ** 18));
-            // bid 2 
-            await _auctionNFTContract.connect(_bid2).bid(0, BigInt(2 * 10 ** 18));
-            // finish 
-            await time.increase(216152);
-            await _auctionNFTContract.connect(_deployer).finishAuction(0);
-
-            // let infoAuction = await _auctionNFTContract.auctions(0);
-            // console.log(infoAuction.collectionAddress.toString(), "collectionAddress");
-            // console.log(infoAuction.owner.toString(), "owner");
-            // console.log(infoAuction.startingPrice.toString(), "startingPrice");
-            // console.log(infoAuction.buyOutPrice.toString(), "buyOutPrice");
-            // console.log(infoAuction.priceStep.toString(), "priceStep");
-            // console.log(infoAuction.bidValue.toString(), "currentBidPrice");
-            // console.log(infoAuction.winner.toString(), "currentBidAddress");
-            // console.log(infoAuction.currency.toString(), "currency");
-            // console.log(infoAuction.startTime.toString(), "startTime");
-            // console.log(infoAuction.endTime.toString(), "endTime");
-            // console.log(infoAuction.status.toString(), "status");
-
-            console.log("info of auction after bid value ===========================");
-
-            let balanceOfBid1AfterTXT = await _DFYTokenContract.balanceOf(_bid1.address);
-            let balanceOfBid2AfterTXT = await _DFYTokenContract.balanceOf(_bid2.address);
-            let newOwner = await _DFYContract.ownerOf(0);
-            let balanceOfOriginCreatorAfterTXT = await _DFYTokenContract.balanceOf(_originCreator.address);
-            let balanceOfFeeWalletAfterTXT = await _DFYTokenContract.balanceOf(_feeWallet.address);
-
-            console.log("balance of bid 1 after TXT  : ", balanceOfBid1AfterTXT.toString());
-            console.log("balance of bid 2 after TXT : ", balanceOfBid2AfterTXT.toString());
-            console.log("balance of origin creator afer TXT : ", balanceOfOriginCreatorAfterTXT.toString());
-            console.log("balance of fee market after TXT :", balanceOfFeeWalletAfterTXT.toString());
-
-            // calculator 
-            infoAuction = await _auctionNFTContract.auctions(0);
-            let marketFee = BigInt(infoAuction.bidValue) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
-
-            expect(balanceOfBid1AfterTXT).to.equal(BigInt(20 * 10 ** 18));
-            expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) + BigInt(infoAuction.bidValue));
-            expect(balanceOfFeeWalletAfterTXT).to.equal(BigInt(balanceOfFeeWalletBeforeTXT) + BigInt(marketFee));
-            expect(newOwner === _bid2.address);
         });
 
-        it("not origin creator put on Auction, check bidder bid use erc20 and buyOut price with royalty Fee", async () => {
+        // it("To test Time Bid Auction : ", async () => {
 
-            // Tia Token air drop  
-            await _tiaContract.connect(_deployer).setOperator(_deployer.address, true);
-            await _tiaContract.mint(_deployer.address, BigInt(100 * 10 ** 18));
-            await _tiaContract.transfer(_bid1.address, BigInt(20 * 10 ** 18));
-            await _tiaContract.transfer(_bid2.address, BigInt(20 * 10 ** 18));
-            await _tiaContract.connect(_bid1).approve(_auctionNFTContract.address, BigInt(20 * 10 ** 18));
-            await _tiaContract.connect(_bid2).approve(_auctionNFTContract.address, BigInt(20 * 10 ** 18));
+        //     await 
+        // });
 
-            // safe mint and approve 
-            await _DFYContract.connect(_bid2).setApprovalForAll(_auctionNFTContract.address, true);
+        // it("not origin creator put on Auction, check bidder bid use erc20 and buyOut price with royalty Fee", async () => {
 
-            // put on auction 
-            // calculator : 60 = 1m / 3600 = 1h / 86400 = 24h 
+        //     // Tia Token air drop  
+        //     await _tiaContract.connect(_deployer).setOperator(_deployer.address, true);
+        //     await _tiaContract.mint(_deployer.address, BigInt(100 * 10 ** 18));
+        //     await _tiaContract.transfer(_bid1.address, BigInt(20 * 10 ** 18));
+        //     await _tiaContract.transfer(_bid2.address, BigInt(20 * 10 ** 18));
+        //     await _tiaContract.connect(_bid1).approve(_auctionNFTContract.address, BigInt(20 * 10 ** 18));
+        //     await _tiaContract.connect(_bid2).approve(_auctionNFTContract.address, BigInt(20 * 10 ** 18));
 
-            // await time.increase(216152);
+        //     // safe mint and approve 
+        //     await _DFYContract.connect(_bid2).setApprovalForAll(_auctionNFTContract.address, true);
 
-            let _startTime = Math.floor(Date.now() / 1000) + 605000;  // 2days
-            let _endTime = Math.floor(Date.now() / 1000) + 605000 + 43300; // 2days + 12hour
+        //     // put on auction 
+        //     // calculator : 60 = 1m / 3600 = 1h / 86400 = 24h 
 
-            await _auctionNFTContract.connect(_bid2).putOnAuction(_firstToken,
-                _DFYContract.address,
-                _startingPrice,
-                _buyOutPrice,
-                _priceStep,
-                _tiaContract.address,
-                _startTime,
-                _endTime
-            );
+        //     // await time.increase(216152);
 
-            // admin approve for auction
-            await _auctionNFTContract.connect(_deployer).approveAuction(1, 1);
+        //     let _startTime = Math.floor(Date.now() / 1000) + 605000;  // 2days
+        //     let _endTime = Math.floor(Date.now() / 1000) + 605000 + 43300; // 2days + 12hour
 
-            let balanceOfBid1BeforeTXT = await _tiaContract.balanceOf(_bid1.address);
-            let balanceOfBid2BeforeBidTXT = await _tiaContract.balanceOf(_bid2.address);
-            let balanceOfOriginCreatorBeforeTXT = await _tiaContract.balanceOf(_originCreator.address);
-            let balanceOfFeeWalletBeforeTXT = await _tiaContract.balanceOf(_feeWallet.address);
+        //     await _auctionNFTContract.connect(_bid2).putOnAuction(_firstToken,
+        //         _DFYContract.address,
+        //         _startingPrice,
+        //         _buyOutPrice,
+        //         _priceStep,
+        //         _tiaContract.address,
+        //         _startTime,
+        //         _endTime
+        //     );
 
-            console.log("info of auction before bid value ===========================");
-            console.log("balance of bid 1 - buyer before TXT ", balanceOfBid1BeforeTXT.toString());
-            console.log("balance of bid 2 - seller before TXT ", balanceOfBid2BeforeBidTXT.toString());
-            console.log("balance of origin creator before TXT ", balanceOfOriginCreatorBeforeTXT.toString());
-            console.log("balance of fee wallet before TXT ", balanceOfFeeWalletBeforeTXT.toString());
+        //     // admin approve for auction
+        //     await _auctionNFTContract.connect(_deployer).approveAuction(1, 1);
 
-            // await time.advanceBlock();
-            await time.increase(225000);
-            // await time.increase(time.duration.days(2));
-            let approval = await _DFYContract.isApprovedForAll(_bid2.address, _auctionNFTContract.address);
-            console.log(approval.toString(), "check");
-            // bid with buyOutPrice -> buyOut 
-            await _auctionNFTContract.connect(_bid1).bid(1, BigInt(10 * 10 ** 18));
+        //     let balanceOfBid1BeforeTXT = await _tiaContract.balanceOf(_bid1.address);
+        //     let balanceOfBid2BeforeBidTXT = await _tiaContract.balanceOf(_bid2.address);
+        //     let balanceOfOriginCreatorBeforeTXT = await _tiaContract.balanceOf(_originCreator.address);
+        //     let balanceOfFeeWalletBeforeTXT = await _tiaContract.balanceOf(_feeWallet.address);
 
-            console.log("info of auction after bid value ===========================");
+        //     console.log("info of auction before bid value ===========================");
+        //     console.log("balance of bid 1 - buyer before TXT ", balanceOfBid1BeforeTXT.toString());
+        //     console.log("balance of bid 2 - seller before TXT ", balanceOfBid2BeforeBidTXT.toString());
+        //     console.log("balance of origin creator before TXT ", balanceOfOriginCreatorBeforeTXT.toString());
+        //     console.log("balance of fee wallet before TXT ", balanceOfFeeWalletBeforeTXT.toString());
 
-            let balanceOfBid1AfterTXT = await _tiaContract.balanceOf(_bid1.address);
-            let balanceOfBid2AfterTXT = await _tiaContract.balanceOf(_bid2.address);
-            let newOwner = await _DFYContract.ownerOf(0);
-            let balanceOfOriginCreatorAfterTXT = await _tiaContract.balanceOf(_originCreator.address);
-            let balanceOfFeeWalletAfterTXT = await _tiaContract.balanceOf(_feeWallet.address);
+        //     // await time.advanceBlock();
+        //     await time.increase(225000);
+        //     // await time.increase(time.duration.days(2));
+        //     let approval = await _DFYContract.isApprovedForAll(_bid2.address, _auctionNFTContract.address);
+        //     console.log(approval.toString(), "check");
+        //     // bid with buyOutPrice -> buyOut 
+        //     await _auctionNFTContract.connect(_bid1).bid(1, BigInt(10 * 10 ** 18));
 
-            console.log("balance of bid 1 - buyer after TXT  : ", balanceOfBid1AfterTXT.toString());
-            console.log("balance of bid 2 - seller after TXT : ", balanceOfBid2AfterTXT.toString());
-            console.log("balance of origin creator afer TXT : ", balanceOfOriginCreatorAfterTXT.toString());
-            console.log("balance of fee market after TXT :", balanceOfFeeWalletAfterTXT.toString());
+        //     console.log("info of auction after bid value ===========================");
 
-            // calculator 
-            let infoAuction = await _auctionNFTContract.auctions(1);
-            let marketFee = BigInt(infoAuction.buyOutPrice) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
-            let royaltyFee = BigInt(infoAuction.buyOutPrice) * BigInt(_royaltyRateDFY) / BigInt(_zoom * 100);
-            let amountPaidToSeller = BigInt(infoAuction.buyOutPrice) - BigInt(marketFee) - BigInt(royaltyFee);
+        //     let balanceOfBid1AfterTXT = await _tiaContract.balanceOf(_bid1.address);
+        //     let balanceOfBid2AfterTXT = await _tiaContract.balanceOf(_bid2.address);
+        //     let newOwner = await _DFYContract.ownerOf(0);
+        //     let balanceOfOriginCreatorAfterTXT = await _tiaContract.balanceOf(_originCreator.address);
+        //     let balanceOfFeeWalletAfterTXT = await _tiaContract.balanceOf(_feeWallet.address);
 
-            expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) + BigInt(infoAuction.buyOutPrice));
-            expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) - BigInt(amountPaidToSeller));
-            expect(balanceOfFeeWalletBeforeTXT).to.equal(BigInt(balanceOfFeeWalletAfterTXT) - BigInt(marketFee));
-            expect(newOwner === _bid1.address);
-        });
+        //     console.log("balance of bid 1 - buyer after TXT  : ", balanceOfBid1AfterTXT.toString());
+        //     console.log("balance of bid 2 - seller after TXT : ", balanceOfBid2AfterTXT.toString());
+        //     console.log("balance of origin creator afer TXT : ", balanceOfOriginCreatorAfterTXT.toString());
+        //     console.log("balance of fee market after TXT :", balanceOfFeeWalletAfterTXT.toString());
 
-        it("not origin creator put on Auction, check bidder use BNB BuyOut ", async () => {
+        //     // calculator 
+        //     let infoAuction = await _auctionNFTContract.auctions(1);
+        //     let marketFee = BigInt(infoAuction.buyOutPrice) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
+        //     let royaltyFee = BigInt(infoAuction.buyOutPrice) * BigInt(_royaltyRateDFY) / BigInt(_zoom * 100);
+        //     let amountPaidToSeller = BigInt(infoAuction.buyOutPrice) - BigInt(marketFee) - BigInt(royaltyFee);
 
-            // safe mint and approve
-            await _DFYContract.connect(_bid1).setApprovalForAll(_auctionNFTContract.address, true);
-            // put on auction 
-            // calculator : 60 = 1m / 3600 = 1h / 86400 = 24h 
-            let _startTime = Math.floor(Date.now() / 1000) + 800000;  // 2days
-            let _endTime = Math.floor(Date.now() / 1000) + 800000 + 43300; // 2days + 12hour
+        //     expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) + BigInt(infoAuction.buyOutPrice));
+        //     expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) - BigInt(amountPaidToSeller));
+        //     expect(balanceOfFeeWalletBeforeTXT).to.equal(BigInt(balanceOfFeeWalletAfterTXT) - BigInt(marketFee));
+        //     expect(newOwner === _bid1.address);
+        // });
 
-            await _auctionNFTContract.connect(_bid1).putOnAuction(_firstToken,
-                _DFYContract.address,
-                _startingPrice,
-                _buyOutPrice,
-                _priceStep,
-                BNB_ADDRESS,
-                _startTime,
-                _endTime
-            );
+        // it("not origin creator put on Auction, check bidder use BNB BuyOut ", async () => {
 
-            // admin approve for auction
-            await _auctionNFTContract.connect(_deployer).approveAuction(2, 1);
+        //     // safe mint and approve
+        //     await _DFYContract.connect(_bid1).setApprovalForAll(_auctionNFTContract.address, true);
+        //     // put on auction 
+        //     // calculator : 60 = 1m / 3600 = 1h / 86400 = 24h 
+        //     let _startTime = Math.floor(Date.now() / 1000) + 800000;  // 2days
+        //     let _endTime = Math.floor(Date.now() / 1000) + 800000 + 43300; // 2days + 12hour
 
-            let balanceOfBid1BeforeTXT = await _bid1.getBalance();
-            let balanceOfBid2BeforeBidTXT = await _bid2.getBalance();
-            let balanceOfOriginCreatorBeforeTXT = await _originCreator.getBalance();
-            let balanceOfFeeWalletBeforeTXT = await _feeWallet.getBalance();
+        //     await _auctionNFTContract.connect(_bid1).putOnAuction(_firstToken,
+        //         _DFYContract.address,
+        //         _startingPrice,
+        //         _buyOutPrice,
+        //         _priceStep,
+        //         BNB_ADDRESS,
+        //         _startTime,
+        //         _endTime
+        //     );
 
-            console.log("info of auction before bid value ===========================");
-            console.log("balance of bid 1 - seller before TXT ", balanceOfBid1BeforeTXT.toString());
-            console.log("balance of bid 2 - buyer before TXT ", balanceOfBid2BeforeBidTXT.toString());
-            console.log("balance of origin creator before TXT ", balanceOfOriginCreatorBeforeTXT.toString());
-            console.log("balance of fee wallet before TXT ", balanceOfFeeWalletBeforeTXT.toString());
+        //     // admin approve for auction
+        //     await _auctionNFTContract.connect(_deployer).approveAuction(2, 1);
 
-            // await time.advanceBlock();
-            await time.increase(225000);
-            // await time.increase(time.duration.days(2));
+        //     let balanceOfBid1BeforeTXT = await _bid1.getBalance();
+        //     let balanceOfBid2BeforeBidTXT = await _bid2.getBalance();
+        //     let balanceOfOriginCreatorBeforeTXT = await _originCreator.getBalance();
+        //     let balanceOfFeeWalletBeforeTXT = await _feeWallet.getBalance();
 
-            // buy out 
-            await _auctionNFTContract.connect(_bid2).buyOut(2, { value: BigInt(10 * 10 ** 18) });
+        //     console.log("info of auction before bid value ===========================");
+        //     console.log("balance of bid 1 - seller before TXT ", balanceOfBid1BeforeTXT.toString());
+        //     console.log("balance of bid 2 - buyer before TXT ", balanceOfBid2BeforeBidTXT.toString());
+        //     console.log("balance of origin creator before TXT ", balanceOfOriginCreatorBeforeTXT.toString());
+        //     console.log("balance of fee wallet before TXT ", balanceOfFeeWalletBeforeTXT.toString());
 
-            console.log("info of auction after bid value ===========================");
+        //     // await time.advanceBlock();
+        //     await time.increase(225000);
+        //     // await time.increase(time.duration.days(2));
 
-            let balanceOfBid1AfterTXT = await _bid1.getBalance();
-            let balanceOfBid2AfterTXT = await _bid2.getBalance();
-            let newOwner = await _DFYContract.ownerOf(0);
-            let balanceOfOriginCreatorAfterTXT = await _originCreator.getBalance();
-            let balanceOfFeeWalletAfterTXT = await _feeWallet.getBalance();
+        //     // buy out 
+        //     await _auctionNFTContract.connect(_bid2).buyOut(2, { value: BigInt(10 * 10 ** 18) });
 
-            console.log("balance of bid 1 - seller after TXT  : ", balanceOfBid1AfterTXT.toString());
-            console.log("balance of bid 2 - buyer after TXT : ", balanceOfBid2AfterTXT.toString());
-            console.log("balance of origin creator afer TXT : ", balanceOfOriginCreatorAfterTXT.toString());
-            console.log("balance of fee market after TXT :", balanceOfFeeWalletAfterTXT.toString());
+        //     console.log("info of auction after bid value ===========================");
 
-            // calculator 
-            let infoAuction = await _auctionNFTContract.auctions(1);
-            let marketFee = BigInt(infoAuction.buyOutPrice) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
-            console.log(marketFee.toString(), "market Fee");
-            let royaltyFee = BigInt(infoAuction.buyOutPrice) * BigInt(_royaltyRateDFY) / BigInt(_zoom * 100);
-            console.log(royaltyFee.toString(), "royalty fee");
-            let amountPaidToSeller = BigInt(infoAuction.buyOutPrice) - BigInt(marketFee) - BigInt(royaltyFee);
-            let feeGasBuy = BigInt(154528368629553);
+        //     let balanceOfBid1AfterTXT = await _bid1.getBalance();
+        //     let balanceOfBid2AfterTXT = await _bid2.getBalance();
+        //     let newOwner = await _DFYContract.ownerOf(0);
+        //     let balanceOfOriginCreatorAfterTXT = await _originCreator.getBalance();
+        //     let balanceOfFeeWalletAfterTXT = await _feeWallet.getBalance();
 
-            console.log("fee gas ", feeGasBuy.toString());
-            console.log("buyOut  ", infoAuction.buyOutPrice.toString());
+        //     console.log("balance of bid 1 - seller after TXT  : ", balanceOfBid1AfterTXT.toString());
+        //     console.log("balance of bid 2 - buyer after TXT : ", balanceOfBid2AfterTXT.toString());
+        //     console.log("balance of origin creator afer TXT : ", balanceOfOriginCreatorAfterTXT.toString());
+        //     console.log("balance of fee market after TXT :", balanceOfFeeWalletAfterTXT.toString());
 
-            console.log(amountPaidToSeller.toString(), "số tiền seller nhận được");
+        //     // calculator 
+        //     let infoAuction = await _auctionNFTContract.auctions(1);
+        //     let marketFee = BigInt(infoAuction.buyOutPrice) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
+        //     console.log(marketFee.toString(), "market Fee");
+        //     let royaltyFee = BigInt(infoAuction.buyOutPrice) * BigInt(_royaltyRateDFY) / BigInt(_zoom * 100);
+        //     console.log(royaltyFee.toString(), "royalty fee");
+        //     let amountPaidToSeller = BigInt(infoAuction.buyOutPrice) - BigInt(marketFee) - BigInt(royaltyFee);
+        //     let feeGasBuy = BigInt(154528368629553);
 
-            expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) - BigInt(amountPaidToSeller));
-            expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(infoAuction.buyOutPrice) + BigInt(balanceOfBid2AfterTXT) + BigInt(feeGasBuy));
-            expect(balanceOfFeeWalletBeforeTXT).to.equal(BigInt(balanceOfFeeWalletAfterTXT) - BigInt(marketFee));
-            expect(balanceOfOriginCreatorBeforeTXT).to.equal(BigInt(balanceOfOriginCreatorAfterTXT) - BigInt(royaltyFee));
-            expect(newOwner === _bid2.address);
+        //     console.log("fee gas ", feeGasBuy.toString());
+        //     console.log("buyOut  ", infoAuction.buyOutPrice.toString());
 
-            // 9989999307004722885166
-        });
+        //     console.log(amountPaidToSeller.toString(), "số tiền seller nhận được");
 
-        it("put on auction and cancel it ", async () => {
+        //     expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) - BigInt(amountPaidToSeller));
+        //     expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(infoAuction.buyOutPrice) + BigInt(balanceOfBid2AfterTXT) + BigInt(feeGasBuy));
+        //     expect(balanceOfFeeWalletBeforeTXT).to.equal(BigInt(balanceOfFeeWalletAfterTXT) - BigInt(marketFee));
+        //     expect(balanceOfOriginCreatorBeforeTXT).to.equal(BigInt(balanceOfOriginCreatorAfterTXT) - BigInt(royaltyFee));
+        //     expect(newOwner === _bid2.address);
 
-            await _DFYContract.connect(_bid1).setApprovalForAll(_auctionNFTContract.address, true);
-            // await time.increase(1025000);
+        //     // 9989999307004722885166
+        // });
 
-            let _startTime = Math.floor(Date.now() / 1000) + 864000 + 172850;  // 2days
-            let _endTime = Math.floor(Date.now() / 1000) + 864000 + 172850 + 43300; // 2days + 12hour
+        // it("put on auction and cancel it ", async () => {
 
-            let getAuctionInfo = await _auctionNFTContract.connect(_bid2).putOnAuction(_firstToken,
-                _DFYContract.address,
-                _startingPrice,
-                _buyOutPrice,
-                _priceStep,
-                BNB_ADDRESS,
-                _startTime,
-                _endTime
-            );
+        //     await _DFYContract.connect(_bid1).setApprovalForAll(_auctionNFTContract.address, true);
+        //     // await time.increase(1025000);
 
-            // let recipt = await getAuctionInfo.wait();
-            // console.log(recipt.events.length, "total events : ");
-            // console.log(recipt.events[2], "NFT Auction created");
+        //     let _startTime = Math.floor(Date.now() / 1000) + 864000 + 172850;  // 2days
+        //     let _endTime = Math.floor(Date.now() / 1000) + 864000 + 172850 + 43300; // 2days + 12hour
 
-            // cancel 
-            await _auctionNFTContract.connect(_bid2).cancelAuction(3);
-            let ownerOfTokenAfterCancel = await _DFYContract.ownerOf(_firstToken);
-            expect(ownerOfTokenAfterCancel.toString()).to.equal(_bid2.address);
+        //     let getAuctionInfo = await _auctionNFTContract.connect(_bid2).putOnAuction(_firstToken,
+        //         _DFYContract.address,
+        //         _startingPrice,
+        //         _buyOutPrice,
+        //         _priceStep,
+        //         BNB_ADDRESS,
+        //         _startTime,
+        //         _endTime
+        //     );
 
-        });
+        //     // let recipt = await getAuctionInfo.wait();
+        //     // console.log(recipt.events.length, "total events : ");
+        //     // console.log(recipt.events[2], "NFT Auction created");
+
+        //     // cancel 
+        //     await _auctionNFTContract.connect(_bid2).cancelAuction(3);
+        //     let ownerOfTokenAfterCancel = await _DFYContract.ownerOf(_firstToken);
+        //     expect(ownerOfTokenAfterCancel.toString()).to.equal(_bid2.address);
+
+        // });
 
     });
 });

@@ -144,6 +144,8 @@ contract AuctionNFT is
         _unpause();
     }
 
+    // event getTimeAds(uint256 startTime, uint256 endTime, uint256 currentTime);
+
     function putOnAuction(
         uint256 tokenId,
         address collectionAddress,
@@ -159,6 +161,7 @@ contract AuctionNFT is
         //         false,
         //     "already put on sales or auctionSession"
         // );
+
         require(
             DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
             "Not token owner"
@@ -173,22 +176,33 @@ contract AuctionNFT is
         require(startingPrice > 0, "startingPrice");
         require(buyOutPrice > 0, "buyOutPrice");
         require(priceStep > 0, "priceStep");
-        // require(startTime > block.timestamp + 2 days, "startTime");
+
         require(
-            startTime >
-                block.timestamp +
-                    CommonLib.getSecondsOfDuration(DurationType.DAY, 2),
+            startTime >=
+                (block.timestamp +
+                    CommonLib.getSecondsOfDuration(DurationType.DAY, 2)),
             "startTime"
         );
         require(
             endTime <=
                 (startTime +
-                    CommonLib.getSecondsOfDuration(DurationType.DAY, 5)) &&
-                endTime >
+                    CommonLib.getSecondsOfDuration(DurationType.DAY, 5)),
+            "endTime > 7 days"
+        );
+        require(
+            endTime >=
                 (startTime +
                     CommonLib.getSecondsOfDuration(DurationType.HOUR, 12)),
-            "endTime"
+            "endTime > 12 hours"
         );
+
+        // uint256 checkStarttime = startTime +
+        //     CommonLib.getSecondsOfDuration(DurationType.DAY, 2);
+
+        // uint256 checkEndtime = startTime +
+        //     CommonLib.getSecondsOfDuration(DurationType.DAY, 7);
+
+        // emit getTimeAds(checkStarttime, checkEndtime, block.timestamp);
 
         uint256 auctionId = _auctionIdCounter.current();
 
@@ -215,26 +229,8 @@ contract AuctionNFT is
             tokenId
         );
 
-        // calculate market fee based on buyOutPrice
-        // (uint256 _zoom, uint256 _marketFeeRate, ) = HubInterface(contractHub)
-        //     .getNFTMarketConfig();
-
-        // uint256 marketFee = CommonLib.calculateSystemFee(
-        //     _auctionSession.buyOutPrice,
-        //     _marketFeeRate,
-        //     _zoom
-        // );
-
         emit NFTAuctionCreated(auctionId, _auctionSession.auctionData);
     }
-
-    // có 2 luồng tính market fee -> 1 tính theo giá bid -> tính theo giá buyout
-    // các trường hợp xảy ra : bid lần lượt cho tới end auctionSession
-    // luồng auctionSession
-
-    // luồng buy out
-    // bid với giá buyOut
-    // bidder chọn buyOut
 
     function approveAuction(uint256 auctionId, AuctionStatus status)
         external
@@ -575,11 +571,11 @@ contract AuctionNFT is
 
     function cancelAuction(uint256 auctionId) external whenContractNotPaused {
         AuctionSession storage _auctionSession = auctions[auctionId];
-        require(msg.sender == _auctionSession.auctionData.owner, "seller");
         require(
-            block.timestamp < _auctionSession.auctionData.startTime,
-            "can't cancel"
+            _auctionSession.status == AuctionStatus.PENDING,
+            "status not pending"
         );
+        require(msg.sender == _auctionSession.auctionData.owner, "seller");
         // pay nft back to seller
         DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
             .safeTransferFrom(
