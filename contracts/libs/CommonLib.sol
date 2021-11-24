@@ -6,6 +6,11 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeCastUpgradeable.sol";
 
+enum DurationType {
+    HOUR,
+    DAY
+}
+
 library CommonLib {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
@@ -83,5 +88,17 @@ library CommonLib {
      */
     function abs(int256 _input) internal pure returns (uint256) {
         return _input >= 0 ? uint256(_input) : uint256(_input * -1);
+    }
+
+    function getSecondsOfDuration(DurationType durationType, uint256 duration)
+        internal
+        pure
+        returns (uint256 inSeconds)
+    {
+        if (durationType == DurationType.HOUR) {
+            inSeconds = duration * 30; // For testing 1 hour = 0.5 minutes
+        } else {
+            inSeconds = duration * 60; // For testing 1 day = 1 minutes
+        }
     }
 }

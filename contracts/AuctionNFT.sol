@@ -173,9 +173,20 @@ contract AuctionNFT is
         require(startingPrice > 0, "startingPrice");
         require(buyOutPrice > 0, "buyOutPrice");
         require(priceStep > 0, "priceStep");
-        require(startTime > block.timestamp + 2 days, "startTime");
+        // require(startTime > block.timestamp + 2 days, "startTime");
         require(
-            endTime <= (startTime + 5 days) && endTime > (startTime + 12 hours),
+            startTime >
+                block.timestamp +
+                    CommonLib.getSecondsOfDuration(DurationType.DAY, 2),
+            "startTime"
+        );
+        require(
+            endTime <=
+                (startTime +
+                    CommonLib.getSecondsOfDuration(DurationType.DAY, 5)) &&
+                endTime >
+                (startTime +
+                    CommonLib.getSecondsOfDuration(DurationType.HOUR, 12)),
             "endTime"
         );
 
