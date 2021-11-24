@@ -5,6 +5,7 @@ const { DefaultSettings, Proxies } = require('./.deployment_data_test.json');
 const decimals = 10 ** 18;
 
 const NFTSalesBuildName = "AuctionNFT";
+const HubProxy = Proxies.BCTest.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 
@@ -17,7 +18,7 @@ async function main() {
     console.log("============================================================\n\r");
     const NFTAuctionFactory = await hre.ethers.getContractFactory(NFTSalesBuildName);
     const NFTAuctionArtifact = await hre.artifacts.readArtifact(NFTSalesBuildName);
-    const NFTAuctionContract = await hre.upgrades.deployProxy(NFTAuctionFactory, [Proxies.Dev2.HUB_ADDRESS], proxyType);
+    const NFTAuctionContract = await hre.upgrades.deployProxy(NFTAuctionFactory, [HubProxy], proxyType);
 
     await NFTAuctionContract.deployed();
 

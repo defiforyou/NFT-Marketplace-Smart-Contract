@@ -173,9 +173,20 @@ contract AuctionNFT is
         require(startingPrice > 0, "startingPrice");
         require(buyOutPrice > 0, "buyOutPrice");
         require(priceStep > 0, "priceStep");
-        require(startTime > block.timestamp + 2 days, "startTime");
+        // require(startTime > block.timestamp + 2 days, "startTime");
         require(
-            endTime <= (startTime + 5 days) && endTime > (startTime + 12 hours),
+            startTime >
+                block.timestamp +
+                    CommonLib.getSecondsOfDuration(DurationType.DAY, 2),
+            "startTime"
+        );
+        require(
+            endTime <=
+                (startTime +
+                    CommonLib.getSecondsOfDuration(DurationType.DAY, 5)) &&
+                endTime >
+                (startTime +
+                    CommonLib.getSecondsOfDuration(DurationType.HOUR, 12)),
             "endTime"
         );
 
@@ -244,11 +255,12 @@ contract AuctionNFT is
         // );
 
         if (status == AuctionStatus.REJECTED) {
-            DefiForYouNFT(_auctionSession.auctionData.collectionAddress).safeTransferFrom(
-                address(this),
-                _auctionSession.auctionData.owner,
-                _auctionSession.auctionData.tokenId
-            );
+            DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
+                .safeTransferFrom(
+                    address(this),
+                    _auctionSession.auctionData.owner,
+                    _auctionSession.auctionData.tokenId
+                );
             _auctionSession.status = AuctionStatus.REJECTED;
             delete auctions[auctionId];
         } else {
@@ -263,9 +275,18 @@ contract AuctionNFT is
 
     function buyOut(uint256 auctionId) external payable whenContractNotPaused {
         AuctionSession storage _auctionSession = auctions[auctionId];
-        require(_auctionSession.status == AuctionStatus.APPROVED, "yet approved");
-        require(msg.sender != _auctionSession.auctionData.owner, "Buying owned NFT");
-        require(block.timestamp < _auctionSession.auctionData.endTime, "auctionSession is ended");
+        require(
+            _auctionSession.status == AuctionStatus.APPROVED,
+            "yet approved"
+        );
+        require(
+            msg.sender != _auctionSession.auctionData.owner,
+            "Buying owned NFT"
+        );
+        require(
+            block.timestamp < _auctionSession.auctionData.endTime,
+            "auctionSession is ended"
+        );
         // call buyOut internal function
         _buyOut(auctionId);
     }
@@ -327,9 +348,10 @@ contract AuctionNFT is
         // todo : calculate based on buyOutPrice
         // calculate total fee charged
         uint256 _totalFeeCharged = _marketFee + _royaltyFee;
-        (bool success, uint256 amountPaidToSeller) = auctionSession.auctionData.buyOutPrice.trySub(
-            _totalFeeCharged
-        );
+        (bool success, uint256 amountPaidToSeller) = auctionSession
+            .auctionData
+            .buyOutPrice
+            .trySub(_totalFeeCharged);
 
         require(success);
 
@@ -346,7 +368,8 @@ contract AuctionNFT is
             CommonLib.safeTransfer(
                 auctionSession.auctionData.currency,
                 address(this),
-                DefiForYouNFT(auctionSession.auctionData.collectionAddress).originalCreator(),
+                DefiForYouNFT(auctionSession.auctionData.collectionAddress)
+                    .originalCreator(),
                 _royaltyFee
             );
         }
@@ -359,11 +382,12 @@ contract AuctionNFT is
         );
 
         // Transfer NFT to buyer
-        DefiForYouNFT(auctionSession.auctionData.collectionAddress).safeTransferFrom(
-            address(this),
-            msg.sender,
-            auctionSession.auctionData.tokenId
-        );
+        DefiForYouNFT(auctionSession.auctionData.collectionAddress)
+            .safeTransferFrom(
+                address(this),
+                msg.sender,
+                auctionSession.auctionData.tokenId
+            );
 
         auctionSession.status = AuctionStatus.FINISHED;
 
@@ -387,21 +411,35 @@ contract AuctionNFT is
     {
         AuctionSession storage _auctionSession = auctions[auctionId];
 
-        require(_auctionSession.status == AuctionStatus.APPROVED, "yet approved");
+        require(
+            _auctionSession.status == AuctionStatus.APPROVED,
+            "yet approved"
+        );
 
-        require(block.timestamp > _auctionSession.auctionData.startTime, "yet start");
+        require(
+            block.timestamp > _auctionSession.auctionData.startTime,
+            "yet start"
+        );
 
         require(block.timestamp < _auctionSession.auctionData.endTime, "ended");
 
-        require(msg.sender != _auctionSession.auctionData.owner, "bid owned NFT");
+        require(
+            msg.sender != _auctionSession.auctionData.owner,
+            "bid owned NFT"
+        );
 
         if (_auctionSession.winner == address(0)) {
-            require(bidValue >= _auctionSession.auctionData.startingPrice, "bid value");
+            require(
+                bidValue >= _auctionSession.auctionData.startingPrice,
+                "bid value"
+            );
         }
 
         // calculator priceStep
         require(
-            bidValue >= (_auctionSession.bidValue + _auctionSession.auctionData.priceStep),
+            bidValue >=
+                (_auctionSession.bidValue +
+                    _auctionSession.auctionData.priceStep),
             "higher bid required"
         );
 
@@ -450,7 +488,10 @@ contract AuctionNFT is
         onlyRole(OPERATOR_ROLE)
     {
         AuctionSession storage _auctionSession = auctions[auctionId];
-        require(block.timestamp > _auctionSession.auctionData.endTime, "over yet");
+        require(
+            block.timestamp > _auctionSession.auctionData.endTime,
+            "over yet"
+        );
 
         (
             uint256 zoom,
@@ -468,9 +509,9 @@ contract AuctionNFT is
         );
 
         uint256 _totalFeeCharged = _marketFee + _royaltyFee;
-        (bool success, uint256 amountPaidToSeller) = _auctionSession.bidValue.trySub(
-            _totalFeeCharged
-        );
+        (bool success, uint256 amountPaidToSeller) = _auctionSession
+            .bidValue
+            .trySub(_totalFeeCharged);
         require(success);
 
         if (_auctionSession.winner != address(0)) {
@@ -486,7 +527,8 @@ contract AuctionNFT is
                 CommonLib.safeTransfer(
                     _auctionSession.auctionData.currency,
                     address(this),
-                    DefiForYouNFT(_auctionSession.auctionData.collectionAddress).originalCreator(),
+                    DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
+                        .originalCreator(),
                     _royaltyFee
                 );
 
@@ -499,18 +541,20 @@ contract AuctionNFT is
                 );
             }
             // Transfer NFT to buyer
-            DefiForYouNFT(_auctionSession.auctionData.collectionAddress).safeTransferFrom(
-                address(this),
-                _auctionSession.winner,
-                _auctionSession.auctionData.tokenId
-            );
+            DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
+                .safeTransferFrom(
+                    address(this),
+                    _auctionSession.winner,
+                    _auctionSession.auctionData.tokenId
+                );
         } else {
             // pay nft back to seller
-            DefiForYouNFT(_auctionSession.auctionData.collectionAddress).safeTransferFrom(
-                address(this),
-                _auctionSession.auctionData.owner,
-                _auctionSession.auctionData.tokenId
-            );
+            DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
+                .safeTransferFrom(
+                    address(this),
+                    _auctionSession.auctionData.owner,
+                    _auctionSession.auctionData.tokenId
+                );
         }
 
         _auctionSession.status = AuctionStatus.FINISHED;
@@ -532,13 +576,17 @@ contract AuctionNFT is
     function cancelAuction(uint256 auctionId) external whenContractNotPaused {
         AuctionSession storage _auctionSession = auctions[auctionId];
         require(msg.sender == _auctionSession.auctionData.owner, "seller");
-        require(block.timestamp < _auctionSession.auctionData.startTime, "can't cancel");
-        // pay nft back to seller
-        DefiForYouNFT(_auctionSession.auctionData.collectionAddress).safeTransferFrom(
-            address(this),
-            _auctionSession.auctionData.owner,
-            _auctionSession.auctionData.tokenId
+        require(
+            block.timestamp < _auctionSession.auctionData.startTime,
+            "can't cancel"
         );
+        // pay nft back to seller
+        DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
+            .safeTransferFrom(
+                address(this),
+                _auctionSession.auctionData.owner,
+                _auctionSession.auctionData.tokenId
+            );
         // delete auctionSession from auctionSession list
         delete auctions[auctionId];
         _auctionSession.status = AuctionStatus.CANCELLED;
