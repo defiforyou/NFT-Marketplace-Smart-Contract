@@ -10,7 +10,7 @@ library CommonLib {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using SafeCastUpgradeable for uint256;
-    
+
     /**
      * @dev safe transfer BNB or ERC20
      * @param  asset is address of the cryptocurrency to be transferred
