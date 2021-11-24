@@ -72,6 +72,8 @@ contract DefiForYouNFT is
         }
 
         _contractHub = _hub;
+
+        // TODO: Get NFT Sales & Auction addresses from Hub & set approval for all NFTs owned by the owner
     }
 
     /**
