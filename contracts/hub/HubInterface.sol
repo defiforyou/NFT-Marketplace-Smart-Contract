@@ -46,6 +46,14 @@ interface HubInterface {
     function PauserRole() external pure returns (bytes32);
     function EvaluatorRole() external pure returns (bytes32);
 
+    function registerContract(bytes4 nameContract, address contractAddress)
+        external;
+
+    function getContractAddress(bytes4 signature)
+        external
+        view
+        returns (address contractAddres);
+
     function getSystemConfig() external view returns (address, address);
 
     function getNFTCollectionConfig()
@@ -61,7 +69,4 @@ interface HubInterface {
             uint256 marketFeeRate,
             address marketFeeWallet
         );
-
-    function registerContract(bytes4 nameContract, address contractAddress)
-        external;
 }

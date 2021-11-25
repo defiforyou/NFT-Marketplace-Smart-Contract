@@ -42,7 +42,6 @@ contract Hub is
     ) public initializer {
         __UUPSUpgradeable_init();
         __Pausable_init();
-
         __AccessControl_init();
 
         _setupRole(HubRoleLib.DEFAULT_ADMIN_ROLE, msg.sender);
@@ -99,18 +98,36 @@ contract Hub is
         ContractRegistry[signature] = contractAddress;
     }
 
-    function setSystemFeeToken(address feeToken)
+    function setSystemConfig(address _FeeWallet, address _FeeToken)
         external
-        onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE)
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
-        systemConfig.systemFeeToken = feeToken;
+        if (_FeeWallet != address(0)) {
+            systemConfig.systemFeeWallet = _FeeWallet;
+        }
+
+        if (_FeeToken != address(0)) {
+            systemConfig.systemFeeToken = _FeeToken;
+        }
     }
 
-    function setSystemFeeWallet(address feeWallet)
+    function getSystemConfig()
         external
-        onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE)
+        view
+        override
+        returns (address feeWallet, address feeToken)
     {
-        systemConfig.systemFeeWallet = feeWallet;
+        feeWallet = systemConfig.systemFeeWallet;
+        feeToken = systemConfig.systemFeeToken;
+    }
+
+    function getContractAddress(bytes4 signature)
+        external
+        view
+        override
+        returns (address contractAddress)
+    {
+        contractAddress = ContractRegistry[signature];
     }
 
     function setNFTConfiguration(
@@ -141,16 +158,6 @@ contract Hub is
         if (marketFeeWallet != address(0) && !marketFeeWallet.isContract()) {
             nftMarketConfig.marketFeeWallet = marketFeeWallet;
         }
-    }
-
-    function getSystemConfig()
-        external
-        view
-        override
-        returns (address feeWallet, address feeToken)
-    {
-        feeWallet = systemConfig.systemFeeWallet;
-        feeToken = systemConfig.systemFeeToken;
     }
 
     function getNFTCollectionConfig()
