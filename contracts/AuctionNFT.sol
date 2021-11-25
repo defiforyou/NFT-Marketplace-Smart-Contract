@@ -372,6 +372,11 @@ contract AuctionNFT is
             );
         }
 
+        // Bid using BNB => Check msg.value == bidValue
+        if(_auctionSession.auctionData.currency == address(0)) {
+            require(msg.value == bidValue, "Insufficient BNB");
+        }
+
         // calculator priceStep
         if (_auctionSession.auctionData.priceStep > 0) {
             require(
@@ -434,7 +439,7 @@ contract AuctionNFT is
         AuctionSession storage _auctionSession = auctions[auctionId];
         require(
             block.timestamp > _auctionSession.auctionData.endTime,
-            "over yet"
+            "end time not reached"
         );
 
         (
