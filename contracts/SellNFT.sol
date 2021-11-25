@@ -4,8 +4,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
@@ -15,6 +15,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./dfy-nft/DefiForYouNFT.sol";
 import "./libs/CommonLib.sol";
 import "./hub/HubInterface.sol";
+
 
 contract SellNFT is
     Initializable,
@@ -103,11 +104,11 @@ contract SellNFT is
         require(!paused(), "Pausable: paused");
     }
 
-    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function pause() external onlyRole(AccessControlUpgradeable.DEFAULT_ADMIN_ROLE) {
         _pause();
     }
 
-    function unPause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function unPause() external onlyRole(AccessControlUpgradeable.DEFAULT_ADMIN_ROLE) {
         _unpause();
     }
 
@@ -392,7 +393,7 @@ contract SellNFT is
     function _authorizeUpgrade(address)
         internal
         override
-        onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyRole(AccessControlUpgradeable.DEFAULT_ADMIN_ROLE)
     {}
 
     function supportsInterface(bytes4 interfaceId)

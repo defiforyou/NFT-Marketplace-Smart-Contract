@@ -40,9 +40,28 @@ interface HubInterface {
     }
 
     /** Functions */
+    /** ROLES */
+    function AdminRole() external pure returns (bytes32);
+    function OperatorRole() external pure returns (bytes32);
+    function PauserRole() external pure returns (bytes32);
+    function EvaluatorRole() external pure returns (bytes32);
+
     function getSystemConfig() external view returns (address, address);
 
-    function getNFTCollectionConfig() external view returns (uint256, uint256);
+    function getNFTCollectionConfig()
+        external
+        view
+        returns (uint256 collectionCreatingFee, uint256 mintingFee);
 
-    function getNFTMarketConfig() external view returns (uint256, uint256, address);
+    function getNFTMarketConfig()
+        external
+        view
+        returns (
+            uint256 zoom,
+            uint256 marketFeeRate,
+            address marketFeeWallet
+        );
+
+    function registerContract(bytes4 nameContract, address contractAddress)
+        external;
 }
