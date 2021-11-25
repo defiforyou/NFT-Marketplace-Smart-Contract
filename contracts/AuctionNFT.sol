@@ -158,8 +158,6 @@ contract AuctionNFT is
             "Spender is not approved"
         );
         require(startingPrice > 0, "startingPrice");
-        require(buyOutPrice > 0, "buyOutPrice");
-        require(priceStep > 0, "priceStep");
 
         require(
             startTime >=
