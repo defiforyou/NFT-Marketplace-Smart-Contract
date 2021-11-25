@@ -64,8 +64,8 @@ contract AuctionNFT is
     }
 
     event NFTAuctionCreated(
-        uint256 auctionId, 
-        AuctionData auctionData, 
+        uint256 auctionId,
+        AuctionData auctionData,
         AuctionStatus auctionStatus
     );
 
@@ -129,8 +129,6 @@ contract AuctionNFT is
         _unpause();
     }
 
-    // event getTimeAds(uint256 startTime, uint256 endTime, uint256 currentTime);
-
     function putOnAuction(
         uint256 tokenId,
         address collectionAddress,
@@ -141,7 +139,6 @@ contract AuctionNFT is
         uint256 startTime,
         uint256 endTime
     ) external whenContractNotPaused {
-        
         // TODO: Check if the token is already put on sales on Market (SellNFT)
         // require(
         //     tokenFromCollectionIsOnSalesOrAuction[collectionAddress][tokenId] ==
@@ -209,8 +206,8 @@ contract AuctionNFT is
         );
 
         emit NFTAuctionCreated(
-            auctionId, 
-            _auctionSession.auctionData, 
+            auctionId,
+            _auctionSession.auctionData,
             _auctionSession.status
         );
     }
@@ -227,7 +224,10 @@ contract AuctionNFT is
             "approve or rejected"
         );
 
-        require(_auctionSession.status == AuctionStatus.PENDING, "auction pending required");
+        require(
+            _auctionSession.status == AuctionStatus.PENDING,
+            "auction pending required"
+        );
 
         if (status == AuctionStatus.REJECTED) {
             // Refund token to auction owner
@@ -375,18 +375,23 @@ contract AuctionNFT is
         }
 
         // calculator priceStep
-        // TODO: Check priceStep <> 0
-        require(
-            bidValue >=
-                (_auctionSession.bidValue +
-                    _auctionSession.auctionData.priceStep),
-            "higher bid required"
-        );
+        if (_auctionSession.auctionData.priceStep > 0) {
+            require(
+                bidValue >=
+                    (_auctionSession.bidValue +
+                        _auctionSession.auctionData.priceStep),
+                "higher bid required"
+            );
+        } else {
+            require(bidValue > _auctionSession.bidValue, "higher bid required");
+        }
 
         uint256 previousBidValue;
 
-        // TODO: Check buyout price <> 0
-        if (bidValue >= _auctionSession.auctionData.buyOutPrice) {
+        if (
+            _auctionSession.auctionData.buyOutPrice > 0 &&
+            bidValue >= _auctionSession.auctionData.buyOutPrice
+        ) {
             _buyOut(auctionId);
         } else {
             // Transfer fund to contract
@@ -578,7 +583,10 @@ contract AuctionNFT is
         return super.supportsInterface(interfaceId);
     }
 
-    function setContractHub(address _hub) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setContractHub(address _hub)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         contractHub = _hub;
     }
 }
