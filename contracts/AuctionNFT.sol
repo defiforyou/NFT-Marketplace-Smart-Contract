@@ -375,6 +375,7 @@ contract AuctionNFT is
         }
 
         // calculator priceStep
+        // TODO: Check priceStep <> 0
         require(
             bidValue >=
                 (_auctionSession.bidValue +
@@ -384,6 +385,7 @@ contract AuctionNFT is
 
         uint256 previousBidValue;
 
+        // TODO: Check buyout price <> 0
         if (bidValue >= _auctionSession.auctionData.buyOutPrice) {
             _buyOut(auctionId);
         } else {
