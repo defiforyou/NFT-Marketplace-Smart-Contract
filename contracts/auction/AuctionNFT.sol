@@ -11,8 +11,8 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
-import "./dfy-nft/DefiForYouNFT.sol";
-import "./libs/CommonLib.sol";
+import "../dfy-nft/DefiForYouNFT.sol";
+import "../libs/CommonLib.sol";
 
 contract AuctionNFT is
     Initializable,
@@ -398,7 +398,6 @@ contract AuctionNFT is
             _buyOut(auctionId);
         } else {
             // Transfer fund to contract
-            // require(false, "here");
             CommonLib.safeTransfer(
                 _auctionSession.auctionData.currency,
                 msg.sender,

@@ -2,36 +2,31 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "./dfy-nft/DefiForYouNFT.sol";
-import "./libs/CommonLib.sol";
-import "./hub/HubInterface.sol";
-
+import "../base/BaseContract.sol";
+import "../dfy-nft/DefiForYouNFT.sol";
+import "./ISellNFT.sol";
 
 contract SellNFT is
     Initializable,
     UUPSUpgradeable,
-    AccessControlUpgradeable,
-    PausableUpgradeable
+    PausableUpgradeable,
+    BaseContract,
+    ISellNFT
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using ERC165CheckerUpgradeable for address;
 
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-
-    address public contractHub;
+    // bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    // bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     CountersUpgradeable.Counter private _orderIdCounter;
     mapping(uint256 => Order) public orders;
@@ -39,86 +34,42 @@ contract SellNFT is
     mapping(address => mapping(uint256 => bool))
         public tokenFromCollectionIsOnSales;
 
-    struct Order {
-        address collectionAddress;
-        address payable owner;
-        uint256 tokenId;
-        uint256 numberOfCopies;
-        uint256 price;
-        address currency;
-        OrderStatus status;
-    }
-
-    struct Purchase {
-        uint256 orderId;
-        address buyer;
-        address collectionAddress;
-        uint256 tokenId;
-        uint256 numberOfCopies;
-        uint256 price;
-        address currency;
-        uint256 marketFee;
-        uint256 royaltyFee;
-        uint256 timeOfPurchase;
-        OrderStatus status;
-    }
-
-    enum OrderStatus {
-        ON_SALES,
-        COMPLETED
-    }
-
-    enum CollectionStandard {
-        UNDEFINED,
-        ERC721,
-        ERC1155
-    }
-
-    event NFTPutOnSales(
-        uint256 orderId,
-        Order order,
-        uint256 marketFee,
-        OrderStatus orderStatus
-    );
-
-    event NFTBought(Purchase purchase);
-
-    event NFTCancelSales(uint256 orderId);
-
     function initialize(address _hub) public initializer {
         __UUPSUpgradeable_init();
         __Pausable_init();
 
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
-
-        contractHub = _hub;
+        __BaseContract_init(_hub);
     }
 
-    modifier whenContractNotPaused() {
-        _whenNotPaused();
-        _;
+    /** ==================== Standard interface function implementations ==================== */
+
+    function _authorizeUpgrade(address)
+        internal
+        override
+        onlyRoleAdmin
+    {}
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC165Upgradeable, IERC165Upgradeable)
+        returns (bool)
+    {
+        return interfaceId == type(ISellNFT).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    function _whenNotPaused() private view {
-        require(!paused(), "Pausable: paused");
+    function signature() external pure override returns (bytes4) {
+        return type(ISellNFT).interfaceId;
     }
 
-    function pause() external onlyRole(AccessControlUpgradeable.DEFAULT_ADMIN_ROLE) {
-        _pause();
-    }
-
-    function unPause() external onlyRole(AccessControlUpgradeable.DEFAULT_ADMIN_ROLE) {
-        _unpause();
-    }
-
+    /** ==================== Marketplace functions ==================== */
     function putOnSales(
         uint256 tokenId,
         uint256 numberOfCopies,
         uint256 price,
         address currency,
         address collectionAddress
-    ) external whenContractNotPaused {
+    ) external override whenContractNotPaused {
         _verifyOrderInfo(
             collectionAddress,
             tokenId,
@@ -386,22 +337,5 @@ contract SellNFT is
             _standard != CollectionStandard.UNDEFINED,
             "ERC-721 or ERC-1155 standard is required"
         );
-    }
-
-    /** ==================== Standard interface function implementations ==================== */
-
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyRole(AccessControlUpgradeable.DEFAULT_ADMIN_ROLE)
-    {}
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(AccessControlUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }
