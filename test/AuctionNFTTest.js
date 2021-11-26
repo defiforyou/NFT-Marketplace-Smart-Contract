@@ -504,8 +504,8 @@ describe("Deploy DFY Factory", (done) => {
             infoAuction = await _auctionNFTContract.auctions(0);
             let marketFee = BigInt(infoAuction.bidValue) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
             let amountPaidToSeller = BigInt(infoAuction.bidValue) - BigInt(marketFee);
-            let feeGasBuyOfBid1 = "82223952067008";
-            let feeGasBuyOfBid2 = "72369715420716";
+            let feeGasBuyOfBid1 = "82393270152000"; // 82223952067008
+            let feeGasBuyOfBid2 = "72538064095464";  // 72369715420716
 
             expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) + BigInt(feeGasBuyOfBid1));
             expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) + BigInt(infoAuction.bidValue) + BigInt(feeGasBuyOfBid2));
@@ -680,9 +680,6 @@ describe("Deploy DFY Factory", (done) => {
         //     // expect(newOwner === _bid2.address);
 
         // });
-
-
-
 
     });
 });

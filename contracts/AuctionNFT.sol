@@ -371,9 +371,8 @@ contract AuctionNFT is
                 "bid value"
             );
         }
-
         // Bid using BNB => Check msg.value == bidValue
-        if(_auctionSession.auctionData.currency == address(0)) {
+        if (_auctionSession.auctionData.currency == address(0)) {
             require(msg.value == bidValue, "Insufficient BNB");
         }
 
