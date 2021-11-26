@@ -393,6 +393,7 @@ contract AuctionNFT is
             _buyOut(auctionId);
         } else {
             // Transfer fund to contract
+            // require(false, "here");
             CommonLib.safeTransfer(
                 _auctionSession.auctionData.currency,
                 msg.sender,
@@ -475,15 +476,14 @@ contract AuctionNFT is
                         .originalCreator(),
                     _royaltyFee
                 );
-
-                // Transfer remaining amount to seller after deducting market fee and royalty fee
-                CommonLib.safeTransfer(
-                    _auctionSession.auctionData.currency,
-                    address(this),
-                    _auctionSession.auctionData.owner,
-                    amountPaidToSeller
-                );
             }
+            // Transfer remaining amount to seller after deducting market fee and royalty fee
+            CommonLib.safeTransfer(
+                _auctionSession.auctionData.currency,
+                address(this),
+                _auctionSession.auctionData.owner,
+                amountPaidToSeller
+            );
             // Transfer NFT to buyer
             DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
                 .safeTransferFrom(
