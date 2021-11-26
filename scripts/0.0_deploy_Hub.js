@@ -13,6 +13,7 @@ async function main() {
     const [deployer] = await hre.ethers.getSigners();
 
     console.log("============================================================\n\r");
+    console.log("Start time: ", Date(Date.now()));
     console.log("Deploying contracts with the account:", deployer.address);
     console.log("Account balance:", ((await deployer.getBalance()) / decimals).toString());
     console.log("============================================================\n\r");
@@ -33,6 +34,8 @@ async function main() {
 
     implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(HubContract.address);
     console.log(`${HubArtifact.contractName} implementation address: ${implementationAddress}`);
+
+    console.log(`Completed at ${Date(Date.now())}`);
 
     console.log("============================================================\n\r");
 }

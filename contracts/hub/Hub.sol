@@ -48,6 +48,7 @@ contract Hub is
         _setupRole(HubRoleLib.OPERATOR_ROLE, operator);
         _setupRole(HubRoleLib.PAUSER_ROLE, msg.sender);
         _setupRole(HubRoleLib.EVALUATOR_ROLE, msg.sender);
+        _setupRole(HubRoleLib.REGISTRANT, msg.sender);
 
         // Set OPERATOR_ROLE as EVALUATOR_ROLE's Admin Role
         _setRoleAdmin(HubRoleLib.EVALUATOR_ROLE, HubRoleLib.OPERATOR_ROLE);
@@ -93,21 +94,30 @@ contract Hub is
     function registerContract(bytes4 signature, address contractAddress)
         external
         override
-        onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE)
+        onlyRole(HubRoleLib.REGISTRANT)
     {
         ContractRegistry[signature] = contractAddress;
     }
 
-    function setSystemConfig(address _FeeWallet, address _FeeToken)
+    function getContractAddress(bytes4 signature)
         external
-        onlyRole(DEFAULT_ADMIN_ROLE)
+        view
+        override
+        returns (address contractAddress)
     {
-        if (_FeeWallet != address(0)) {
-            systemConfig.systemFeeWallet = _FeeWallet;
+        contractAddress = ContractRegistry[signature];
+    }
+
+    function setSystemConfig(address feeWallet, address feeToken)
+        external
+        onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE)
+    {
+        if (feeWallet != address(0)) {
+            systemConfig.systemFeeWallet = feeWallet;
         }
 
-        if (_FeeToken != address(0)) {
-            systemConfig.systemFeeToken = _FeeToken;
+        if (feeToken != address(0)) {
+            systemConfig.systemFeeToken = feeToken;
         }
     }
 
@@ -119,15 +129,6 @@ contract Hub is
     {
         feeWallet = systemConfig.systemFeeWallet;
         feeToken = systemConfig.systemFeeToken;
-    }
-
-    function getContractAddress(bytes4 signature)
-        external
-        view
-        override
-        returns (address contractAddress)
-    {
-        contractAddress = ContractRegistry[signature];
     }
 
     function setNFTConfiguration(

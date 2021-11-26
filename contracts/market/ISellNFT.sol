@@ -5,7 +5,6 @@ pragma solidity ^0.8.4;
 import "../base/BaseInterface.sol";
 
 interface ISellNFT is BaseInterface {
-
     /** Datatypes */
     struct Order {
         address collectionAddress;
@@ -63,4 +62,10 @@ interface ISellNFT is BaseInterface {
         address currency,
         address collectionAddress
     ) external;
+
+    function cancelListing(uint256 orderId) external;
+
+    function buyNFT(uint256 orderId, uint256 numberOfCopies) external payable;
+
+    function isTokenOnSales(uint256 tokenId, address collectionAddress) external view returns (bool);
 }

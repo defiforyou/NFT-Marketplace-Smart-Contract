@@ -1,10 +1,9 @@
 require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
-const { Proxies, NFTSettings } = require('./.deployment_data_test.json');
-const proxies = Proxies.Staging;
+const { Proxies, NFTSettings, MarketSettings } = require('./.deployment_data_test.json');
 
-const HubProxyAddr     = proxies.HUB_ADDRESS;
+const HubProxyAddr     = Proxies.BCTest.HUB_ADDRESS;
 const HubBuildName     = "contracts/hub/Hub.sol:Hub";
 
 // TODO: Set pawn config
@@ -22,6 +21,7 @@ async function main() {
     const [deployer] = await hre.ethers.getSigners();
 
     console.log("============================================================");
+    console.log("Start time: ", Date(Date.now()));
     console.log(`Initialize contracts with the account: ${deployer.address}`);  
     console.log("Account balance:", ((await deployer.getBalance())/decimals).toString());
     console.log("============================================================");
@@ -34,11 +34,16 @@ async function main() {
     // const RepuArtifact  = await hre.artifacts.readArtifact(RepuBuildName);
     // const RepuContract  = RepuFactory.attach(RepuProxyAddr);
 
-    console.log(`Initializing ${HubArtifact.contractName}`);
+    console.log(`Initializing \x1b[31m${HubArtifact.contractName}\x1b[0m`);
     console.log(`Setting NFT Configuration...`);
     await HubContract.setNFTConfiguration(NFTSettings.CollectionCreatingFee, BigInt(NFTSettings.MintingFee));
-    console.log(`Collection creating fee set at: ${NFTSettings.CollectionCreatingFee}`);
-    console.log(`Minting fee set at: ${NFTSettings.MintingFee}\n\r`);
+    console.log(`Collection creating fee set at: \x1b[31m${NFTSettings.CollectionCreatingFee}\x1b[0m`);
+    console.log(`Minting fee set at: \x1b[31m${NFTSettings.MintingFee}\x1b[0m\n\r`);
+
+    console.log(`Setting NFT Market Configuration...`);
+    await HubContract.setNFTMarketConfig(MarketSettings.ZOOM, MarketSettings.MarketFeeRate, MarketSettings.MarketFeeWallet);
+    console.log(`Market fee rate set at: \x1b[31m${MarketSettings.MarketFeeRate}\x1b[0m`);
+    console.log(`Market fee wallet set at: \x1b[31m${MarketSettings.MarketFeeWallet}\x1b[0m\n\r`);
 
     // console.log(`Setting contract operator...`);
     // await HubContract.setOperator(operator);
@@ -85,6 +90,8 @@ async function main() {
     // console.log(`Setting contract caller...`);
     // await RepuContract.addWhitelistedContractCaller(LoanProxyAddr);
     // console.log(`Contract caller set at address: ${LoanArtifact.contractName} - ${LoanProxyAddr}\n\r`);
+    
+    console.log(`Completed at ${Date(Date.now())}`);
 
     console.log("============================================================\n\r");
 

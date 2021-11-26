@@ -25,14 +25,11 @@ contract SellNFT is
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using ERC165CheckerUpgradeable for address;
 
-    // bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    // bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-
     CountersUpgradeable.Counter private _orderIdCounter;
     mapping(uint256 => Order) public orders;
 
     mapping(address => mapping(uint256 => bool))
-        public tokenFromCollectionIsOnSales;
+        private _tokenFromCollectionIsOnSales;
 
     function initialize(address _hub) public initializer {
         __UUPSUpgradeable_init();
@@ -43,19 +40,15 @@ contract SellNFT is
 
     /** ==================== Standard interface function implementations ==================== */
 
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyRoleAdmin
-    {}
-
     function supportsInterface(bytes4 interfaceId)
         public
         view
         override(ERC165Upgradeable, IERC165Upgradeable)
         returns (bool)
     {
-        return interfaceId == type(ISellNFT).interfaceId || super.supportsInterface(interfaceId);
+        return
+            interfaceId == type(ISellNFT).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     function signature() external pure override returns (bytes4) {
@@ -79,7 +72,7 @@ contract SellNFT is
 
         // Token from collection must not be on another sales order
         require(
-            tokenFromCollectionIsOnSales[collectionAddress][tokenId] == false,
+            _tokenFromCollectionIsOnSales[collectionAddress][tokenId] == false,
             "Token is already put on sales"
         );
 
@@ -109,7 +102,7 @@ contract SellNFT is
         // TODO: Check against NFT standards for valid number of copies from function input
         _order.numberOfCopies = numberOfCopies;
 
-        tokenFromCollectionIsOnSales[_order.collectionAddress][
+        _tokenFromCollectionIsOnSales[_order.collectionAddress][
             _order.tokenId
         ] = true;
 
@@ -128,13 +121,17 @@ contract SellNFT is
         emit NFTPutOnSales(orderId, _order, marketFee, _order.status);
     }
 
-    function cancelListing(uint256 orderId) external whenContractNotPaused {
+    function cancelListing(uint256 orderId)
+        external
+        override
+        whenContractNotPaused
+    {
         Order storage _order = orders[orderId];
 
         require(msg.sender == _order.owner, "Order's seller is required");
 
         // Delete token on sales flag
-        tokenFromCollectionIsOnSales[_order.collectionAddress][
+        _tokenFromCollectionIsOnSales[_order.collectionAddress][
             _order.tokenId
         ] = false;
 
@@ -147,6 +144,7 @@ contract SellNFT is
     function buyNFT(uint256 orderId, uint256 numberOfCopies)
         external
         payable
+        override
         whenContractNotPaused
     {
         Order storage _order = orders[orderId];
@@ -229,10 +227,10 @@ contract SellNFT is
         );
 
         // If number of copies being purchased equal to listed number of copies,
-        // mark the order as completed and set tokenFromCollectionIsOnSales flag to false
+        // mark the order as completed and set _tokenFromCollectionIsOnSales flag to false
         if (numberOfCopies == _order.numberOfCopies) {
             _order.status = OrderStatus.COMPLETED;
-            tokenFromCollectionIsOnSales[_order.collectionAddress][
+            _tokenFromCollectionIsOnSales[_order.collectionAddress][
                 _order.tokenId
             ] = false;
         }
@@ -252,6 +250,10 @@ contract SellNFT is
         );
 
         emit NFTBought(_purchase);
+    }
+
+    function isTokenOnSales(uint256 tokenId, address collectionAddress) external view override returns (bool) {
+        return _tokenFromCollectionIsOnSales[collectionAddress][tokenId];
     }
 
     function _calculateOrderFees(

@@ -46,7 +46,7 @@ interface HubInterface {
     function PauserRole() external pure returns (bytes32);
     function EvaluatorRole() external pure returns (bytes32);
 
-    function registerContract(bytes4 nameContract, address contractAddress)
+    function registerContract(bytes4 signature, address contractAddress)
         external;
 
     function getContractAddress(bytes4 signature)

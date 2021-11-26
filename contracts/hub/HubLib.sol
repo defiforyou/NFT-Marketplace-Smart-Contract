@@ -21,4 +21,6 @@ library HubRoleLib {
      * @dev EVALUATOR_ROLE: Whitelisted Evaluators who can mint NFT token after evaluation has been accepted.
      */
     bytes32 public constant EVALUATOR_ROLE = keccak256("EVALUATOR_ROLE");
+
+    bytes32 public constant REGISTRANT = keccak256("REGISTRANT");
 }

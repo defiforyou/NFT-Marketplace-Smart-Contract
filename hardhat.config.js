@@ -58,14 +58,19 @@ module.exports = {
       chainId: 97,
       gas: 8812388,
       // gasPrice: 20000000000,
-      accounts: { mnemonic: mnemonic },
-      from: Wallet
+      accounts: { 
+        mnemonic: mnemonic,
+        count: 100
+      }
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
       gasPrice: 20000000000,
-      accounts: { mnemonic: mnemonic }
+      accounts: { 
+        mnemonic: mnemonic,
+        count: 100
+      }
     }
   },
   etherscan: {
