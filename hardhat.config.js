@@ -4,6 +4,7 @@ require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-web3");
 require("@openzeppelin/hardhat-upgrades");
 require("hardhat-contract-sizer");
+require("hardhat-gas-reporter");
 
 const { InfuraKey, mnemonic, Wallet, BscScanApiKey, EtherscanApiKey, PrivateKey } = require('./.secret.json');
 
@@ -93,5 +94,10 @@ module.exports = {
   },
   mocha: {
     timeout: 600000
+  },
+  gasReporter: {
+    enabled: true,
+    currency: 'USD',
+    gasPrice: 21
   }
 };
