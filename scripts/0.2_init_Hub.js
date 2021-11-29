@@ -1,7 +1,7 @@
 require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
-const { Proxies, NFTSettings } = require('./.deployment_data_test.json');
+const { Proxies, NFTSettings, MarketSettings } = require('./.deployment_data_test.json');
 const proxies = Proxies.Staging;
 
 const HubProxyAddr     = proxies.HUB_ADDRESS;
@@ -34,11 +34,16 @@ async function main() {
     // const RepuArtifact  = await hre.artifacts.readArtifact(RepuBuildName);
     // const RepuContract  = RepuFactory.attach(RepuProxyAddr);
 
-    console.log(`Initializing ${HubArtifact.contractName}`);
+    console.log(`Initializing \x1b[31m${HubArtifact.contractName}\x1b[0m`);
     console.log(`Setting NFT Configuration...`);
     await HubContract.setNFTConfiguration(NFTSettings.CollectionCreatingFee, BigInt(NFTSettings.MintingFee));
-    console.log(`Collection creating fee set at: ${NFTSettings.CollectionCreatingFee}`);
-    console.log(`Minting fee set at: ${NFTSettings.MintingFee}\n\r`);
+    console.log(`Collection creating fee set at: \x1b[31m${NFTSettings.CollectionCreatingFee}\x1b[0m`);
+    console.log(`Minting fee set at: \x1b[31m${NFTSettings.MintingFee}\x1b[0m\n\r`);
+
+    console.log(`Setting NFT Market Configuration...`);
+    await HubContract.setNFTMarketConfig(MarketSettings.ZOOM, MarketSettings.MarketFeeRate, MarketSettings.MarketFeeWallet);
+    console.log(`Market fee rate set at: \x1b[31m${MarketSettings.MarketFeeRate}\x1b[0m`);
+    console.log(`Market fee wallet set at: \x1b[31m${MarketSettings.MarketFeeWallet}\x1b[0m\n\r`);
 
     // console.log(`Setting contract operator...`);
     // await HubContract.setOperator(operator);
