@@ -67,7 +67,7 @@ contract SellNFT is
             collectionAddress,
             tokenId,
             numberOfCopies,
-            msg.sender
+            _msgSender()
         );
 
         // Token from collection must not be on another sales order
@@ -78,12 +78,12 @@ contract SellNFT is
 
         //TODO: Extend support to other NFT standards. Only ERC-721 is supported at the moment.
         require(
-            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
+            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == _msgSender(),
             "Not token owner"
         );
         require(
             DefiForYouNFT(collectionAddress).isApprovedForAll(
-                msg.sender,
+                _msgSender(),
                 address(this)
             ),
             "Spender is not approved"
@@ -93,7 +93,7 @@ contract SellNFT is
         uint256 orderId = _orderIdCounter.current();
 
         Order storage _order = orders[orderId];
-        _order.owner = payable(msg.sender);
+        _order.owner = payable(_msgSender());
         _order.tokenId = tokenId;
         _order.collectionAddress = collectionAddress;
         _order.currency = currency;
@@ -128,7 +128,7 @@ contract SellNFT is
     {
         Order storage _order = orders[orderId];
 
-        require(msg.sender == _order.owner, "Order's seller is required");
+        require(_msgSender() == _order.owner, "Order's seller is required");
 
         // Delete token on sales flag
         _tokenFromCollectionIsOnSales[_order.collectionAddress][
@@ -156,7 +156,7 @@ contract SellNFT is
             _order.owner
         );
 
-        require(msg.sender != _order.owner, "Buying owned NFT");
+        require(_msgSender() != _order.owner, "Buying owned NFT");
 
         (
             uint256 ZOOM,
@@ -179,7 +179,7 @@ contract SellNFT is
         // Transfer fund to contract
         CommonLib.safeTransfer(
             _order.currency,
-            msg.sender,
+            _msgSender(),
             address(this),
             _totalPaidAmount
         );
@@ -222,7 +222,7 @@ contract SellNFT is
         // TODO: Extend support to ERC-1155
         DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
             _order.owner,
-            msg.sender,
+            _msgSender(),
             _order.tokenId
         );
 
@@ -237,7 +237,7 @@ contract SellNFT is
 
         Purchase memory _purchase = Purchase(
             orderId,
-            msg.sender,
+            _msgSender(),
             _order.collectionAddress,
             _order.tokenId,
             numberOfCopies,

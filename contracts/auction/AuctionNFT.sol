@@ -177,12 +177,10 @@ contract AuctionNFT is
             "auctionSession is ended"
         );
         // call buyOut internal function
-        _buyOut(auctionId);
+        _buyOut(auctionId, _auctionSession);
     }
 
-    function _buyOut(uint256 auctionId) internal whenContractNotPaused {
-        AuctionSession storage auctionSession = auctions[auctionId];
-
+    function _buyOut(uint256 auctionId, AuctionSession storage auctionSession) internal whenContractNotPaused {
         (
             uint256 zoom,
             uint256 marketFeeRate,
@@ -205,7 +203,7 @@ contract AuctionNFT is
             address(this),
             auctionSession.auctionData.buyOutPrice
         );
-        // todo : calculate based on buyOutPrice
+        
         // calculate total fee charged
         uint256 _totalFeeCharged = _marketFee + _royaltyFee;
         (bool success, uint256 amountPaidToSeller) = auctionSession
@@ -304,10 +302,10 @@ contract AuctionNFT is
                 bidValue >=
                     (_auctionSession.bidValue +
                         _auctionSession.auctionData.priceStep),
-                "higher bid required"
+                "Higher bid required"
             );
         } else {
-            require(bidValue > _auctionSession.bidValue, "higher bid required");
+            require(bidValue > _auctionSession.bidValue, "Higher bid required");
         }
 
         uint256 previousBidValue;
@@ -316,7 +314,7 @@ contract AuctionNFT is
             _auctionSession.auctionData.buyOutPrice > 0 &&
             bidValue >= _auctionSession.auctionData.buyOutPrice
         ) {
-            _buyOut(auctionId);
+            _buyOut(auctionId, _auctionSession);
         } else {
             // Transfer fund to contract
             CommonLib.safeTransfer(
