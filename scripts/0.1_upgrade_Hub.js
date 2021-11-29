@@ -1,7 +1,7 @@
 require('@nomiclabs/hardhat-ethers');
 
 const { Proxies } = require('./.deployment_data_test.json');
-const proxies = Proxies.Dev2;
+const proxies = Proxies.Staging;
 
 const HubProxyAddr = proxies.HUB_ADDRESS;
 const HubBuildName = "Hub";
