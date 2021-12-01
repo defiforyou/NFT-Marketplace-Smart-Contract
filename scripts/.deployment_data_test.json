@@ -54,6 +54,7 @@
             "NFT_FACTORY_ADDRESS":      "0x8D3F2Cf5CbFeB1C5c6B92032F4fdE5e4d92E04dd",
             "NFT_SALES_ADDRESS":        "0x91E031AD210901f54B75a565b4384BD4D0A7A6b3",
             "NFT_AUCTION_ADDRESS":      "0xc20A5de164F2AB8D7A921967B9a64CAffdA9015B"
-        }
+        },
+        "Beta": {}
     }
 }
