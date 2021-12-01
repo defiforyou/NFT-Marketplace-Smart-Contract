@@ -89,9 +89,7 @@ library CommonLib {
     function abs(int256 _input) internal pure returns (uint256) {
         return _input >= 0 ? uint256(_input) : uint256(_input * -1);
     }
-
-    // event getTime(uint256 startTime);
-
+    
     function getSecondsOfDuration(DurationType durationType, uint256 duration)
         internal
         pure
