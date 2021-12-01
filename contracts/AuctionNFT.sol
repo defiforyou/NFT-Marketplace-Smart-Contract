@@ -168,14 +168,14 @@ contract AuctionNFT is
         require(
             endTime <=
                 (startTime +
-                    CommonLib.getSecondsOfDuration(DurationType.DAY, 5)),
+                    CommonLib.getSecondsOfDuration(DurationType.DAY, 7)),
             "endTime > 7 days"
         );
         require(
             endTime >=
                 (startTime +
                     CommonLib.getSecondsOfDuration(DurationType.HOUR, 12)),
-            "endTime > 12 hours"
+            "endTime < 12 hours"
         );
 
         uint256 auctionId = _auctionIdCounter.current();
@@ -196,7 +196,7 @@ contract AuctionNFT is
 
         _auctionIdCounter.increment();
 
-        // lock nft of msg.sender in to contract
+        // lock nft of msg.sender into contract
         DefiForYouNFT(collectionAddress).safeTransferFrom(
             msg.sender,
             address(this),
@@ -373,7 +373,7 @@ contract AuctionNFT is
         }
 
         // Bid using BNB => Check msg.value == bidValue
-        if(_auctionSession.auctionData.currency == address(0)) {
+        if (_auctionSession.auctionData.currency == address(0)) {
             require(msg.value == bidValue, "Insufficient BNB");
         }
 
@@ -398,7 +398,6 @@ contract AuctionNFT is
             _buyOut(auctionId);
         } else {
             // Transfer fund to contract
-            // require(false, "here");
             CommonLib.safeTransfer(
                 _auctionSession.auctionData.currency,
                 msg.sender,
@@ -414,7 +413,7 @@ contract AuctionNFT is
                 _auctionSession.auctionData.currency,
                 address(this),
                 _auctionSession.winner,
-                _auctionSession.bidValue
+                previousBidValue
             );
         }
         _auctionSession.bidValue = bidValue;
@@ -524,12 +523,18 @@ contract AuctionNFT is
 
     function cancelAuction(uint256 auctionId) external whenContractNotPaused {
         AuctionSession storage _auctionSession = auctions[auctionId];
+
         require(
             _auctionSession.status == AuctionStatus.PENDING,
             "auction has been approved or finished"
         );
-        require(msg.sender == _auctionSession.auctionData.owner, "seller");
-        // pay nft back to seller
+        require(
+            (msg.sender == _auctionSession.auctionData.owner ||
+                hasRole(OPERATOR_ROLE, msg.sender)),
+            "seller or operator"
+        );
+
+        // transfer nft back to seller
         DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
             .safeTransferFrom(
                 address(this),
