@@ -7001,26 +7001,26 @@
             "contract": "AuctionNFT",
             "label": "contractHub",
             "type": "t_address",
-            "src": "contracts/auction/AuctionNFT.sol:34"
+            "src": "contracts/AuctionNFT.sol:34"
           },
           {
             "contract": "AuctionNFT",
             "label": "_auctionIdCounter",
-            "type": "t_struct(Counter)2530_storage",
-            "src": "contracts/auction/AuctionNFT.sol:36"
+            "type": "t_struct(Counter)1749_storage",
+            "src": "contracts/AuctionNFT.sol:36"
           },
           {
             "contract": "AuctionNFT",
             "label": "auctions",
-            "type": "t_mapping(t_uint256,t_struct(AuctionSession)8811_storage)",
-            "src": "contracts/auction/AuctionNFT.sol:37"
+            "type": "t_mapping(t_uint256,t_struct(AuctionSession)6981_storage)",
+            "src": "contracts/AuctionNFT.sol:37"
           }
         ],
         "types": {
           "t_address": {
             "label": "address"
           },
-          "t_struct(Counter)2530_storage": {
+          "t_struct(Counter)1749_storage": {
             "label": "struct CountersUpgradeable.Counter",
             "members": [
               {
@@ -7032,15 +7032,15 @@
           "t_uint256": {
             "label": "uint256"
           },
-          "t_mapping(t_uint256,t_struct(AuctionSession)8811_storage)": {
+          "t_mapping(t_uint256,t_struct(AuctionSession)6981_storage)": {
             "label": "mapping(uint256 => struct AuctionNFT.AuctionSession)"
           },
-          "t_struct(AuctionSession)8811_storage": {
+          "t_struct(AuctionSession)6981_storage": {
             "label": "struct AuctionNFT.AuctionSession",
             "members": [
               {
                 "label": "auctionData",
-                "type": "t_struct(AuctionData)8830_storage"
+                "type": "t_struct(AuctionData)7000_storage"
               },
               {
                 "label": "bidValue",
@@ -7052,11 +7052,11 @@
               },
               {
                 "label": "status",
-                "type": "t_enum(AuctionStatus)8836"
+                "type": "t_enum(AuctionStatus)7006"
               }
             ]
           },
-          "t_struct(AuctionData)8830_storage": {
+          "t_struct(AuctionData)7000_storage": {
             "label": "struct AuctionNFT.AuctionData",
             "members": [
               {
@@ -7097,7 +7097,7 @@
               }
             ]
           },
-          "t_enum(AuctionStatus)8836": {
+          "t_enum(AuctionStatus)7006": {
             "label": "enum AuctionNFT.AuctionStatus",
             "members": [
               "PENDING",
@@ -7313,6 +7313,221 @@
             ]
           },
           "t_enum(AuctionStatus)7006": {
+            "label": "enum AuctionNFT.AuctionStatus",
+            "members": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "FINISHED",
+              "CANCELLED"
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)43_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_struct(RoleData)43_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          }
+        }
+      }
+    },
+    "2fcbb86f0ac9ecb0fecb88d5d10f5a44f801d2284638a71d9840178a75b82405": {
+      "address": "0x705bBa7b79973f2B23dA01a9B911B325E702d898",
+      "txHash": "0x87456f564e28d08031601fe50219aaf036b6bf5a2542131acc56a80bcfec37b6",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:214"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:80"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:35"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)43_storage)",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:63"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:219"
+          },
+          {
+            "contract": "ERC721HolderUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol:34"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "AuctionNFT",
+            "label": "contractHub",
+            "type": "t_address",
+            "src": "contracts/AuctionNFT.sol:34"
+          },
+          {
+            "contract": "AuctionNFT",
+            "label": "_auctionIdCounter",
+            "type": "t_struct(Counter)2530_storage",
+            "src": "contracts/AuctionNFT.sol:36"
+          },
+          {
+            "contract": "AuctionNFT",
+            "label": "auctions",
+            "type": "t_mapping(t_uint256,t_struct(AuctionSession)8701_storage)",
+            "src": "contracts/AuctionNFT.sol:37"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(Counter)2530_storage": {
+            "label": "struct CountersUpgradeable.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_uint256,t_struct(AuctionSession)8701_storage)": {
+            "label": "mapping(uint256 => struct AuctionNFT.AuctionSession)"
+          },
+          "t_struct(AuctionSession)8701_storage": {
+            "label": "struct AuctionNFT.AuctionSession",
+            "members": [
+              {
+                "label": "auctionData",
+                "type": "t_struct(AuctionData)8720_storage"
+              },
+              {
+                "label": "bidValue",
+                "type": "t_uint256"
+              },
+              {
+                "label": "winner",
+                "type": "t_address"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(AuctionStatus)8726"
+              }
+            ]
+          },
+          "t_struct(AuctionData)8720_storage": {
+            "label": "struct AuctionNFT.AuctionData",
+            "members": [
+              {
+                "label": "owner",
+                "type": "t_address"
+              },
+              {
+                "label": "tokenId",
+                "type": "t_uint256"
+              },
+              {
+                "label": "collectionAddress",
+                "type": "t_address"
+              },
+              {
+                "label": "startingPrice",
+                "type": "t_uint256"
+              },
+              {
+                "label": "buyOutPrice",
+                "type": "t_uint256"
+              },
+              {
+                "label": "priceStep",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              },
+              {
+                "label": "startTime",
+                "type": "t_uint256"
+              },
+              {
+                "label": "endTime",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_enum(AuctionStatus)8726": {
             "label": "enum AuctionNFT.AuctionStatus",
             "members": [
               "PENDING",

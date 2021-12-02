@@ -294,7 +294,7 @@ contract AuctionNFT is
             auctionSession.bidValue
         );
 
-        // If the bidder bidded higher than buy out price, 
+        // If the bidder bidded higher than buy out price,
         // the exceeding amount will be transfered to fee wallet
         uint256 buyOutExceededAmount = auctionSession.bidValue >
             auctionSession.auctionData.buyOutPrice
@@ -403,13 +403,28 @@ contract AuctionNFT is
             require(bidValue > _auctionSession.bidValue, "higher bid required");
         }
 
-        uint256 previousBidValue;
+        address previousBidder = _auctionSession.winner;
+        uint256 previousBidValue = _auctionSession.bidValue;
 
+        if (previousBidder != address(0)) {
+            // refund for previous bidder
+            // previousBidValue = _auctionSession.bidValue;
+            CommonLib.safeTransfer(
+                _auctionSession.auctionData.currency,
+                address(this),
+                previousBidder,
+                previousBidValue
+            );
+        }
+
+        _auctionSession.bidValue = bidValue;
+        _auctionSession.winner = msg.sender;
+
+        // Switch to Buy out flow if bid value > buy out price
         if (
             _auctionSession.auctionData.buyOutPrice > 0 &&
             bidValue >= _auctionSession.auctionData.buyOutPrice
         ) {
-            _auctionSession.bidValue = bidValue;
             _buyOut(auctionId, _auctionSession);
         } else {
             // Transfer fund to contract
@@ -419,30 +434,17 @@ contract AuctionNFT is
                 address(this),
                 bidValue
             );
-        }
 
-        if (_auctionSession.winner != address(0)) {
-            // refund for previous bidder
-            previousBidValue = _auctionSession.bidValue;
-            CommonLib.safeTransfer(
-                _auctionSession.auctionData.currency,
-                address(this),
-                _auctionSession.winner,
-                previousBidValue
+            emit NFTAuctionBidded(
+                auctionId,
+                msg.sender,
+                _auctionSession.auctionData.tokenId,
+                _auctionSession.auctionData.collectionAddress,
+                _auctionSession.bidValue,
+                previousBidValue,
+                block.timestamp
             );
         }
-        _auctionSession.bidValue = bidValue;
-        _auctionSession.winner = msg.sender;
-
-        emit NFTAuctionBidded(
-            auctionId,
-            msg.sender,
-            _auctionSession.auctionData.tokenId,
-            _auctionSession.auctionData.collectionAddress,
-            _auctionSession.bidValue,
-            previousBidValue,
-            block.timestamp
-        );
     }
 
     function finishAuction(uint256 auctionId)
