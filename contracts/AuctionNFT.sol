@@ -261,9 +261,118 @@ contract AuctionNFT is
             _auctionSession.auctionData.buyOutPrice > 0,
             "Buy out disabled"
         );
-        // call buyOut internal function
+
+        // If there is a previous bidder, refund with last bid value
+        address previousBidder = _auctionSession.winner;
+        uint256 previousBidValue = _auctionSession.bidValue;
+
+        if (previousBidder != address(0)) {
+            // refund for previous bidder
+            // previousBidValue = _auctionSession.bidValue;
+            CommonLib.safeTransfer(
+                _auctionSession.auctionData.currency,
+                address(this),
+                previousBidder,
+                previousBidValue
+            );
+        }
+
+        // assign current user to auction's winner and execute Buy out flow
+        _auctionSession.winner = _msgSender();
         _auctionSession.bidValue = _auctionSession.auctionData.buyOutPrice;
         _buyOut(auctionId, _auctionSession);
+    }
+
+    function bid(uint256 auctionId, uint256 bidValue)
+        external
+        payable
+        whenContractNotPaused
+    {
+        AuctionSession storage _auctionSession = auctions[auctionId];
+
+        require(
+            _auctionSession.status == AuctionStatus.APPROVED,
+            "yet approved"
+        );
+
+        require(
+            block.timestamp > _auctionSession.auctionData.startTime,
+            "yet start"
+        );
+
+        require(block.timestamp < _auctionSession.auctionData.endTime, "ended");
+
+        require(
+            msg.sender != _auctionSession.auctionData.owner,
+            "bid owned NFT"
+        );
+
+        if (_auctionSession.winner == address(0)) {
+            require(
+                bidValue >= _auctionSession.auctionData.startingPrice,
+                "bid value"
+            );
+        }
+
+        // Bid using BNB => Check msg.value == bidValue
+        if (_auctionSession.auctionData.currency == address(0)) {
+            require(msg.value == bidValue, "Insufficient BNB");
+        }
+
+        // calculator priceStep
+        if (_auctionSession.auctionData.priceStep > 0) {
+            require(
+                bidValue >=
+                    (_auctionSession.bidValue +
+                        _auctionSession.auctionData.priceStep),
+                "higher bid required"
+            );
+        } else {
+            require(bidValue > _auctionSession.bidValue, "higher bid required");
+        }
+
+        address previousBidder = _auctionSession.winner;
+        uint256 previousBidValue = _auctionSession.bidValue;
+
+        if (previousBidder != address(0)) {
+            // refund for previous bidder
+            // previousBidValue = _auctionSession.bidValue;
+            CommonLib.safeTransfer(
+                _auctionSession.auctionData.currency,
+                address(this),
+                previousBidder,
+                previousBidValue
+            );
+        }
+
+        _auctionSession.winner = _msgSender();
+        _auctionSession.bidValue = bidValue;
+
+        // Switch to Buy out flow if bid value > buy out price
+        if (
+            _auctionSession.auctionData.buyOutPrice > 0 &&
+            bidValue >= _auctionSession.auctionData.buyOutPrice
+        ) {
+            _buyOut(auctionId, _auctionSession);
+        } else {
+            // Transfer fund to contract
+            CommonLib.safeTransfer(
+                _auctionSession.auctionData.currency,
+                _msgSender(),
+                address(this),
+                bidValue
+            );
+
+            emit NFTAuctionBidded(
+                auctionId,
+                _msgSender(),
+                _auctionSession.auctionData.tokenId,
+                _auctionSession.auctionData.collectionAddress,
+                _auctionSession.bidValue,
+                previousBidValue,
+                block.timestamp
+            );
+        }
     }
 
     function _buyOut(uint256 auctionId, AuctionSession storage auctionSession)
@@ -353,98 +462,6 @@ contract AuctionNFT is
             block.timestamp,
             auctionSession.status
         );
-    }
-
-    function bid(uint256 auctionId, uint256 bidValue)
-        external
-        payable
-        whenContractNotPaused
-    {
-        AuctionSession storage _auctionSession = auctions[auctionId];
-
-        require(
-            _auctionSession.status == AuctionStatus.APPROVED,
-            "yet approved"
-        );
-
-        require(
-            block.timestamp > _auctionSession.auctionData.startTime,
-            "yet start"
-        );
-
-        require(block.timestamp < _auctionSession.auctionData.endTime, "ended");
-
-        require(
-            msg.sender != _auctionSession.auctionData.owner,
-            "bid owned NFT"
-        );
-
-        if (_auctionSession.winner == address(0)) {
-            require(
-                bidValue >= _auctionSession.auctionData.startingPrice,
-                "bid value"
-            );
-        }
-
-        // Bid using BNB => Check msg.value == bidValue
-        if (_auctionSession.auctionData.currency == address(0)) {
-            require(msg.value == bidValue, "Insufficient BNB");
-        }
-
-        // calculator priceStep
-        if (_auctionSession.auctionData.priceStep > 0) {
-            require(
-                bidValue >=
-                    (_auctionSession.bidValue +
-                        _auctionSession.auctionData.priceStep),
-                "higher bid required"
-            );
-        } else {
-            require(bidValue > _auctionSession.bidValue, "higher bid required");
-        }
-
-        address previousBidder = _auctionSession.winner;
-        uint256 previousBidValue = _auctionSession.bidValue;
-
-        if (previousBidder != address(0)) {
-            // refund for previous bidder
-            // previousBidValue = _auctionSession.bidValue;
-            CommonLib.safeTransfer(
-                _auctionSession.auctionData.currency,
-                address(this),
-                previousBidder,
-                previousBidValue
-            );
-        }
-
-        _auctionSession.bidValue = bidValue;
-        _auctionSession.winner = msg.sender;
-
-        // Switch to Buy out flow if bid value > buy out price
-        if (
-            _auctionSession.auctionData.buyOutPrice > 0 &&
-            bidValue >= _auctionSession.auctionData.buyOutPrice
-        ) {
-            _buyOut(auctionId, _auctionSession);
-        } else {
-            // Transfer fund to contract
-            CommonLib.safeTransfer(
-                _auctionSession.auctionData.currency,
-                msg.sender,
-                address(this),
-                bidValue
-            );
-
-            emit NFTAuctionBidded(
-                auctionId,
-                msg.sender,
-                _auctionSession.auctionData.tokenId,
-                _auctionSession.auctionData.collectionAddress,
-                _auctionSession.bidValue,
-                previousBidValue,
-                block.timestamp
-            );
-        }
     }
 
     function finishAuction(uint256 auctionId)
