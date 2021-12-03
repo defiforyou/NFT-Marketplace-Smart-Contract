@@ -25,6 +25,9 @@ abstract contract BaseContract is
     address public contractHub;
 
     function __BaseContract_init(address _hub) internal initializer {
+        __UUPSUpgradeable_init();
+        __Pausable_init();
+
         __BaseContract_init_unchained();
 
         contractHub = _hub;
@@ -36,23 +39,31 @@ abstract contract BaseContract is
     }
 
     modifier onlyAdmin() {
-        _onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE);
+        _onlyRole(HubRoles.DEFAULT_ADMIN_ROLE);
         _;
     }
 
     modifier onlyOperator() {
-        _onlyRole(HubRoleLib.OPERATOR_ROLE);
+        _onlyRole(HubRoles.OPERATOR_ROLE);
         _;
     }
 
     modifier onlyPauser() {
-        _onlyRole(HubRoleLib.PAUSER_ROLE);
+        _onlyRole(HubRoles.PAUSER_ROLE);
         _;
     }
 
     modifier whenContractNotPaused() {
         _whenNotPaused();
         _;
+    }
+
+    function _whenNotPaused() private view {
+        require(!paused(), "Pausable: paused");
+    }
+
+    function _onlyRole(bytes32 role) internal view {
+        _checkRole(role, _msgSender());
     }
 
     /**
@@ -77,14 +88,6 @@ abstract contract BaseContract is
         }
     }
 
-    function _onlyRole(bytes32 role) private view {
-        _checkRole(role, _msgSender());
-    }
-
-    function _whenNotPaused() private view {
-        require(!paused(), "Pausable: paused");
-    }
-
     function pause() external onlyPauser {
         _pause();
     }
@@ -96,11 +99,6 @@ abstract contract BaseContract is
     function setContractHub(address _hub) external override onlyAdmin {
         contractHub = _hub;
     }
-
-    // function _registerToHub() private {
-    //     HubInterface(contractHub).registerContract(this.signature(), address(this));
-    //     IAccessControlUpgradeable(contractHub).renounceRole(HubRoleLib.REGISTRANT, address(this));
-    // }
 
     function _authorizeUpgrade(address)
         internal

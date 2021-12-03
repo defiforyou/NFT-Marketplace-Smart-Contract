@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.4;
 
-library HubRoleLib {
+library HubRoles {
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     /**
      * @dev OPERATOR_ROLE: those who have this role can assigne EVALUATOR_ROLE to others

@@ -1,9 +1,9 @@
 require('@nomiclabs/hardhat-ethers');
+const hre = require('hardhat');
 
 const { Proxies } = require('./.deployment_data_test.json');
-const proxies = Proxies.Staging;
 
-const HubProxyAddr = proxies.HUB_ADDRESS;
+const HubProxyAddr = Proxies.BCTest.HUB_ADDRESS;
 const HubBuildName = "Hub";
 
 const decimals      = 10**18;
@@ -22,8 +22,8 @@ async function main() {
 
     const HubImplV1        = await hre.upgrades.erc1967.getImplementationAddress(HubContractV1.address);
 
-    console.log(`Upgrading ${HubArtifactV1.contractName} at proxy: ${HubContractV1.address}`);
-    console.log(`Current implementation address: ${HubImplV1}`);
+    console.log(`Upgrading \x1b[31m${HubArtifactV1.contractName} at proxy: \x1b[31m${HubContractV1.address}\x1b[0m`);
+    console.log(`Current implementation address: \x1b[31m${HubImplV1}\x1b[0m`);
 
     const HubFactoryV2     = await hre.ethers.getContractFactory(HubBuildName);
     const HubArtifactV2    = await hre.artifacts.readArtifact(HubBuildName);
@@ -33,8 +33,9 @@ async function main() {
     
     const HubImplV2    = await hre.upgrades.erc1967.getImplementationAddress(HubContractV2.address);
 
-    console.log(`${HubArtifactV2.contractName} deployed to: ${HubContractV2.address}`);
-    console.log(`New implementation Address: ${HubImplV2}`);
+    console.log(`\x1b[31m${HubArtifactV2.contractName}\x1b[0m deployed to: \x1b[31m${HubContractV2.address}\x1b[0m`);
+    console.log(`New implementation Address: \x1b[31m${HubImplV2}\x1b[0m\n\r`);
+    console.log(`Completed at ${Date(Date.now())}`);
 
     console.log("============================================================\n\r");
 }

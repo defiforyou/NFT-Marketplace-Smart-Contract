@@ -14,9 +14,6 @@ import "../dfy-nft/DefiForYouNFT.sol";
 import "./ISellNFT.sol";
 
 contract SellNFT is
-    Initializable,
-    UUPSUpgradeable,
-    PausableUpgradeable,
     BaseContract,
     ISellNFT
 {
@@ -32,9 +29,6 @@ contract SellNFT is
         private _tokenFromCollectionIsOnSales;
 
     function initialize(address _hub) public initializer {
-        __UUPSUpgradeable_init();
-        __Pausable_init();
-
         __BaseContract_init(_hub);
     }
 

@@ -10,7 +10,6 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-// import "../access/DFY-AccessControl.sol";
 import "../libs/CommonLib.sol";
 import "./HubLib.sol";
 import "./HubInterface.sol";
@@ -24,7 +23,7 @@ contract Hub is
 {
     using AddressUpgradeable for address;
 
-    mapping(bytes4 => address) public ContractRegistry;
+    mapping(bytes4 => Registry) public ContractRegistry;
 
     SystemConfig public systemConfig;
     PawnConfig public pawnConfig;
@@ -44,14 +43,14 @@ contract Hub is
         __Pausable_init();
         __AccessControl_init();
 
-        _setupRole(HubRoleLib.DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(HubRoleLib.OPERATOR_ROLE, operator);
-        _setupRole(HubRoleLib.PAUSER_ROLE, msg.sender);
-        _setupRole(HubRoleLib.EVALUATOR_ROLE, msg.sender);
-        _setupRole(HubRoleLib.REGISTRANT, msg.sender);
+        _setupRole(HubRoles.DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(HubRoles.OPERATOR_ROLE, operator);
+        _setupRole(HubRoles.PAUSER_ROLE, msg.sender);
+        _setupRole(HubRoles.EVALUATOR_ROLE, msg.sender);
+        _setupRole(HubRoles.REGISTRANT, msg.sender);
 
         // Set OPERATOR_ROLE as EVALUATOR_ROLE's Admin Role
-        _setRoleAdmin(HubRoleLib.EVALUATOR_ROLE, HubRoleLib.OPERATOR_ROLE);
+        _setRoleAdmin(HubRoles.EVALUATOR_ROLE, HubRoles.OPERATOR_ROLE);
 
         systemConfig.systemFeeWallet = feeWallet;
         systemConfig.systemFeeToken = feeToken;
@@ -66,51 +65,53 @@ contract Hub is
         require(!paused(), "Pausable: paused");
     }
 
-    function pause() external onlyRole(HubRoleLib.PAUSER_ROLE) {
+    function pause() external onlyRole(HubRoles.PAUSER_ROLE) {
         _pause();
     }
 
-    function unPause() external onlyRole(HubRoleLib.PAUSER_ROLE) {
+    function unPause() external onlyRole(HubRoles.PAUSER_ROLE) {
         _unpause();
     }
 
     function AdminRole() public pure override returns (bytes32) {
-        return HubRoleLib.DEFAULT_ADMIN_ROLE;
+        return HubRoles.DEFAULT_ADMIN_ROLE;
     }
 
     function OperatorRole() public pure override returns (bytes32) {
-        return HubRoleLib.OPERATOR_ROLE;
+        return HubRoles.OPERATOR_ROLE;
     }
 
     function PauserRole() public pure override returns (bytes32) {
-        return HubRoleLib.PAUSER_ROLE;
+        return HubRoles.PAUSER_ROLE;
     }
 
     function EvaluatorRole() public pure override returns (bytes32) {
-        return HubRoleLib.EVALUATOR_ROLE;
+        return HubRoles.EVALUATOR_ROLE;
     }
 
     /** ==================== Hub operation functions ==================== */
-    function registerContract(bytes4 signature, address contractAddress)
-        external
-        override
-        onlyRole(HubRoleLib.REGISTRANT)
-    {
-        ContractRegistry[signature] = contractAddress;
+    function registerContract(
+        bytes4 signature,
+        address contractAddress,
+        string calldata contractName
+    ) external override onlyRole(HubRoles.REGISTRANT) {
+        ContractRegistry[signature] = Registry(contractAddress, contractName);
     }
 
     function getContractAddress(bytes4 signature)
         external
         view
         override
-        returns (address contractAddress)
+        returns (address contractAddress, string memory contractName)
     {
-        contractAddress = ContractRegistry[signature];
+        Registry memory _registry = ContractRegistry[signature];
+        contractAddress = _registry.contractAddress;
+        contractName = _registry.contractName;
     }
 
     function setSystemConfig(address feeWallet, address feeToken)
         external
-        onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE)
+        onlyRole(HubRoles.DEFAULT_ADMIN_ROLE)
     {
         if (feeWallet != address(0)) {
             systemConfig.systemFeeWallet = feeWallet;
@@ -134,7 +135,7 @@ contract Hub is
     function setNFTConfiguration(
         int256 collectionCreatingFee,
         int256 mintingFee
-    ) external onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE) {
+    ) external onlyRole(HubRoles.DEFAULT_ADMIN_ROLE) {
         if (collectionCreatingFee >= 0) {
             nftCollectionConfig.collectionCreatingFee = CommonLib.abs(
                 collectionCreatingFee
@@ -149,7 +150,7 @@ contract Hub is
         int256 zoom,
         int256 marketFeeRate,
         address marketFeeWallet
-    ) external onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE) {
+    ) external onlyRole(HubRoles.DEFAULT_ADMIN_ROLE) {
         if (zoom >= 0) {
             nftMarketConfig.ZOOM = CommonLib.abs(zoom);
         }
@@ -191,7 +192,7 @@ contract Hub is
     function _authorizeUpgrade(address)
         internal
         override
-        onlyRole(HubRoleLib.DEFAULT_ADMIN_ROLE)
+        onlyRole(HubRoles.DEFAULT_ADMIN_ROLE)
     {}
 
     function supportsInterface(bytes4 interfaceId)

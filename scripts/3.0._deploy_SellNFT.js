@@ -10,7 +10,6 @@ const HubProxy = Proxies.BCTest.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 
-
 async function main() {
     const [deployer] = await hre.ethers.getSigners();
 
@@ -30,16 +29,17 @@ async function main() {
     console.log(`NFT_SALES_ADDRESS: \x1b[36m${NFTSalesContract.address}\x1b[0m`);
     console.log(`Signature: \x1b[36m${signature}\x1b[0m`);
 
-    implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(NFTSalesContract.address);
-    console.log(`${NFTSalesArtifact.contractName} implementation address: \x1b[36m${implementationAddress}\x1b[0m\n\r`);
+    const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(NFTSalesContract.address);
+    console.log(`\x1b[36m${NFTSalesArtifact.contractName}\x1b[0m implementation address: \x1b[36m${implementationAddress}\x1b[0m\n\r`);
 
     const HubFactory   = await hre.ethers.getContractFactory(HubBuildName);
     const HubArtifact  = await hre.artifacts.readArtifact(HubBuildName);
     const HubContract  = HubFactory.attach(HubProxy);
 
-    console.log(`Registration new contract to Hub...`);
+    console.log(`HUB_ADDRESS: \x1b[31m${HubContract.address}\x1b[0m`);
+    console.log(`Registering \x1b[36m${NFTSalesArtifact.contractName}\x1b[0m to \x1b[31m${HubArtifact.contractName}\x1b[0m...`);
     
-    await HubContract.registerContract(signature, NFTSalesContract.address);
+    await HubContract.registerContract(signature, NFTSalesContract.address, NFTSalesArtifact.contractName);
     console.log(`Completed at ${Date(Date.now())}`);
 
     console.log("============================================================\n\r");

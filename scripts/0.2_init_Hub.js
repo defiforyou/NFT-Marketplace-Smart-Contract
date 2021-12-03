@@ -2,18 +2,10 @@ require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
 const { Proxies, NFTSettings, MarketSettings } = require('./.deployment_data_test.json');
+const proxiesEnv = Proxies.BCTest;
 
-const HubProxyAddr     = Proxies.BCTest.HUB_ADDRESS;
+const HubProxyAddr     = proxiesEnv.HUB_ADDRESS;
 const HubBuildName     = "contracts/hub/Hub.sol:Hub";
-
-// TODO: Set pawn config
-// const lateThreshold     = PawnConfig.LateThreshold;
-// const penaltyRate       = PawnConfig.PenaltyRate;
-// const prepaidFeeRate    = PawnConfig.PrepaidFee;
-// const systemFeeRate     = PawnConfig.SystemFee;
-// const operator          = PawnConfig.Operator;
-// const feeWallet         = PawnConfig.FeeWallet;
-
 
 const decimals          = 10**18;
 
@@ -29,10 +21,6 @@ async function main() {
     const HubFactory   = await hre.ethers.getContractFactory(HubBuildName);
     const HubArtifact  = await hre.artifacts.readArtifact(HubBuildName);
     const HubContract  = HubFactory.attach(HubProxyAddr);
-
-    // const RepuFactory   = await hre.ethers.getContractFactory(RepuBuildName);
-    // const RepuArtifact  = await hre.artifacts.readArtifact(RepuBuildName);
-    // const RepuContract  = RepuFactory.attach(RepuProxyAddr);
 
     console.log(`Initializing \x1b[31m${HubArtifact.contractName}\x1b[0m`);
     console.log(`Setting NFT Configuration...`);

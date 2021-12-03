@@ -4,6 +4,11 @@ pragma solidity ^0.8.4;
 
 interface HubInterface {
     /** Data Types */
+    struct Registry {
+        address contractAddress;
+        string contractName;
+    }
+
     struct SystemConfig {
         address systemFeeWallet;
         address systemFeeToken;
@@ -42,19 +47,28 @@ interface HubInterface {
     /** Functions */
     /** ROLES */
     function AdminRole() external pure returns (bytes32);
+
     function OperatorRole() external pure returns (bytes32);
+
     function PauserRole() external pure returns (bytes32);
+
     function EvaluatorRole() external pure returns (bytes32);
 
-    function registerContract(bytes4 signature, address contractAddress)
-        external;
+    function registerContract(
+        bytes4 signature,
+        address contractAddress,
+        string calldata contractName
+    ) external;
 
     function getContractAddress(bytes4 signature)
         external
         view
-        returns (address contractAddres);
+        returns (address contractAddress, string memory contractName);
 
-    function getSystemConfig() external view returns (address, address);
+    function getSystemConfig()
+        external
+        view
+        returns (address feeWallet, address feeToken);
 
     function getNFTCollectionConfig()
         external

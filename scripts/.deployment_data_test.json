@@ -10,7 +10,7 @@
     },
     "HubSettings": {
         "Operator": "0xA120581F875A201E8f779280332a19C0f7974dDd",
-        "SystemFeeWallet": "0xfb352202e1aad6d0f0b7d0e50abd4ad2bae4d81b",
+        "SystemFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3",
         "SystemFeeToken": "0x20f1de452e9057fe863b99d33cf82dbee0c45b14"
     },
     "PawnSettings": {
@@ -34,14 +34,14 @@
     "MarketSettings": {
         "ZOOM": 100000,
         "MarketFeeRate": 250000,
-        "MarketFeeWallet": "0xfB352202e1AaD6d0f0B7d0E50abd4AD2bAe4d81B"
+        "MarketFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3"
     },
     "Proxies": {
         "BCTest": {
-            "HUB_ADDRESS":              "0xF4EA74c9Cd8aC46E875ab964b0cA24FeD25568d7",
-            "NFT_FACTORY_ADDRESS":      "0x288Eb23EB8A9C52789ad50dC53875Cd5614Bac63",
-            "NFT_SALES_ADDRESS":        "0x893c6e4A5F681FB4F61C5A3Ee24e735980277201",
-            "NFT_AUCTION_ADDRESS":      "0xCEe31B443B9209B37A914E8a20CCDAD77ca8B965"
+            "HUB_ADDRESS":              "0x75044b7692531aAe045325666199F17FCC2a79dc",
+            "NFT_FACTORY_ADDRESS":      "0xDaa16a09228914BE6CF7E7dC5A5b605fbDF85A1d",
+            "NFT_SALES_ADDRESS":        "0xeE78B9bb33e2510298fd76Cf04a65d25E07761D4",
+            "NFT_AUCTION_ADDRESS":      "0x78574F34908db4bb35914Fd77D271D2c7c8250dF"
         },
         "Dev2": {
             "HUB_ADDRESS":              "0xB86988247c7679857783927d00de3c32AD82d6Eb",
@@ -56,5 +56,12 @@
             "NFT_AUCTION_ADDRESS":      "0xc20A5de164F2AB8D7A921967B9a64CAffdA9015B"
         },
         "Beta": {}
+    },
+    "Signature": {
+        "BCTest": {
+            "NFT_FACTORY": "0xe2671856",
+            "NFT_SALES": "0xff574eed",
+            "NFT_AUCTION": "0x2323688f"
+        }
     }
 }
