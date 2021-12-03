@@ -13,7 +13,6 @@ describe("Deploy DFY Factory", (done) => {
 
     let _DFYFactoryContract = null;
     let _DFYContract = null;
-    let _tiaContract = null;
     let _auctionNFTContract = null;
     let _DFYTokenContract = null;
     let _hubContract = null;
