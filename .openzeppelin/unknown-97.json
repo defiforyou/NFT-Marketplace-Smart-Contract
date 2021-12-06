@@ -8848,48 +8848,48 @@
           {
             "contract": "Hub",
             "label": "ContractRegistry",
-            "type": "t_mapping(t_bytes4,t_struct(Registry)11696_storage)",
+            "type": "t_mapping(t_bytes4,t_struct(Registry)3328_storage)",
             "src": "contracts/hub/Hub.sol:26"
           },
           {
             "contract": "Hub",
             "label": "systemConfig",
-            "type": "t_struct(SystemConfig)11701_storage",
+            "type": "t_struct(SystemConfig)3333_storage",
             "src": "contracts/hub/Hub.sol:28"
           },
           {
             "contract": "Hub",
             "label": "pawnConfig",
-            "type": "t_struct(PawnConfig)11716_storage",
+            "type": "t_struct(PawnConfig)3348_storage",
             "src": "contracts/hub/Hub.sol:29"
           },
           {
             "contract": "Hub",
             "label": "pawnNFTConfig",
-            "type": "t_struct(PawnNFTConfig)11735_storage",
+            "type": "t_struct(PawnNFTConfig)3367_storage",
             "src": "contracts/hub/Hub.sol:30"
           },
           {
             "contract": "Hub",
             "label": "nftCollectionConfig",
-            "type": "t_struct(NFTCollectionConfig)11740_storage",
+            "type": "t_struct(NFTCollectionConfig)3372_storage",
             "src": "contracts/hub/Hub.sol:31"
           },
           {
             "contract": "Hub",
             "label": "nftMarketConfig",
-            "type": "t_struct(NFTMarketConfig)11747_storage",
+            "type": "t_struct(NFTMarketConfig)3379_storage",
             "src": "contracts/hub/Hub.sol:32"
           }
         ],
         "types": {
-          "t_mapping(t_bytes4,t_struct(Registry)11696_storage)": {
+          "t_mapping(t_bytes4,t_struct(Registry)3328_storage)": {
             "label": "mapping(bytes4 => struct HubInterface.Registry)"
           },
           "t_bytes4": {
             "label": "bytes4"
           },
-          "t_struct(Registry)11696_storage": {
+          "t_struct(Registry)3328_storage": {
             "label": "struct HubInterface.Registry",
             "members": [
               {
@@ -8908,7 +8908,7 @@
           "t_string_storage": {
             "label": "string"
           },
-          "t_struct(SystemConfig)11701_storage": {
+          "t_struct(SystemConfig)3333_storage": {
             "label": "struct HubInterface.SystemConfig",
             "members": [
               {
@@ -8921,7 +8921,7 @@
               }
             ]
           },
-          "t_struct(PawnConfig)11716_storage": {
+          "t_struct(PawnConfig)3348_storage": {
             "label": "struct HubInterface.PawnConfig",
             "members": [
               {
@@ -8956,7 +8956,7 @@
           "t_mapping(t_address,t_uint256)": {
             "label": "mapping(address => uint256)"
           },
-          "t_struct(PawnNFTConfig)11735_storage": {
+          "t_struct(PawnNFTConfig)3367_storage": {
             "label": "struct HubInterface.PawnNFTConfig",
             "members": [
               {
@@ -8989,7 +8989,7 @@
               }
             ]
           },
-          "t_struct(NFTCollectionConfig)11740_storage": {
+          "t_struct(NFTCollectionConfig)3372_storage": {
             "label": "struct HubInterface.NFTCollectionConfig",
             "members": [
               {
@@ -9002,7 +9002,7 @@
               }
             ]
           },
-          "t_struct(NFTMarketConfig)11747_storage": {
+          "t_struct(NFTMarketConfig)3379_storage": {
             "label": "struct HubInterface.NFTMarketConfig",
             "members": [
               {

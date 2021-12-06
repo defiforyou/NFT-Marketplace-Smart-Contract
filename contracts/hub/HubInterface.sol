@@ -29,7 +29,6 @@ interface HubInterface {
         uint256 penaltyRate;
         uint256 prepaidFeeRate;
         uint256 lateThreshold;
-        mapping(address => uint256) whitelistedEvaluationContract;
         mapping(address => uint256) whitelistedCollateral;
     }
 
@@ -69,6 +68,38 @@ interface HubInterface {
         external
         view
         returns (address feeWallet, address feeToken);
+
+    function getWhitelistCollateral_NFT(address collectionAddress)
+        external
+        view
+        returns (uint256 status);
+
+    function getPawnNFTConfig()
+        external
+        view
+        returns (
+            uint256 zoom,
+            uint256 feeRate,
+            uint256 penaltyRate,
+            uint256 prepaidFeeRate,
+            uint256 lateThreshold
+        );
+
+    function getWhitelistCollateral(address cryptoTokenAddress)
+        external
+        view
+        returns (uint256 status);
+
+    function getPawnConfig()
+        external
+        view
+        returns (
+            uint256 zoom,
+            uint256 feeRate,
+            uint256 penaltyRate,
+            uint256 prepaidFeeRate,
+            uint256 lateThreshold
+        );
 
     function getNFTCollectionConfig()
         external

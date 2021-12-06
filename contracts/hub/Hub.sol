@@ -22,6 +22,7 @@ contract Hub is
     HubInterface
 {
     using AddressUpgradeable for address;
+    using CountersUpgradeable for CountersUpgradeable.Counter;
 
     mapping(bytes4 => Registry) public ContractRegistry;
 
@@ -32,6 +33,7 @@ contract Hub is
     NFTMarketConfig public nftMarketConfig;
 
     // TODO: New state variables must go below this line -----------------------------
+    CountersUpgradeable.Counter public numberOfContract;
 
     /** ==================== Contract initializing & configuration ==================== */
     function initialize(
@@ -55,6 +57,32 @@ contract Hub is
         systemConfig.systemFeeWallet = feeWallet;
         systemConfig.systemFeeToken = feeToken;
     }
+
+    /** ==================== Standard interface function implementations ==================== */
+
+    function _authorizeUpgrade(address)
+        internal
+        override
+        onlyRole(HubRoles.DEFAULT_ADMIN_ROLE)
+    {}
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControlUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    // TODO: Consider a new Role for PawnNFT for creating Loan contract
+    // function setRolePawnNFTContract()
+    //     external
+    //     onlyRole(HubRoles.DEFAULT_ADMIN_ROLE)
+    // {
+    //     address _pawnNFT = ContractRegistry[type(ILoanNFT).interfaceId];
+    //     grantRole(HubRoles.OPERATOR_ROLE, _pawnNFT);
+    // }
 
     modifier whenContractNotPaused() {
         _whenNotPaused();
@@ -96,6 +124,7 @@ contract Hub is
         string calldata contractName
     ) external override onlyRole(HubRoles.REGISTRANT) {
         ContractRegistry[signature] = Registry(contractAddress, contractName);
+        numberOfContract.increment();
     }
 
     function getContractAddress(bytes4 signature)
@@ -131,6 +160,157 @@ contract Hub is
         feeWallet = systemConfig.systemFeeWallet;
         feeToken = systemConfig.systemFeeToken;
     }
+
+    /** ================= Config PAWN NFT ============== */
+    // function setEvaluationContract(address evaluationContract, uint256 status)
+    //     external
+    //     onlyRole(DEFAULT_ADMIN_ROLE)
+    // {
+    //     pawnNFTConfig.whitelistedEvaluationContract[
+    //         evaluationContract
+    //     ] = status;
+    // }
+
+    // function getEvaluationContract(address evaluationContract)
+    //     external
+    //     view
+    //     override
+    //     returns (uint256 status)
+    // {
+    //     status = pawnNFTConfig.whitelistedEvaluationContract[
+    //         evaluationContract
+    //     ];
+    // }
+
+    function setWhitelistCollateral_NFT(address cryptoAddress, uint256 status)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        pawnNFTConfig.whitelistedCollateral[cryptoAddress] = status;
+    }
+
+    function getWhitelistCollateral_NFT(address cryptoAddress)
+        external
+        view
+        override
+        returns (uint256 status)
+    {
+        status = pawnNFTConfig.whitelistedCollateral[cryptoAddress];
+    }
+
+    function setPawnNFTConfig(
+        int256 zoom,
+        int256 feeRate,
+        int256 penaltyRate,
+        int256 prepaidFeeRate,
+        int256 lateThreshold
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (zoom >= 0) {
+            pawnNFTConfig.ZOOM = CommonLib.abs(zoom);
+        }
+
+        if (feeRate >= 0) {
+            pawnNFTConfig.systemFeeRate = CommonLib.abs(feeRate);
+        }
+
+        if (penaltyRate >= 0) {
+            pawnNFTConfig.penaltyRate = CommonLib.abs(penaltyRate);
+        }
+
+        if (prepaidFeeRate >= 0) {
+            pawnNFTConfig.prepaidFeeRate = CommonLib.abs(prepaidFeeRate);
+        }
+
+        if (lateThreshold >= 0) {
+            pawnNFTConfig.lateThreshold = CommonLib.abs(lateThreshold);
+        }
+    }
+
+    function getPawnNFTConfig()
+        external
+        view
+        override
+        returns (
+            uint256 zoom,
+            uint256 feeRate,
+            uint256 penaltyRate,
+            uint256 prepaidFeeRate,
+            uint256 lateThreshold
+        )
+    {
+        zoom = pawnNFTConfig.ZOOM;
+        feeRate = pawnNFTConfig.systemFeeRate;
+        penaltyRate = pawnNFTConfig.penaltyRate;
+        prepaidFeeRate = pawnNFTConfig.prepaidFeeRate;
+        lateThreshold = pawnNFTConfig.lateThreshold;
+    }
+
+    /** =================== Config PAWN crypto ===================*/
+
+    function setWhitelistCollateral(address cryptoAddress, uint256 status)
+        external
+        onlyRole(HubRoles.DEFAULT_ADMIN_ROLE)
+    {
+        pawnConfig.whitelistedCollateral[cryptoAddress] = status;
+    }
+
+    function getWhitelistCollateral(address cryptoAddress)
+        external
+        view
+        override
+        returns (uint256 status)
+    {
+        status = pawnConfig.whitelistedCollateral[cryptoAddress];
+    }
+
+    function setPawnConfig(
+        int256 zoom,
+        int256 feeRate,
+        int256 penaltyRate,
+        int256 prepaidFeeRate,
+        int256 lateThreshold
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (zoom >= 0) {
+            pawnNFTConfig.ZOOM = CommonLib.abs(zoom);
+        }
+
+        if (feeRate >= 0) {
+            pawnNFTConfig.systemFeeRate = CommonLib.abs(feeRate);
+        }
+
+        if (penaltyRate >= 0) {
+            pawnNFTConfig.penaltyRate = CommonLib.abs(penaltyRate);
+        }
+
+        if (prepaidFeeRate >= 0) {
+            pawnNFTConfig.prepaidFeeRate = CommonLib.abs(prepaidFeeRate);
+        }
+
+        if (lateThreshold >= 0) {
+            pawnNFTConfig.lateThreshold = CommonLib.abs(lateThreshold);
+        }
+    }
+
+    function getPawnConfig()
+        external
+        view
+        override
+        returns (
+            uint256 zoom,
+            uint256 feeRate,
+            uint256 penaltyRate,
+            uint256 prepaidFeeRate,
+            uint256 lateThreshold
+        )
+    {
+        zoom = pawnConfig.ZOOM;
+        feeRate = pawnConfig.systemFeeRate;
+        penaltyRate = pawnConfig.penaltyRate;
+        prepaidFeeRate = pawnConfig.prepaidFeeRate;
+        lateThreshold = pawnConfig.lateThreshold;
+    }
+
+    /** =================== Config NFT Collection & Market ===================*/
 
     function setNFTConfiguration(
         int256 collectionCreatingFee,
@@ -185,22 +365,5 @@ contract Hub is
         zoom = nftMarketConfig.ZOOM;
         marketFeeRate = nftMarketConfig.marketFeeRate;
         marketFeeWallet = nftMarketConfig.marketFeeWallet;
-    }
-
-    /** ==================== Standard interface function implementations ==================== */
-
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyRole(HubRoles.DEFAULT_ADMIN_ROLE)
-    {}
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(AccessControlUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }

@@ -5,7 +5,7 @@ pragma solidity ^0.8.4;
 library HubRoles {
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     /**
-     * @dev OPERATOR_ROLE: those who have this role can assigne EVALUATOR_ROLE to others
+     * @dev OPERATOR_ROLE: those who have this role can assign EVALUATOR_ROLE to others
      */
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
@@ -22,5 +22,8 @@ library HubRoles {
      */
     bytes32 public constant EVALUATOR_ROLE = keccak256("EVALUATOR_ROLE");
 
+    /**
+     * @dev REGISTRANT: those who have this role can register new contract to the contract Hub
+     */
     bytes32 public constant REGISTRANT = keccak256("REGISTRANT");
 }
