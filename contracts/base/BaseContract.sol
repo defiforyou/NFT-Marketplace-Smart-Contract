@@ -25,9 +25,6 @@ abstract contract BaseContract is
     address public contractHub;
 
     function __BaseContract_init(address _hub) internal initializer {
-        __UUPSUpgradeable_init();
-        __Pausable_init();
-
         __BaseContract_init_unchained();
 
         contractHub = _hub;
