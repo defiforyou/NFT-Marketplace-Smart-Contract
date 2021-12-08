@@ -130,7 +130,7 @@ contract Hub is
         string calldata contractName
     ) external override onlyRole(HubRoles.REGISTRANT) {
         ContractRegistry[signature] = Registry(contractAddress, contractName);
-        numberOfContract.increment();
+        
         emit NewContractAdded(signature, contractAddress, contractName);
     }
 
