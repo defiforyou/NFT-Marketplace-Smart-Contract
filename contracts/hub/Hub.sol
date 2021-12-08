@@ -117,6 +117,12 @@ contract Hub is
         return HubRoles.EVALUATOR_ROLE;
     }
 
+    event NewContractAdded(
+        bytes4 signature,
+        address contractAddress,
+        string contractName
+    );
+
     /** ==================== Hub operation functions ==================== */
     function registerContract(
         bytes4 signature,
@@ -125,6 +131,7 @@ contract Hub is
     ) external override onlyRole(HubRoles.REGISTRANT) {
         ContractRegistry[signature] = Registry(contractAddress, contractName);
         numberOfContract.increment();
+        emit NewContractAdded(signature, contractAddress, contractName);
     }
 
     function getContractAddress(bytes4 signature)
