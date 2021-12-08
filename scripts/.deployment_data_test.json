@@ -9,6 +9,7 @@
         "ZOOM": 100000
     },
     "HubSettings": {
+        "REGISTRANT_ROLE": "0x12090aa55130d5a2442eb84fc286ca6e600db6c50b6c5d9b6d0d929f0e2d8ce8",
         "Operator": "0xA120581F875A201E8f779280332a19C0f7974dDd",
         "SystemFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3",
         "SystemFeeToken": "0x20f1de452e9057fe863b99d33cf82dbee0c45b14"

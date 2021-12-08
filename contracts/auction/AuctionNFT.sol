@@ -14,6 +14,7 @@ import "../market/ISellNFT.sol";
 import "./IAuctionNFT.sol";
 
 contract AuctionNFT is
+    ERC721HolderUpgradeable,
     BaseContract,
     IAuctionNFT
 {

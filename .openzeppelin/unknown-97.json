@@ -345,6 +345,11 @@
       "address": "0x0BA2E02f3C46640e92eB677f69c00e216eC29f96",
       "txHash": "0xb78af3d51d444592334cbc5086d56b0407164ea7cc26d21d436630725dc9d089",
       "kind": "uups"
+    },
+    {
+      "address": "0xdE92A451d22C1D84E874b6B8A5A70AC5f91b6D86",
+      "txHash": "0x6e006456a8994e0d4bfab1c7bd5db78ff8f3d5709c7b966b3a1341916b572ebd",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -9696,23 +9701,23 @@
             "contract": "BaseContract",
             "label": "contractHub",
             "type": "t_address",
-            "src": "contracts\\base\\BaseContract.sol:25"
+            "src": "contracts/base/BaseContract.sol:25"
           },
           {
             "contract": "AuctionNFT",
             "label": "_auctionIdCounter",
-            "type": "t_struct(Counter)1809_storage",
-            "src": "contracts\\auction\\AuctionNFT.sol:23"
+            "type": "t_struct(Counter)2530_storage",
+            "src": "contracts/auction/AuctionNFT.sol:23"
           },
           {
             "contract": "AuctionNFT",
             "label": "auctions",
-            "type": "t_mapping(t_uint256,t_struct(AuctionSession)8648_storage)",
-            "src": "contracts\\auction\\AuctionNFT.sol:24"
+            "type": "t_mapping(t_uint256,t_struct(AuctionSession)10074_storage)",
+            "src": "contracts/auction/AuctionNFT.sol:24"
           }
         ],
         "types": {
-          "t_struct(Counter)1809_storage": {
+          "t_struct(Counter)2530_storage": {
             "label": "struct CountersUpgradeable.Counter",
             "members": [
               {
@@ -9724,15 +9729,15 @@
           "t_uint256": {
             "label": "uint256"
           },
-          "t_mapping(t_uint256,t_struct(AuctionSession)8648_storage)": {
+          "t_mapping(t_uint256,t_struct(AuctionSession)10074_storage)": {
             "label": "mapping(uint256 => struct IAuctionNFT.AuctionSession)"
           },
-          "t_struct(AuctionSession)8648_storage": {
+          "t_struct(AuctionSession)10074_storage": {
             "label": "struct IAuctionNFT.AuctionSession",
             "members": [
               {
                 "label": "auctionData",
-                "type": "t_struct(AuctionData)8667_storage"
+                "type": "t_struct(AuctionData)10093_storage"
               },
               {
                 "label": "bidValue",
@@ -9744,11 +9749,11 @@
               },
               {
                 "label": "status",
-                "type": "t_enum(AuctionStatus)8673"
+                "type": "t_enum(AuctionStatus)10099"
               }
             ]
           },
-          "t_struct(AuctionData)8667_storage": {
+          "t_struct(AuctionData)10093_storage": {
             "label": "struct IAuctionNFT.AuctionData",
             "members": [
               {
@@ -9792,7 +9797,188 @@
           "t_address": {
             "label": "address"
           },
-          "t_enum(AuctionStatus)8673": {
+          "t_enum(AuctionStatus)10099": {
+            "label": "enum IAuctionNFT.AuctionStatus",
+            "members": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "FINISHED",
+              "CANCELLED"
+            ]
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          }
+        }
+      }
+    },
+    "823e09cd78c64588eac0f8a0999c3cebe629e14503276ce9530a05818dc04539": {
+      "address": "0x1EB0D12A9A43d99B47FC476E4A212Ce80873a57f",
+      "txHash": "0xa5a0c0ebd3b38fd84927a31f2e1989acf0f855f5e4120d74808eac449e415bd0",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ERC721HolderUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol:34"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:214"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:80"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:35"
+          },
+          {
+            "contract": "BaseContract",
+            "label": "contractHub",
+            "type": "t_address",
+            "src": "contracts/base/BaseContract.sol:25"
+          },
+          {
+            "contract": "AuctionNFT",
+            "label": "_auctionIdCounter",
+            "type": "t_struct(Counter)2530_storage",
+            "src": "contracts/auction/AuctionNFT.sol:24"
+          },
+          {
+            "contract": "AuctionNFT",
+            "label": "auctions",
+            "type": "t_mapping(t_uint256,t_struct(AuctionSession)10076_storage)",
+            "src": "contracts/auction/AuctionNFT.sol:25"
+          }
+        ],
+        "types": {
+          "t_struct(Counter)2530_storage": {
+            "label": "struct CountersUpgradeable.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_uint256,t_struct(AuctionSession)10076_storage)": {
+            "label": "mapping(uint256 => struct IAuctionNFT.AuctionSession)"
+          },
+          "t_struct(AuctionSession)10076_storage": {
+            "label": "struct IAuctionNFT.AuctionSession",
+            "members": [
+              {
+                "label": "auctionData",
+                "type": "t_struct(AuctionData)10095_storage"
+              },
+              {
+                "label": "bidValue",
+                "type": "t_uint256"
+              },
+              {
+                "label": "winner",
+                "type": "t_address"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(AuctionStatus)10101"
+              }
+            ]
+          },
+          "t_struct(AuctionData)10095_storage": {
+            "label": "struct IAuctionNFT.AuctionData",
+            "members": [
+              {
+                "label": "owner",
+                "type": "t_address"
+              },
+              {
+                "label": "tokenId",
+                "type": "t_uint256"
+              },
+              {
+                "label": "collectionAddress",
+                "type": "t_address"
+              },
+              {
+                "label": "startingPrice",
+                "type": "t_uint256"
+              },
+              {
+                "label": "buyOutPrice",
+                "type": "t_uint256"
+              },
+              {
+                "label": "priceStep",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              },
+              {
+                "label": "startTime",
+                "type": "t_uint256"
+              },
+              {
+                "label": "endTime",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_enum(AuctionStatus)10101": {
             "label": "enum IAuctionNFT.AuctionStatus",
             "members": [
               "PENDING",
