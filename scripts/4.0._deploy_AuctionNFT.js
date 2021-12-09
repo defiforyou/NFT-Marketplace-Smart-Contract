@@ -6,7 +6,7 @@ const decimals = 10 ** 18;
 
 const NFTAuctionBuildName = "AuctionNFT";
 const HubBuildName = "Hub";
-const HubProxy = Proxies.Dev2.HUB_ADDRESS;
+const HubProxy = Proxies.Beta.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 

@@ -6,7 +6,7 @@ const decimals = 10 ** 18;
 
 const CollectionMgrBuildName = "DefiForYouNFTFactory";
 const HubBuildName = "Hub";
-const HubProxy = Proxies.Staging.HUB_ADDRESS;
+const HubProxy = Proxies.Beta.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 

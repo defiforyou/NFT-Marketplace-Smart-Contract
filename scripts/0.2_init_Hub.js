@@ -1,8 +1,8 @@
 require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
-const { Proxies, NFTSettings, MarketSettings } = require('./.deployment_data_test.json');
-const proxiesEnv = Proxies.BCTest;
+const { Proxies, NFTSettings, MarketSettings, PawnNFTSettings,  } = require('./.deployment_data_test.json');
+const proxiesEnv = Proxies.Beta;
 
 const HubProxyAddr     = proxiesEnv.HUB_ADDRESS;
 const HubBuildName     = "contracts/hub/Hub.sol:Hub";
@@ -33,37 +33,13 @@ async function main() {
     console.log(`Market fee rate set at: \x1b[31m${MarketSettings.MarketFeeRate}\x1b[0m`);
     console.log(`Market fee wallet set at: \x1b[31m${MarketSettings.MarketFeeWallet}\x1b[0m\n\r`);
 
-    // console.log(`Setting contract operator...`);
-    // await HubContract.setOperator(operator);
-    // console.log(`Contract operator: ${operator}\n\r`);
-
-    // console.log(`Setting Late threshold...`);
-    // await HubContract.setLateThreshold(lateThreshold);
-    // console.log(`Late threshold: ${lateThreshold}\n\r`);
-
-    // console.log(`Setting Penalty rate...`);
-    // await HubContract.setPenaltyRate(penaltyRate);
-    // console.log(`Penalty rate: ${penaltyRate}\n\r`);
-
-    // console.log(`Setting Prepaid fee rate...`);
-    // await HubContract.setPrepaidFeeRate(prepaidFeeRate);
-    // console.log(`Prepaid fee rate: ${prepaidFeeRate}\n\r`);
-
-    // console.log(`Setting System fee rate...`);
-    // await HubContract.setSystemFeeRate(systemFeeRate);
-    // console.log(`System fee rate: ${systemFeeRate}\n\r`);
-
-    // console.log(`Setting Reputation contract...`);
-    // await HubContract.setReputationContract(RepuProxyAddr);
-    // console.log(`Reputation contract set at address: ${RepuProxyAddr}\n\r`);
-
-    // console.log(`Setting Exchange contract...`);
-    // await HubContract.setExchangeContract(ExchangeProxyAddr);
-    // console.log(`Exchange contract set at address: ${ExchangeProxyAddr}\n\r`);
-
-    // console.log(`Setting Pawn contract address...`);
-    // await HubContract.setPawnContract(PawnProxyAddr);
-    // console.log(`Pawn contract set at address: ${PawnProxyAddr}\n\r`);
+    console.log(`Setting NFT Market Configuration...`);
+    await HubContract.setPawnNFTConfig(PawnNFTSettings.ZOOM, PawnNFTSettings.SystemFee, PawnNFTSettings.PenaltyRate, PawnNFTSettings.PrepaidFee, PawnNFTSettings.LateThreshold);
+    console.log(`ZOOM: \x1b[31m${PawnNFTSettings.ZOOM}\x1b[0m`);
+    console.log(`System fee rate: \x1b[31m${PawnNFTSettings.SystemFee}\x1b[0m`);
+    console.log(`Penalty rate: \x1b[31m${PawnNFTSettings.PenaltyRate}\x1b[0m`);
+    console.log(`Prepaid fee rate: \x1b[31m${PawnNFTSettings.PrepaidFee}\x1b[0m`);
+    console.log(`Late threshold: \x1b[31m${PawnNFTSettings.LateThreshold}\x1b[0m\n\r`);
 
     // console.log(`Setting Whitelisted collateral...`);
     // for await (let token of Tokens) {

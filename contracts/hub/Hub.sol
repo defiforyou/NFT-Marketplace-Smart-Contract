@@ -168,27 +168,6 @@ contract Hub is
         feeToken = systemConfig.systemFeeToken;
     }
 
-    /** ================= Config PAWN NFT ============== */
-    // function setEvaluationContract(address evaluationContract, uint256 status)
-    //     external
-    //     onlyRole(DEFAULT_ADMIN_ROLE)
-    // {
-    //     pawnNFTConfig.whitelistedEvaluationContract[
-    //         evaluationContract
-    //     ] = status;
-    // }
-
-    // function getEvaluationContract(address evaluationContract)
-    //     external
-    //     view
-    //     override
-    //     returns (uint256 status)
-    // {
-    //     status = pawnNFTConfig.whitelistedEvaluationContract[
-    //         evaluationContract
-    //     ];
-    // }
-
     function setWhitelistCollateral_NFT(address cryptoAddress, uint256 status)
         external
         onlyRole(DEFAULT_ADMIN_ROLE)

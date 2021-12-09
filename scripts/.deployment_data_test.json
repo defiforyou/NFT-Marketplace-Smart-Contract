@@ -56,7 +56,12 @@
             "NFT_SALES_ADDRESS":        "0xd3d608Fc5D77418866CC29C82b6931C2e269E6eE",
             "NFT_AUCTION_ADDRESS":      "0x0BA2E02f3C46640e92eB677f69c00e216eC29f96"
         },
-        "Beta": {}
+        "Beta": {
+            "HUB_ADDRESS":              "0x0F1eE077197D912387c86b57b4cffe936B712Da0",
+            "NFT_FACTORY_ADDRESS":      "0xb1FD91c03CddcE0d488A6B17d5839A1C96bc0b69",
+            "NFT_SALES_ADDRESS":        "0x988b342d1223e01b0d6Ba4F496FD42d47969656b",
+            "NFT_AUCTION_ADDRESS":      "0xFC89E7ADee767Ff50fEFf86775Db7fEb6C943e6D"
+        }
     },
     "Signature": {
         "BCTest": {
