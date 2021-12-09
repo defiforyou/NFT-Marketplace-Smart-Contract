@@ -1,7 +1,7 @@
 require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
-const { Proxies, NFTSettings, MarketSettings, PawnNFTSettings,  } = require('./.deployment_data_test.json');
+const { Proxies, HubSettings, NFTSettings, MarketSettings, PawnNFTSettings } = require('./.deployment_data_test.json');
 const proxiesEnv = Proxies.Beta;
 
 const HubProxyAddr     = proxiesEnv.HUB_ADDRESS;
@@ -22,7 +22,7 @@ async function main() {
     const HubArtifact  = await hre.artifacts.readArtifact(HubBuildName);
     const HubContract  = HubFactory.attach(HubProxyAddr);
 
-    console.log(`Initializing \x1b[31m${HubArtifact.contractName}\x1b[0m`);
+    console.log(`Initializing \x1b[31m${HubArtifact.contractName}\x1b[0m at \x1b[31m${HubContract.address}\x1b[0m\n\r`);
     console.log(`Setting NFT Configuration...`);
     await HubContract.setNFTConfiguration(NFTSettings.CollectionCreatingFee, BigInt(NFTSettings.MintingFee));
     console.log(`Collection creating fee set at: \x1b[31m${NFTSettings.CollectionCreatingFee}\x1b[0m`);
@@ -41,20 +41,13 @@ async function main() {
     console.log(`Prepaid fee rate: \x1b[31m${PawnNFTSettings.PrepaidFee}\x1b[0m`);
     console.log(`Late threshold: \x1b[31m${PawnNFTSettings.LateThreshold}\x1b[0m\n\r`);
 
-    // console.log(`Setting Whitelisted collateral...`);
-    // for await (let token of Tokens) {
-    //     if(token.Address != "0x0000000000000000000000000000000000000000") {
-    //         await HubContract.setWhitelistCollateral(token.Address, 1);
-    //         console.log(`\tWhitelisted token as collateral: ${token.Symbol}: ${token.Address}`);
-    //     }
-    // }
-
-    // console.log("============================================================\n\r");
-    // console.log(`Initializing ${RepuArtifact.contractName}...`);
-    // console.log(`Setting contract caller...`);
-    // await RepuContract.addWhitelistedContractCaller(LoanProxyAddr);
-    // console.log(`Contract caller set at address: ${LoanArtifact.contractName} - ${LoanProxyAddr}\n\r`);
+    console.log(`Setting Operator accounts...`);
+    for await (let account of HubSettings.Operators) {
+        await HubContract.grantRole(HubSettings.OPERATOR_ROLE, account);
+        console.log(`\tGranted Operator role to: \x1b[31m${account}\x1b[0m`);
+    }
     
+    console.log(`\n\r`);
     console.log(`Completed at ${Date(Date.now())}`);
 
     console.log("============================================================\n\r");

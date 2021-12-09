@@ -1,7 +1,16 @@
 {
     "HubSettings": {
         "REGISTRANT_ROLE": "0x12090aa55130d5a2442eb84fc286ca6e600db6c50b6c5d9b6d0d929f0e2d8ce8",
-        "Operator": "0xA120581F875A201E8f779280332a19C0f7974dDd",
+        "OPERATOR_ROLE": "0x97667070c54ef182b0f5858b034beac1b6f3089aa2d3188bb1e8929f4fa9b929",
+        "SystemOperator": "0xA120581F875A201E8f779280332a19C0f7974dDd",
+        "Operators": [
+            "0x9F07F7D474f2FC46Bf9D1Ab479Ffa575B7D6DDFE",
+            "0xD08b70DbA72514Cba07852BF043551a5980f52E5",
+            "0x6F3d0ca39ebdFf3d80d4E0A4c4B19330d0d05220",
+            "0x317323F1e0b554fBdfD103a34da91e9f22f61bB0",
+            "0xb11307129842E4222b227bF0C78B03FF990fd17f",
+            "0x90758fD0f72184ffb8e5Eb376470901A59abAac7"
+        ],
         "SystemFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3",
         "SystemFeeToken": "0x20f1de452e9057fe863b99d33cf82dbee0c45b14"
     },

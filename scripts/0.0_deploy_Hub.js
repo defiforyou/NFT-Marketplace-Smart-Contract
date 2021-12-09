@@ -25,7 +25,7 @@ async function main() {
         [
             HubSettings.SystemFeeWallet,
             HubSettings.SystemFeeToken,
-            HubSettings.Operator
+            HubSettings.SystemOperator
         ],
         proxyType);
 
