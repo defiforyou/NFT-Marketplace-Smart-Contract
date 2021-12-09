@@ -13,10 +13,7 @@ import "../dfy-nft/DefiForYouNFT.sol";
 import "../market/ISellNFT.sol";
 import "./IAuctionNFT.sol";
 
-contract AuctionNFT is
-    BaseContract,
-    IAuctionNFT
-{
+contract AuctionNFT is BaseContract, ERC721HolderUpgradeable, IAuctionNFT {
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
 

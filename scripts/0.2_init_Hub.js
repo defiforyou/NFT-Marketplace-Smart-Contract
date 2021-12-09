@@ -1,8 +1,8 @@
 require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
-const { Proxies, NFTSettings, MarketSettings } = require('./.deployment_data_test.json');
-const proxiesEnv = Proxies.BCTest;
+const { Proxies, NFTSettings, MarketSettings,PawnNFTSettings } = require('./.deployment_data_test.json');
+const proxiesEnv = Proxies.Beta;
 
 const HubProxyAddr     = proxiesEnv.HUB_ADDRESS;
 const HubBuildName     = "contracts/hub/Hub.sol:Hub";
@@ -32,6 +32,17 @@ async function main() {
     await HubContract.setNFTMarketConfig(MarketSettings.ZOOM, MarketSettings.MarketFeeRate, MarketSettings.MarketFeeWallet);
     console.log(`Market fee rate set at: \x1b[31m${MarketSettings.MarketFeeRate}\x1b[0m`);
     console.log(`Market fee wallet set at: \x1b[31m${MarketSettings.MarketFeeWallet}\x1b[0m\n\r`);
+
+    console.log(`GranRole Hub `)
+    await HubContract.grantRole("0x0000000000000000000000000000000000000000000000000000000000000000","0x7F093C1C75e1638c356543A7d5aCB6F516Cc1c9e");
+    console.log("waitting...................");
+
+     console.log("Set Pawn NFT Config")
+    await HubContract.setWhitelistCollateral_NFT("0xB188f662768FE4c0799C3a8CDFCeA2630f332c58",1)
+    console.log("Xong WhiteList!!!!!!! Config tiep theo")
+
+    console.log("set PawnNFTConfig")
+    await HubContract.setPawnNFTConfig(PawnNFTSettings.ZOOM,PawnNFTSettings.SystemFee,PawnNFTSettings.PenaltyRate,PawnNFTSettings.PrepaidFee,PawnNFTSettings.LateThreshold);
 
     // console.log(`Setting contract operator...`);
     // await HubContract.setOperator(operator);
