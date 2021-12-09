@@ -1,5 +1,11 @@
 {
-    "DefaultSettings": {
+    "HubSettings": {
+        "REGISTRANT_ROLE": "0x12090aa55130d5a2442eb84fc286ca6e600db6c50b6c5d9b6d0d929f0e2d8ce8",
+        "Operator": "0xA120581F875A201E8f779280332a19C0f7974dDd",
+        "SystemFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3",
+        "SystemFeeToken": "0x20f1de452e9057fe863b99d33cf82dbee0c45b14"
+    },
+    "DefaultNFTCollectionSettings": {
         "Name": "DefiForYou_Soft_NFT",
         "Symbol": "DFY-NFT",
         "Owner": "0x832dbe8bCB706F6ab0aC1C3d4C13c739FA7B8f6F",
@@ -7,11 +13,6 @@
         "CollectionCID": "QmTgmpjvyvenyYw8MkCQYobaWn1qjaKmmec5EDKnPu6ZLx",
         "MarketFee": "",
         "ZOOM": 100000
-    },
-    "HubSettings": {
-        "Operator": "0xA120581F875A201E8f779280332a19C0f7974dDd",
-        "SystemFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3",
-        "SystemFeeToken": "0x20f1de452e9057fe863b99d33cf82dbee0c45b14"
     },
     "PawnSettings": {
         "ZOOM": 100000,
@@ -47,7 +48,7 @@
             "HUB_ADDRESS":              "0xB17cbc8967715aE90507E3E231Af741a29361114",
             "NFT_FACTORY_ADDRESS":      "0x0bcA4DCddE35d2F2aC5a3fAF0baD966639e6EB41",
             "NFT_SALES_ADDRESS":        "0xcE80f7DFEC1589D6cf9a0586446618aAbBC711E7",
-            "NFT_AUCTION_ADDRESS":      "0x0583097F64ebFE0Fc890A389c1566F47D24BD6b1"
+            "NFT_AUCTION_ADDRESS":      "0xdE92A451d22C1D84E874b6B8A5A70AC5f91b6D86"
         },
         "Staging": {
             "HUB_ADDRESS":              "0x957473344B7687A753595c3EdbC705ca472164BD",
@@ -55,7 +56,12 @@
             "NFT_SALES_ADDRESS":        "0xd3d608Fc5D77418866CC29C82b6931C2e269E6eE",
             "NFT_AUCTION_ADDRESS":      "0x0BA2E02f3C46640e92eB677f69c00e216eC29f96"
         },
-        "Beta": {}
+        "Beta": {
+            "HUB_ADDRESS":              "0x0F1eE077197D912387c86b57b4cffe936B712Da0",
+            "NFT_FACTORY_ADDRESS":      "0xb1FD91c03CddcE0d488A6B17d5839A1C96bc0b69",
+            "NFT_SALES_ADDRESS":        "0x988b342d1223e01b0d6Ba4F496FD42d47969656b",
+            "NFT_AUCTION_ADDRESS":      "0xFC89E7ADee767Ff50fEFf86775Db7fEb6C943e6D"
+        }
     },
     "Signature": {
         "BCTest": {

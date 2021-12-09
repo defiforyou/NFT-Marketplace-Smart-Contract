@@ -6,7 +6,7 @@ const decimals = 10 ** 18;
 
 const NFTAuctionBuildName = "AuctionNFT";
 const HubBuildName = "Hub";
-const HubProxy = Proxies.Staging.HUB_ADDRESS;
+const HubProxy = Proxies.Beta.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 
@@ -39,7 +39,8 @@ async function main() {
     console.log(`HUB_ADDRESS: \x1b[31m${HubContract.address}\x1b[0m`);
     console.log(`Registering \x1b[36m${NFTAuctionArtifact.contractName}\x1b[0m to \x1b[31m${HubArtifact.contractName}\x1b[0m...`);
     
-    await HubContract.registerContract(signature, NFTAuctionContract.address, NFTAuctionArtifact.contractName);
+    let tnx = await HubContract.registerContract(signature, NFTAuctionContract.address, NFTAuctionArtifact.contractName);
+    let receipt = await tnx.wait();
     console.log(`Completed at ${Date(Date.now())}`);
 
     console.log("============================================================\n\r");

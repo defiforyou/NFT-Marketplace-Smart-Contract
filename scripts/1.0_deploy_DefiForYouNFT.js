@@ -1,5 +1,5 @@
 const hre = require('hardhat');
-const { DefaultSettings } = require('./.deployment_data_test.json');
+const { DefaultNFTCollectionSettings } = require('./.deployment_data_test.json');
 const NFTCollectionBuildName = "DefiForYouNFT";
 
 const decimals = 10 ** 18;
@@ -16,11 +16,11 @@ async function main() {
     const NFTCollectionArtifact = await hre.artifacts.readArtifact(NFTCollectionBuildName);
 
     const NFTCollectionContract = await NFTCollectionFactory.deploy(
-        DefaultSettings.Name,           // Token name
-        DefaultSettings.Symbol,         // Token symbol
-        DefaultSettings.Owner,          // Collection owner
-        DefaultSettings.Royalty,        // Royalty rate
-        DefaultSettings.CollectionCID   // Collection CID
+        DefaultNFTCollectionSettings.Name,           // Token name
+        DefaultNFTCollectionSettings.Symbol,         // Token symbol
+        DefaultNFTCollectionSettings.Owner,          // Collection owner
+        DefaultNFTCollectionSettings.Royalty,        // Royalty rate
+        DefaultNFTCollectionSettings.CollectionCID   // Collection CID
     );
 
     await NFTCollectionContract.deployed();
