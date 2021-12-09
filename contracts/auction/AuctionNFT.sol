@@ -145,6 +145,7 @@ contract AuctionNFT is
         );
 
         if (status == AuctionStatus.REJECTED) {
+            _auctionSession.status = AuctionStatus.REJECTED;
             // Refund token to auction owner
             DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
                 .safeTransferFrom(
@@ -152,7 +153,6 @@ contract AuctionNFT is
                     _auctionSession.auctionData.owner,
                     _auctionSession.auctionData.tokenId
                 );
-            _auctionSession.status = AuctionStatus.REJECTED;
         } else {
             _auctionSession.status = AuctionStatus.APPROVED;
         }
@@ -272,7 +272,7 @@ contract AuctionNFT is
         _auctionSession.winner = _msgSender();
         _auctionSession.bidValue = bidValue;
 
-        // Switch to Buy out flow if bid value > buy out price
+        // Switch to Buy out flow if bid value >= buy out price
         if (
             _auctionSession.auctionData.buyOutPrice > 0 &&
             bidValue >= _auctionSession.auctionData.buyOutPrice
@@ -309,7 +309,7 @@ contract AuctionNFT is
             address marketFeeWallet
         ) = HubInterface(contractHub).getNFTMarketConfig();
 
-        (uint256 _marketFee, uint256 _royaltyFee) = _calculateAuctionFees(
+        (uint256 marketFee, uint256 royaltyFee) = _calculateAuctionFees(
             auctionSession.auctionData.buyOutPrice,
             zoom,
             marketFeeRate,
@@ -318,24 +318,8 @@ contract AuctionNFT is
             auctionSession.auctionData.collectionAddress
         );
 
-        // Transfer the bid value to contract from user wallet
-        // even if it is higher than buy out price
-        CommonLib.safeTransfer(
-            auctionSession.auctionData.currency,
-            _msgSender(),
-            address(this),
-            auctionSession.bidValue
-        );
-
-        // If the bidder bidded higher than buy out price,
-        // the exceeding amount will be transfered to fee wallet
-        uint256 buyOutExceededAmount = auctionSession.bidValue >
-            auctionSession.auctionData.buyOutPrice
-            ? auctionSession.bidValue - auctionSession.auctionData.buyOutPrice
-            : 0;
-
         // calculate total fee charged
-        uint256 _totalFeeCharged = _marketFee + _royaltyFee;
+        uint256 _totalFeeCharged = marketFee + royaltyFee;
         (bool success, uint256 amountPaidToSeller) = auctionSession
             .auctionData
             .buyOutPrice
@@ -343,24 +327,36 @@ contract AuctionNFT is
 
         require(success);
 
-        // Transfer market fee & exceeding amount to fee wallet
+        auctionSession.status = AuctionStatus.FINISHED;
+
+        // Transfer only the buy out value to contract from user wallet
+        // even if the bid value is higher than buy out price
+        CommonLib.safeTransfer(
+            auctionSession.auctionData.currency,
+            _msgSender(),
+            address(this),
+            auctionSession.auctionData.buyOutPrice
+        );
+
+        // Transfer market fee to fee wallet
         CommonLib.safeTransfer(
             auctionSession.auctionData.currency,
             address(this),
             marketFeeWallet,
-            (_marketFee + buyOutExceededAmount)
+            marketFee
         );
 
-        if (_royaltyFee > 0) {
+        if (royaltyFee > 0) {
             // Transfer royalty fee to original creator of the collection
             CommonLib.safeTransfer(
                 auctionSession.auctionData.currency,
                 address(this),
                 DefiForYouNFT(auctionSession.auctionData.collectionAddress)
                     .originalCreator(),
-                _royaltyFee
+                royaltyFee
             );
         }
+        
         // Transfer remaining amount to seller after deducting market fee and royalty fee
         CommonLib.safeTransfer(
             auctionSession.auctionData.currency,
@@ -377,12 +373,10 @@ contract AuctionNFT is
                 auctionSession.auctionData.tokenId
             );
 
-        auctionSession.status = AuctionStatus.FINISHED;
-
         emit NFTAuctionBoughtOut(
             auctionId,
             _msgSender(),
-            auctionSession.bidValue,
+            auctionSession.auctionData.buyOutPrice,
             block.timestamp,
             auctionSession.status
         );
@@ -407,7 +401,7 @@ contract AuctionNFT is
             address marketFeeWallet
         ) = HubInterface(contractHub).getNFTMarketConfig();
 
-        (uint256 _marketFee, uint256 _royaltyFee) = _calculateAuctionFees(
+        (uint256 marketFee, uint256 royaltyFee) = _calculateAuctionFees(
             _auctionSession.bidValue,
             zoom,
             marketFeeRate,
@@ -416,7 +410,7 @@ contract AuctionNFT is
             _auctionSession.auctionData.collectionAddress
         );
 
-        uint256 _totalFeeCharged = _marketFee + _royaltyFee;
+        uint256 _totalFeeCharged = marketFee + royaltyFee;
         (bool success, uint256 amountPaidToSeller) = _auctionSession
             .bidValue
             .trySub(_totalFeeCharged);
@@ -428,16 +422,16 @@ contract AuctionNFT is
                 _auctionSession.auctionData.currency,
                 address(this),
                 marketFeeWallet,
-                _marketFee
+                marketFee
             );
-            if (_royaltyFee > 0) {
+            if (royaltyFee > 0) {
                 // Transfer royalty fee to original creator of the collection
                 CommonLib.safeTransfer(
                     _auctionSession.auctionData.currency,
                     address(this),
                     DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
                         .originalCreator(),
-                    _royaltyFee
+                    royaltyFee
                 );
             }
             // Transfer remaining amount to seller after deducting market fee and royalty fee

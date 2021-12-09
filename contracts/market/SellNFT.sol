@@ -142,14 +142,16 @@ contract SellNFT is
     {
         Order storage _order = orders[orderId];
 
+        require(_order.status == OrderStatus.ON_SALES, "Sales unavailable");
+
+        require(_msgSender() != _order.owner, "Buying owned NFT");
+
         CollectionStandard _standard = _verifyOrderInfo(
             _order.collectionAddress,
             _order.tokenId,
             _order.numberOfCopies,
             _order.owner
         );
-
-        require(_msgSender() != _order.owner, "Buying owned NFT");
 
         (
             uint256 ZOOM,
@@ -169,14 +171,6 @@ contract SellNFT is
                 _standard
             );
 
-        // Transfer fund to contract
-        CommonLib.safeTransfer(
-            _order.currency,
-            _msgSender(),
-            address(this),
-            _totalPaidAmount
-        );
-
         // Calculate total fee charged
         uint256 _totalFeeCharged = _marketFee + _royaltyFee;
 
@@ -184,6 +178,23 @@ contract SellNFT is
             _totalFeeCharged
         );
         require(success);
+
+        // If number of copies being purchased equal to listed number of copies,
+        // mark the order as completed and set _tokenFromCollectionIsOnSales flag to false
+        if (numberOfCopies == _order.numberOfCopies) {
+            _order.status = OrderStatus.COMPLETED;
+            _tokenFromCollectionIsOnSales[_order.collectionAddress][
+                _order.tokenId
+            ] = false;
+        }
+
+        // Transfer fund to contract
+        CommonLib.safeTransfer(
+            _order.currency,
+            _msgSender(),
+            address(this),
+            _totalPaidAmount
+        );
 
         // Transfer market fee to fee wallet
         CommonLib.safeTransfer(
@@ -218,15 +229,6 @@ contract SellNFT is
             _msgSender(),
             _order.tokenId
         );
-
-        // If number of copies being purchased equal to listed number of copies,
-        // mark the order as completed and set _tokenFromCollectionIsOnSales flag to false
-        if (numberOfCopies == _order.numberOfCopies) {
-            _order.status = OrderStatus.COMPLETED;
-            _tokenFromCollectionIsOnSales[_order.collectionAddress][
-                _order.tokenId
-            ] = false;
-        }
 
         Purchase memory _purchase = Purchase(
             orderId,
