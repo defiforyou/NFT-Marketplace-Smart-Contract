@@ -13,11 +13,7 @@ import "../dfy-nft/DefiForYouNFT.sol";
 import "../market/ISellNFT.sol";
 import "./IAuctionNFT.sol";
 
-contract AuctionNFT is
-    ERC721HolderUpgradeable,
-    BaseContract,
-    IAuctionNFT
-{
+contract AuctionNFT is ERC721HolderUpgradeable, BaseContract, IAuctionNFT {
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
@@ -356,7 +352,7 @@ contract AuctionNFT is
                 royaltyFee
             );
         }
-        
+
         // Transfer remaining amount to seller after deducting market fee and royalty fee
         CommonLib.safeTransfer(
             auctionSession.auctionData.currency,
