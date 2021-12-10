@@ -390,6 +390,16 @@
       "address": "0xCD7cB1B5c11bd32255f6a13e2022Afe0b7472066",
       "txHash": "0x360d225eb6a834221ee7abe1f871ade1c99c3c395e58785f363d6c0066076508",
       "kind": "uups"
+    },
+    {
+      "address": "0xa9ac42cf9c3b652e9ce8c15712d6cd2141f0fac1",
+      "txHash": "0x13d2a64b04c04f13208e5811bfa1d0ab9dc1f8ea5e03a3389b5a6678d32b7073",
+      "kind": "uups"
+    },
+    {
+      "address": "0xCDdB4DE681335C433b28CdD5DD4A8AaC23c26E81",
+      "txHash": "0xbb15d85476f438cb1de26317d90a77ee4cc0d0bdae11be6e295606aef3494c11",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -10681,13 +10691,13 @@
             "contract": "AuctionNFT",
             "label": "_auctionIdCounter",
             "type": "t_struct(Counter)2530_storage",
-            "src": "contracts/auction/AuctionNFT.sol:24"
+            "src": "contracts/auction/AuctionNFT.sol:20"
           },
           {
             "contract": "AuctionNFT",
             "label": "auctions",
             "type": "t_mapping(t_uint256,t_struct(AuctionSession)10058_storage)",
-            "src": "contracts/auction/AuctionNFT.sol:25"
+            "src": "contracts/auction/AuctionNFT.sol:21"
           }
         ],
         "types": {
