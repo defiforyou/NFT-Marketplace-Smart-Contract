@@ -45,30 +45,28 @@ describe("Deploy DFY Factory", (done) => {
         const hubContractFactory = await hre.ethers.getContractFactory(artifactHub);
         const hubContract = await hre.upgrades.deployProxy(
             hubContractFactory,
-            [_feeWalletHub.address, _DFYTokenContract.address],
+            [_feeWalletHub.address, _DFYTokenContract.address, _deployer.address],
             { kind: "uups" }
 
         );
         _hubContract = await hubContract.deployed();
+        console.log(_hubContract.address, "address hub contract : ");
 
         // DFY Factory 
         const DFYFactory = await hre.ethers.getContractFactory(artifactDFYFactory);
         const DFYFactoryContract = await hre.upgrades.deployProxy(
             DFYFactory,
+            [_hubContract.address],
             { kind: "uups" }
         );
         _DFYFactoryContract = await DFYFactoryContract.deployed();
-        await _DFYFactoryContract.connect(_deployer).setContractHub(_hubContract.address);
+        console.log(_DFYFactoryContract.address, "address DFY Factory contract : ");
 
     });
 
     describe("unit test DFY ", async () => {
 
         it("set Fee Wallet and create Collection ", async () => {
-
-            // grant role for creator 
-            let getOperatorRole = await _DFYFactoryContract.OPERATOR_ROLE();
-            await _DFYFactoryContract.connect(_deployer).grantRole(getOperatorRole, _creator.address);
 
             // create collection 
             await _DFYFactoryContract.connect(_creator).createCollection(_tokenName, _symbol, _royaltyRate, _cidOfCollection.toString()); // create collection 
@@ -97,8 +95,6 @@ describe("Deploy DFY Factory", (done) => {
             let royaltyRateNFT = await _DFYContract.royaltyRateByToken(_firstToken);
             let defaultRoyalty = await _DFYContract.defaultRoyaltyRate();
             let systemConfig = await _hubContract.systemConfig();
-
-
 
             expect(systemConfig[1]).to.equal(_DFYTokenContract.address); // check hub contract setSystemFeeToken
             expect(systemConfig[0]).to.equal(_feeWalletHub.address)// check hub contract setSystemFeeWallet

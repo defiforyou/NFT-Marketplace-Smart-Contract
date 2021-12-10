@@ -68,8 +68,6 @@ describe("Deploy DFY Factory", (done) => {
         _hubContract = await hubContract.deployed();
         console.log(_hubContract.address, "address hub contract : ");
         // set address token and address wallet 
-        // await _hubContract.connect(_deployer).setSystemFeeToken(_DFYTokenContract.address);
-        // await _hubContract.connect(_deployer).setSystemFeeWallet(_feeWallet.address);
         await _hubContract.connect(_deployer).setSystemConfig(_feeWallet.address, _DFYTokenContract.address);
         // set market fee rate auction 
         await _hubContract.setNFTMarketConfig(_zoom, _marketFeeRate, _feeWallet.address);
