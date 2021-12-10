@@ -30,10 +30,6 @@ contract SellNFT is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
-    // uint256 public marketFeeRate;
-    // address payable public marketFeeWallet;
-    // uint256 public ZOOM;
-
     address public contractHub;
 
     CountersUpgradeable.Counter private _orderIdCounter;
@@ -115,20 +111,6 @@ contract SellNFT is
         _unpause();
     }
 
-    // function setFeeWallet(address payable _feeWallet)
-    //     external
-    //     onlyRole(DEFAULT_ADMIN_ROLE)
-    // {
-    //     marketFeeWallet = _feeWallet;
-    // }
-
-    // function setMarketFeeRate(uint256 rate)
-    //     public
-    //     onlyRole(DEFAULT_ADMIN_ROLE)
-    // {
-    //     marketFeeRate = rate;
-    // }
-
     function putOnSales(
         uint256 tokenId,
         uint256 numberOfCopies,
@@ -209,158 +191,6 @@ contract SellNFT is
 
         emit NFTCancelSales(orderId);
     }
-
-    // function buyNFT(uint256 orderId, uint256 numberOfCopies)
-    //     external
-    //     payable
-    //     whenContractNotPaused
-    // {
-    //     Order storage _order = orders[orderId];
-
-    //     CollectionStandard _standard = _verifyOrderInfo(
-    //         _order.collectionAddress,
-    //         _order.tokenId,
-    //         _order.numberOfCopies,
-    //         _order.owner
-    //     );
-
-    //     require(msg.sender != _order.owner, "Buying owned NFT");
-
-    //     (uint256 ZOOM, uint256 marketFeeRate, address marketFeeWallet) = HubInterface(contractHub).getNFTMarketConfig();
-
-    //     uint256 _royaltyFee;
-    //     // Calculate market fee
-    //     uint256 _marketFee = CommonLib.calculateSystemFee(
-    //         _order.price,
-    //         marketFeeRate,
-    //         ZOOM
-    //     );
-
-    //     // Buying ERC-721 token, single copy only
-    //     uint256 _totalPaidAmount = _order.price;
-
-    //     if (_standard == CollectionStandard.ERC1155) {
-    //         // Buying ERC-1155 token, multiple copies
-    //         _totalPaidAmount = _order.price * numberOfCopies;
-    //         _marketFee *= numberOfCopies;
-    //     }
-
-    //     // Transfer fund to contract
-    //     CommonLib.safeTransfer(
-    //         _order.currency,
-    //         msg.sender,
-    //         address(this),
-    //         _totalPaidAmount
-    //     );
-
-    //     if (
-    //         DefiForYouNFT(_order.collectionAddress).originalCreator() ==
-    //         _order.owner
-    //     ) {
-    //         // Owner is original creator -> only charge market fee
-
-    //         // Calculate amount paid to owner = purchase price - market fee
-    //         (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
-    //             _marketFee
-    //         );
-    //         require(success);
-
-    //         // Transfer remaining amount to seller after deducting market fee
-    //         CommonLib.safeTransfer(
-    //             _order.currency,
-    //             address(this),
-    //             _order.owner,
-    //             amountPaidToSeller
-    //         );
-
-    //         // Transfer to market fee wallet
-    //         CommonLib.safeTransfer(
-    //             _order.currency,
-    //             address(this),
-    //             marketFeeWallet,
-    //             _marketFee
-    //         );
-    //     } else {
-    //         // Seller is not the original creator -> charge royalty fee & market fee
-
-    //         // Calculate royalty fee
-    //         _royaltyFee = CommonLib.calculateSystemFee(
-    //             _order.price,
-    //             DefiForYouNFT(_order.collectionAddress).royaltyRateByToken(
-    //                 _order.tokenId
-    //             ),
-    //             ZOOM
-    //         );
-
-    //         if (_standard == CollectionStandard.ERC1155) {
-    //             _royaltyFee *= numberOfCopies;
-    //         }
-
-    //         uint256 _totalFeeCharged = _marketFee + _royaltyFee;
-
-    //         (bool success, uint256 amountPaidToSeller) = _order.price.trySub(
-    //             _totalFeeCharged
-    //         );
-    //         require(success);
-
-    //         if (_royaltyFee > 0) {
-    //             // Transfer royalty fee to original creator of the collection
-    //             CommonLib.safeTransfer(
-    //                 _order.currency,
-    //                 address(this),
-    //                 DefiForYouNFT(_order.collectionAddress).originalCreator(),
-    //                 _royaltyFee
-    //             );
-    //         }
-
-    //         // Transfer market fee to fee wallet
-    //         CommonLib.safeTransfer(
-    //             _order.currency,
-    //             address(this),
-    //             marketFeeWallet,
-    //             _marketFee
-    //         );
-
-    //         // Transfer remaining amount to seller after deducting market fee and royalty fee
-    //         CommonLib.safeTransfer(
-    //             _order.currency,
-    //             address(this),
-    //             _order.owner,
-    //             amountPaidToSeller
-    //         );
-    //     }
-
-    //     // Transfer NFT to buyer
-    //     // TODO: Extend support to ERC-1155
-    //     DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
-    //         _order.owner,
-    //         msg.sender,
-    //         _order.tokenId
-    //     );
-
-    //     // If number of copies being purchased equal to listed number of copies,
-    //     // mark the order as completed and set tokenFromCollectionIsOnSales flag to false
-    //     if (numberOfCopies == _order.numberOfCopies) {
-    //         _order.status = OrderStatus.COMPLETED;
-    //         tokenFromCollectionIsOnSales[_order.collectionAddress][
-    //             _order.tokenId
-    //         ] = false;
-    //     }
-
-    //     emit NFTBought(
-    //         orderId,
-    //         msg.sender,
-    //         _order.collectionAddress,
-    //         _order.tokenId,
-    //         numberOfCopies,
-    //         _order.price,
-    //         _order.currency,
-    //         _marketFee,
-    //         _royaltyFee,
-    //         block.timestamp,
-    //         _order.status
-    //     );
-    // }
 
     function buyNFT(uint256 orderId, uint256 numberOfCopies)
         external

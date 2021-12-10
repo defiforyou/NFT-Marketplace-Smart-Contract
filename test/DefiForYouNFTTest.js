@@ -1,6 +1,7 @@
 const hre = require("hardhat");
 const artifactDFYFactory = "DefiForYouNFTFactory";
-const artifactDFY = "DefiForYouNFT";
+const artifactHub = "Hub";
+const artifactDFYToken = "BEP20Token";
 const { expect } = require("chai");
 const decimals = 10 ** 18;
 
@@ -8,6 +9,8 @@ describe("Deploy DFY Factory", (done) => {
 
     let _DFYFactoryContract = null;
     let _DFYContract = null;
+    let _DFYTokenContract = null;
+    let _hubContract = null;
 
     let _tokenName = "DefiForYou";
     let _symbol = "DFY-NFT";
@@ -15,22 +18,39 @@ describe("Deploy DFY Factory", (done) => {
     let _royaltyRateDFY = 3000;
     let _cidOfCollection = "QmZfey7KWSZwwkU4DeBch6jsXSjdNp2UYYhVq4RZYPGr4Z";
     let _cidOfNFT = "QmbDE5EDoiGAYLTQzmftDx96L4UDMT6Ra2km5HqtU89JWn";
-    let _feeCreateCollection = 1000;
-    let _addressBNB = "0x0000000000000000000000000000000000000000";
-    let _addressETH = "0xf827916F754297d7fF595e77c8dF8287fDE74BA4";
     let _contractURI = "https://defiforyou.mypinata.cloud/ipfs/QmZfey7KWSZwwkU4DeBch6jsXSjdNp2UYYhVq4RZYPGr4Z";
-
     let _firstToken = 0;
-    let _secondToken = 1;
 
 
     before(async () => {
         [
             _deployer,
             _creator,
-            _feeWallet
+            _feeWalletHub,
+            _feeToken,
+            _marketFeeWallet
 
         ] = await ethers.getSigners();
+
+        // DFY Token 
+        const dFYTokenFactory = await hre.ethers.getContractFactory(artifactDFYToken);
+        const dfyContract = await dFYTokenFactory.deploy(
+            "DFY-Token",
+            "DFY",
+            BigInt(1000000000000000000000)
+        );
+        _DFYTokenContract = await dfyContract.deployed();
+
+        // contractHub 
+        const hubContractFactory = await hre.ethers.getContractFactory(artifactHub);
+        const hubContract = await hre.upgrades.deployProxy(
+            hubContractFactory,
+            [_feeWalletHub.address, _DFYTokenContract.address],
+            { kind: "uups" }
+
+        );
+        _hubContract = await hubContract.deployed();
+
         // DFY Factory 
         const DFYFactory = await hre.ethers.getContractFactory(artifactDFYFactory);
         const DFYFactoryContract = await hre.upgrades.deployProxy(
@@ -38,23 +58,13 @@ describe("Deploy DFY Factory", (done) => {
             { kind: "uups" }
         );
         _DFYFactoryContract = await DFYFactoryContract.deployed();
-        console.log(_DFYFactoryContract.address, "address DFY Factory contract : ");
+        await _DFYFactoryContract.connect(_deployer).setContractHub(_hubContract.address);
+
     });
 
     describe("unit test DFY ", async () => {
 
         it("set Fee Wallet and create Collection ", async () => {
-            // set address fee wallet 
-            await _DFYFactoryContract.connect(_deployer).setFeeWallet(_feeWallet.address);
-            let feeWallet = await _DFYFactoryContract.feeWallet();
-
-            // set collection create fee 
-            await _DFYFactoryContract.connect(_deployer).setCollectionCreatingFee(_feeCreateCollection);
-            let collectionCreatingFee = await _DFYFactoryContract.collectionCreatingFee();
-
-            // set address token pay fee when create collection
-            await _DFYFactoryContract.connect(_deployer).setWhitelistedFeeToken(_addressBNB.toString(), true);
-            let checkWLFT = await _DFYFactoryContract.whitelistedFeeTokens(_addressBNB.toString());
 
             // grant role for creator 
             let getOperatorRole = await _DFYFactoryContract.OPERATOR_ROLE();
@@ -73,6 +83,7 @@ describe("Deploy DFY Factory", (done) => {
 
             let checkAdminRoleOfCreator = await _DFYContract.hasRole(defaultAdminRole, _creator.address);
             let checkMinterRoleOfCreator = await _DFYContract.hasRole(minterRole, _creator.address);
+
             // mint NFT 
             await _DFYContract.connect(_creator).safeMint(_creator.address, _royaltyRateDFY, _cidOfNFT);
             let tokenOf = await _DFYContract.ownerOf(_firstToken);
@@ -85,14 +96,12 @@ describe("Deploy DFY Factory", (done) => {
             let factory = await _DFYContract.factory();
             let royaltyRateNFT = await _DFYContract.royaltyRateByToken(_firstToken);
             let defaultRoyalty = await _DFYContract.defaultRoyaltyRate();
+            let systemConfig = await _hubContract.systemConfig();
 
-            console.log("deployer :", ((await _deployer.getBalance() / decimals)).toString());
-            console.log("creator", ((await _creator.getBalance() / decimals)).toString());
-            console.log("feeWallet", ((await _feeWallet.getBalance() / decimals)).toString());
 
-            expect(feeWallet.toString()).to.equal(_feeWallet.address); // check set fee wallet 
-            expect(checkWLFT === true); // check set white listed fee token 
-            expect(collectionCreatingFee).to.equal(_feeCreateCollection)// check collection creating fee 
+
+            expect(systemConfig[1]).to.equal(_DFYTokenContract.address); // check hub contract setSystemFeeToken
+            expect(systemConfig[0]).to.equal(_feeWalletHub.address)// check hub contract setSystemFeeWallet
             expect(checkAdminRoleOfCreator === true)// check Admin role of creator
             expect(checkMinterRoleOfCreator === true); // check minter role 
             expect(tokenOf.toString()).to.equal(_creator.address); // check owner of token
@@ -105,7 +114,8 @@ describe("Deploy DFY Factory", (done) => {
             expect(_royaltyRateDFY).to.equal(royaltyRateNFT); // royaltyRate NFT
             expect(defaultRoyalty).to.equal(_royaltyRate); // royaltyRate Factory
 
-            // anh hoàng anh chưa xử lý vụ phí khi tạo collection 
+
+            // anh hoàng anh chưa triển khai phần tính phí khi tạo collection 
         });
     });
 });

@@ -19,11 +19,11 @@ async function main() {
     const HubFactory = await hre.ethers.getContractFactory(HubBuildName);
     const HubArtifact = await hre.artifacts.readArtifact(HubBuildName);
     const HubContract = await hre.upgrades.deployProxy(
-        HubFactory, 
+        HubFactory,
         [
-            HubSettings.SystemFeeWallet, 
+            HubSettings.SystemFeeWallet,
             HubSettings.SystemFeeToken
-        ], 
+        ],
         proxyType);
 
     await HubContract.deployed();

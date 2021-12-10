@@ -82,10 +82,7 @@ contract DefiForYouNFTFactory is
         feeWallet = wallet;
     }
 
-    function setContractHub(address hub)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setContractHub(address hub) external onlyRole(DEFAULT_ADMIN_ROLE) {
         contractHub = hub;
     }
 
