@@ -114,4 +114,9 @@ interface HubInterface {
             uint256 marketFeeRate,
             address marketFeeWallet
         );
+
+    function setWhitelistCollateral_NFT(
+        address collectionAddress,
+        uint256 status
+    ) external;
 }

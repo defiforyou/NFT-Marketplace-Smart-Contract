@@ -1,7 +1,7 @@
 require('@nomiclabs/hardhat-ethers');
 
 const hre = require('hardhat');
-const { HubSettings } = require('./.deployment_data_test.json');
+const { HubSettings } = require('./.deployment_data_prelive.json');
 
 const decimals = 10 ** 18;
 

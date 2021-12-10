@@ -1,8 +1,8 @@
 require('@nomiclabs/hardhat-ethers');
 
 const hre = require('hardhat');
-const { Proxies } = require('./.deployment_data_test.json');
-const proxiesEnv = Proxies.BCTest;
+const { Proxies } = require('./.deployment_data_prelive.json');
+const proxiesEnv = Proxies.Prelive;
 
 const decimals = 10 ** 18;
 

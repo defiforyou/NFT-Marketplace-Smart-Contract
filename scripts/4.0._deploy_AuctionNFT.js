@@ -2,11 +2,13 @@ require('@nomiclabs/hardhat-ethers');
 
 const hre = require('hardhat');
 const { Proxies } = require('./.deployment_data_test.json');
+const proxiesEnv = Proxies.BCTest;
+
 const decimals = 10 ** 18;
 
 const NFTAuctionBuildName = "AuctionNFT";
 const HubBuildName = "Hub";
-const HubProxy = Proxies.Beta.HUB_ADDRESS;
+const HubProxy = proxiesEnv.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 
