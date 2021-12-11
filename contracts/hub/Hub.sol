@@ -11,6 +11,7 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "../libs/CommonLib.sol";
+import "../base/BaseInterface.sol";
 import "./HubLib.sol";
 import "./HubInterface.sol";
 
@@ -118,21 +119,50 @@ contract Hub is
 
     event NewContractAdded(
         bytes4 signature,
-        address contractAddress,
-        string contractName
+        address newContractAddress,
+        string newContractName,
+        address oldContractAddress,
+        string oldContractName
     );
 
     /** ==================== Hub operation functions ==================== */
     function registerContract(
         bytes4 signature,
-        address contractAddress,
-        string calldata contractName
+        address newContractAddress,
+        string calldata newContractName
     ) external override onlyRole(HubRoles.REGISTRANT) {
-        ContractRegistry[signature] = Registry(contractAddress, contractName);
+        // Check against contract address for valid signature
+        require(
+            signature == BaseInterface(newContractAddress).signature(),
+            "Invalid signature"
+        );
 
-        grantRole(HubRoles.INTERNAL_CONTRACT, contractAddress);
+        // Check if there is existing contract with the same signature
+        address _currentAddress;
+        string memory _currentName;
+        if (ContractRegistry[signature].contractAddress != address(0)) {
+            // Revoke INTERNAL_CONTRACT role from old contract address
+            _currentAddress = ContractRegistry[signature].contractAddress;
+            _currentName = ContractRegistry[signature].contractName;
 
-        emit NewContractAdded(signature, contractAddress, contractName);
+            revokeRole(HubRoles.INTERNAL_CONTRACT, _currentAddress);
+        }
+
+        // Add new contract to registry
+        ContractRegistry[signature] = Registry(
+            newContractAddress,
+            newContractName
+        );
+
+        grantRole(HubRoles.INTERNAL_CONTRACT, newContractAddress);
+
+        emit NewContractAdded(
+            signature,
+            newContractAddress,
+            newContractName,
+            _currentAddress,
+            _currentName
+        );
     }
 
     function getContractAddress(bytes4 signature)
