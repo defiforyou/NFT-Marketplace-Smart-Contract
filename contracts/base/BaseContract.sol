@@ -71,7 +71,7 @@ abstract contract BaseContract is
      *
      *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
      */
-     function _checkRole(bytes32 role, address account) private view {
+    function _checkRole(bytes32 role, address account) private view {
         if (!IAccessControlUpgradeable(contractHub).hasRole(role, account)) {
             revert(
                 string(
