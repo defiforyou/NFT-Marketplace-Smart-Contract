@@ -54,8 +54,19 @@ contract Hub is
         // Set OPERATOR_ROLE as EVALUATOR_ROLE's Admin Role
         _setRoleAdmin(HubRoles.EVALUATOR_ROLE, HubRoles.OPERATOR_ROLE);
 
+        // Set REGISTRANT as INTERNAL_CONTRACT's Admin Role
+        _setRoleAdmin(HubRoles.INTERNAL_CONTRACT, HubRoles.REGISTRANT);
+
         systemConfig.systemFeeWallet = feeWallet;
         systemConfig.systemFeeToken = feeToken;
+    }
+
+    function setupRoleAdmin() external onlyRole(HubRoles.DEFAULT_ADMIN_ROLE) {
+        // Set OPERATOR_ROLE as EVALUATOR_ROLE's Admin Role
+        _setRoleAdmin(HubRoles.EVALUATOR_ROLE, HubRoles.OPERATOR_ROLE);
+
+        // Set REGISTRANT as INTERNAL_CONTRACT's Admin Role
+        _setRoleAdmin(HubRoles.INTERNAL_CONTRACT, HubRoles.REGISTRANT);
     }
 
     /** ==================== Standard interface function implementations ==================== */

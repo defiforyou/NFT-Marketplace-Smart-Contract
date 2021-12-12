@@ -1,4 +1,5 @@
 require('@nomiclabs/hardhat-ethers');
+const hre = require('hardhat');
 
 const { Proxies } = require('./.deployment_data_test.json');
 const proxiesEnv = Proxies.BCTest;
@@ -12,12 +13,12 @@ const HubBuildName = "Hub";
 const decimals      = 10**18;
 
 async function main() {
-    const [deployer] = await hre.ethers.getSigners();
+    const [deployer, registrant] = await hre.ethers.getSigners();
     
     console.log("============================================================\n\r");
     console.log("Start time: ", Date(Date.now()));
-    console.log("Registering contract with the account:", deployer.address);  
-    console.log("Account balance:", ((await deployer.getBalance())/decimals).toString());
+    console.log("Registering contract with the account:", registrant.address);  
+    console.log("Account balance:", ((await registrant.getBalance())/decimals).toString());
     console.log("============================================================\n\r");
 
     const CollectionMgrFactory     = await hre.ethers.getContractFactory(CollectionMgrBuildName);
@@ -31,7 +32,7 @@ async function main() {
     console.log(`Implementation address: \x1b[36m${CollectionMrgImpl}\x1b[0m`);
     console.log(`Contract SIGNATURE: \x1b[36m${signature}\x1b[0m\n\r`);
 
-    const HubFactory   = await hre.ethers.getContractFactory(HubBuildName);
+    const HubFactory   = await hre.ethers.getContractFactory(HubBuildName, registrant);
     const HubArtifact  = await hre.artifacts.readArtifact(HubBuildName);
     const HubContract  = HubFactory.attach(HubProxy);
 
