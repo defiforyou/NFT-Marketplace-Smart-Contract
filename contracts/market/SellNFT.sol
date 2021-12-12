@@ -2,143 +2,81 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "./dfy-nft/DefiForYouNFT.sol";
-import "./libs/CommonLib.sol";
-import "./hub/HubInterface.sol";
+import "../base/BaseContract.sol";
+import "../dfy-nft/DefiForYouNFT.sol";
+import "./ISellNFT.sol";
 
 contract SellNFT is
-    Initializable,
-    UUPSUpgradeable,
-    AccessControlUpgradeable,
-    PausableUpgradeable
+    BaseContract,
+    ISellNFT
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using ERC165CheckerUpgradeable for address;
 
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-
-    address public contractHub;
-
     CountersUpgradeable.Counter private _orderIdCounter;
     mapping(uint256 => Order) public orders;
 
     mapping(address => mapping(uint256 => bool))
-        public tokenFromCollectionIsOnSales;
-
-    struct Order {
-        address collectionAddress;
-        address payable owner;
-        uint256 tokenId;
-        uint256 numberOfCopies;
-        uint256 price;
-        address currency;
-        OrderStatus status;
-    }
-
-    struct Purchase {
-        uint256 orderId;
-        address buyer;
-        address collectionAddress;
-        uint256 tokenId;
-        uint256 numberOfCopies;
-        uint256 price;
-        address currency;
-        uint256 marketFee;
-        uint256 royaltyFee;
-        uint256 timeOfPurchase;
-        OrderStatus status;
-    }
-
-    enum OrderStatus {
-        ON_SALES,
-        COMPLETED
-    }
-
-    enum CollectionStandard {
-        UNDEFINED,
-        ERC721,
-        ERC1155
-    }
-
-    event NFTPutOnSales(
-        uint256 orderId,
-        Order order,
-        uint256 marketFee,
-        OrderStatus orderStatus
-    );
-
-    event NFTBought(Purchase purchase);
-
-    event NFTCancelSales(uint256 orderId);
+        private _tokenFromCollectionIsOnSales;
 
     function initialize(address _hub) public initializer {
-        __UUPSUpgradeable_init();
-        __Pausable_init();
-
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
-
-        contractHub = _hub;
+        __BaseContract_init(_hub);
     }
 
-    modifier whenContractNotPaused() {
-        _whenNotPaused();
-        _;
+    /** ==================== Standard interface function implementations ==================== */
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC165Upgradeable, IERC165Upgradeable)
+        returns (bool)
+    {
+        return
+            interfaceId == type(ISellNFT).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
-    function _whenNotPaused() private view {
-        require(!paused(), "Pausable: paused");
+    function signature() external pure override returns (bytes4) {
+        return type(ISellNFT).interfaceId;
     }
 
-    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _pause();
-    }
-
-    function unPause() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _unpause();
-    }
-
+    /** ==================== Marketplace functions ==================== */
     function putOnSales(
         uint256 tokenId,
         uint256 numberOfCopies,
         uint256 price,
         address currency,
         address collectionAddress
-    ) external whenContractNotPaused {
+    ) external override whenContractNotPaused {
         _verifyOrderInfo(
             collectionAddress,
             tokenId,
             numberOfCopies,
-            msg.sender
+            _msgSender()
         );
 
         // Token from collection must not be on another sales order
         require(
-            tokenFromCollectionIsOnSales[collectionAddress][tokenId] == false,
+            _tokenFromCollectionIsOnSales[collectionAddress][tokenId] == false,
             "Token is already put on sales"
         );
 
         //TODO: Extend support to other NFT standards. Only ERC-721 is supported at the moment.
         require(
-            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
+            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == _msgSender(),
             "Not token owner"
         );
         require(
             DefiForYouNFT(collectionAddress).isApprovedForAll(
-                msg.sender,
+                _msgSender(),
                 address(this)
             ),
             "Spender is not approved"
@@ -148,7 +86,7 @@ contract SellNFT is
         uint256 orderId = _orderIdCounter.current();
 
         Order storage _order = orders[orderId];
-        _order.owner = payable(msg.sender);
+        _order.owner = payable(_msgSender());
         _order.tokenId = tokenId;
         _order.collectionAddress = collectionAddress;
         _order.currency = currency;
@@ -157,7 +95,7 @@ contract SellNFT is
         // TODO: Check against NFT standards for valid number of copies from function input
         _order.numberOfCopies = numberOfCopies;
 
-        tokenFromCollectionIsOnSales[_order.collectionAddress][
+        _tokenFromCollectionIsOnSales[_order.collectionAddress][
             _order.tokenId
         ] = true;
 
@@ -176,13 +114,17 @@ contract SellNFT is
         emit NFTPutOnSales(orderId, _order, marketFee, _order.status);
     }
 
-    function cancelListing(uint256 orderId) external whenContractNotPaused {
+    function cancelListing(uint256 orderId)
+        external
+        override
+        whenContractNotPaused
+    {
         Order storage _order = orders[orderId];
 
-        require(msg.sender == _order.owner, "Order's seller is required");
+        require(_msgSender() == _order.owner, "Order's seller is required");
 
         // Delete token on sales flag
-        tokenFromCollectionIsOnSales[_order.collectionAddress][
+        _tokenFromCollectionIsOnSales[_order.collectionAddress][
             _order.tokenId
         ] = false;
 
@@ -195,9 +137,14 @@ contract SellNFT is
     function buyNFT(uint256 orderId, uint256 numberOfCopies)
         external
         payable
+        override
         whenContractNotPaused
     {
         Order storage _order = orders[orderId];
+
+        require(_order.status == OrderStatus.ON_SALES, "Sales unavailable");
+
+        require(_msgSender() != _order.owner, "Buying owned NFT");
 
         CollectionStandard _standard = _verifyOrderInfo(
             _order.collectionAddress,
@@ -205,8 +152,6 @@ contract SellNFT is
             _order.numberOfCopies,
             _order.owner
         );
-
-        require(msg.sender != _order.owner, "Buying owned NFT");
 
         (
             uint256 ZOOM,
@@ -226,14 +171,6 @@ contract SellNFT is
                 _standard
             );
 
-        // Transfer fund to contract
-        CommonLib.safeTransfer(
-            _order.currency,
-            msg.sender,
-            address(this),
-            _totalPaidAmount
-        );
-
         // Calculate total fee charged
         uint256 _totalFeeCharged = _marketFee + _royaltyFee;
 
@@ -241,6 +178,23 @@ contract SellNFT is
             _totalFeeCharged
         );
         require(success);
+
+        // If number of copies being purchased equal to listed number of copies,
+        // mark the order as completed and set _tokenFromCollectionIsOnSales flag to false
+        if (numberOfCopies == _order.numberOfCopies) {
+            _order.status = OrderStatus.COMPLETED;
+            _tokenFromCollectionIsOnSales[_order.collectionAddress][
+                _order.tokenId
+            ] = false;
+        }
+
+        // Transfer fund to contract
+        CommonLib.safeTransfer(
+            _order.currency,
+            _msgSender(),
+            address(this),
+            _totalPaidAmount
+        );
 
         // Transfer market fee to fee wallet
         CommonLib.safeTransfer(
@@ -272,22 +226,13 @@ contract SellNFT is
         // TODO: Extend support to ERC-1155
         DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
             _order.owner,
-            msg.sender,
+            _msgSender(),
             _order.tokenId
         );
 
-        // If number of copies being purchased equal to listed number of copies,
-        // mark the order as completed and set tokenFromCollectionIsOnSales flag to false
-        if (numberOfCopies == _order.numberOfCopies) {
-            _order.status = OrderStatus.COMPLETED;
-            tokenFromCollectionIsOnSales[_order.collectionAddress][
-                _order.tokenId
-            ] = false;
-        }
-
         Purchase memory _purchase = Purchase(
             orderId,
-            msg.sender,
+            _msgSender(),
             _order.collectionAddress,
             _order.tokenId,
             numberOfCopies,
@@ -300,6 +245,10 @@ contract SellNFT is
         );
 
         emit NFTBought(_purchase);
+    }
+
+    function isTokenOnSales(uint256 tokenId, address collectionAddress) external view override returns (bool) {
+        return _tokenFromCollectionIsOnSales[collectionAddress][tokenId];
     }
 
     function _calculateOrderFees(
@@ -385,22 +334,5 @@ contract SellNFT is
             _standard != CollectionStandard.UNDEFINED,
             "ERC-721 or ERC-1155 standard is required"
         );
-    }
-
-    /** ==================== Standard interface function implementations ==================== */
-
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {}
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(AccessControlUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }

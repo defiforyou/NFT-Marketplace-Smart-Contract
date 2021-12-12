@@ -2,133 +2,46 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
-import "./dfy-nft/DefiForYouNFT.sol";
-import "./libs/CommonLib.sol";
+import "../base/BaseContract.sol";
+import "../libs/CommonLib.sol";
+import "../dfy-nft/DefiForYouNFT.sol";
+import "../market/ISellNFT.sol";
+import "./IAuctionNFT.sol";
 
-contract AuctionNFT is
-    Initializable,
-    UUPSUpgradeable,
-    AccessControlUpgradeable,
-    ERC721HolderUpgradeable,
-    PausableUpgradeable
-{
+contract AuctionNFT is ERC721HolderUpgradeable, BaseContract, IAuctionNFT {
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
-
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-
-    // uint256 public marketFeeRate;
-    // address public marketFeeWallet;
-    // uint256 public ZOOM;
-
-    address public contractHub;
 
     CountersUpgradeable.Counter private _auctionIdCounter;
     mapping(uint256 => AuctionSession) public auctions;
 
-    struct AuctionSession {
-        AuctionData auctionData;
-        uint256 bidValue;
-        address winner;
-        AuctionStatus status;
-    }
-
-    struct AuctionData {
-        address owner;
-        uint256 tokenId;
-        address collectionAddress;
-        uint256 startingPrice;
-        uint256 buyOutPrice;
-        uint256 priceStep;
-        address currency;
-        uint256 startTime;
-        uint256 endTime;
-    }
-
-    enum AuctionStatus {
-        PENDING,
-        APPROVED,
-        REJECTED,
-        FINISHED,
-        CANCELLED
-    }
-
-    event NFTAuctionCreated(
-        uint256 auctionId,
-        AuctionData auctionData,
-        AuctionStatus auctionStatus
-    );
-
-    event NFTAuctionFinished(
-        uint256 auctionId,
-        address winner,
-        uint256 bidValue,
-        uint256 timeOfBidding,
-        AuctionStatus auctionStatus
-    );
-
-    event NFTAuctionBoughtOut(
-        uint256 auctionId,
-        address buyer,
-        uint256 boughtOutValue,
-        uint256 timeOfPurchase,
-        AuctionStatus auctionStatus
-    );
-
-    event NFTAuctionBidded(
-        uint256 auctionId,
-        address bidder,
-        uint256 tokenId,
-        address collectionAddress,
-        uint256 bidValue,
-        uint256 previousBidValue,
-        uint256 timeOfBidding
-    );
-
-    event NFTAuctionApprovalStatus(
-        uint256 auctionId,
-        AuctionStatus auctionStatus
-    );
-
-    event NFTAuctionCancelled(uint256 auctionId, AuctionStatus auctionStatus);
-
     function initialize(address _hub) public initializer {
-        __UUPSUpgradeable_init();
-        __Pausable_init();
-
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
-
-        contractHub = _hub;
+        __BaseContract_init(_hub);
     }
 
-    modifier whenContractNotPaused() {
-        _whenNotPaused();
-        _;
+    /** ==================== Standard interface function implementations ==================== */
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC165Upgradeable, IERC165Upgradeable)
+        returns (bool)
+    {
+        return
+            interfaceId == type(IAuctionNFT).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
-    function _whenNotPaused() private view {
-        require(!paused(), "Pausable: paused");
+    function signature() external pure override returns (bytes4) {
+        return type(IAuctionNFT).interfaceId;
     }
 
-    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _pause();
-    }
-
-    function unPause() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _unpause();
-    }
-
+    /** ==================== Auction functions ==================== */
     function putOnAuction(
         uint256 tokenId,
         address collectionAddress,
@@ -138,21 +51,20 @@ contract AuctionNFT is
         address currency,
         uint256 startTime,
         uint256 endTime
-    ) external whenContractNotPaused {
-        // TODO: Check if the token is already put on sales on Market (SellNFT)
-        // require(
-        //     tokenFromCollectionIsOnSalesOrAuction[collectionAddress][tokenId] ==
-        //         false,
-        //     "already put on sales or auctionSession"
-        // );
+    ) external override whenContractNotPaused {
+        // Check if the token is already put on sales on Market (SellNFT)
+        require(
+            !_isTokenOnSales(tokenId, collectionAddress),
+            "Token has been put on sales"
+        );
 
         require(
-            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == msg.sender,
+            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == _msgSender(),
             "Not token owner"
         );
         require(
             DefiForYouNFT(collectionAddress).isApprovedForAll(
-                msg.sender,
+                _msgSender(),
                 address(this)
             ) == true,
             "Spender is not approved"
@@ -183,7 +95,7 @@ contract AuctionNFT is
         AuctionSession storage _auctionSession = auctions[auctionId];
         _auctionSession.auctionData.tokenId = tokenId;
         _auctionSession.auctionData.collectionAddress = collectionAddress;
-        _auctionSession.auctionData.owner = msg.sender;
+        _auctionSession.auctionData.owner = _msgSender();
         _auctionSession.auctionData.startingPrice = startingPrice;
         _auctionSession.auctionData.buyOutPrice = buyOutPrice;
         _auctionSession.auctionData.priceStep = priceStep;
@@ -196,9 +108,9 @@ contract AuctionNFT is
 
         _auctionIdCounter.increment();
 
-        // lock nft of msg.sender into contract
+        // Lock (transfer) user's NFT to contract
         DefiForYouNFT(collectionAddress).safeTransferFrom(
-            msg.sender,
+            _msgSender(),
             address(this),
             tokenId
         );
@@ -212,8 +124,9 @@ contract AuctionNFT is
 
     function approveAuction(uint256 auctionId, AuctionStatus status)
         external
+        override
         whenContractNotPaused
-        onlyRole(OPERATOR_ROLE)
+        onlyOperator
     {
         AuctionSession storage _auctionSession = auctions[auctionId];
         require(
@@ -228,6 +141,7 @@ contract AuctionNFT is
         );
 
         if (status == AuctionStatus.REJECTED) {
+            _auctionSession.status = AuctionStatus.REJECTED;
             // Refund token to auction owner
             DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
                 .safeTransferFrom(
@@ -235,7 +149,6 @@ contract AuctionNFT is
                     _auctionSession.auctionData.owner,
                     _auctionSession.auctionData.tokenId
                 );
-            _auctionSession.status = AuctionStatus.REJECTED;
         } else {
             _auctionSession.status = AuctionStatus.APPROVED;
         }
@@ -243,7 +156,12 @@ contract AuctionNFT is
         emit NFTAuctionApprovalStatus(auctionId, _auctionSession.status);
     }
 
-    function buyOut(uint256 auctionId) external payable whenContractNotPaused {
+    function buyOut(uint256 auctionId)
+        external
+        payable
+        override
+        whenContractNotPaused
+    {
         AuctionSession storage _auctionSession = auctions[auctionId];
         require(
             _auctionSession.status == AuctionStatus.APPROVED,
@@ -286,31 +204,33 @@ contract AuctionNFT is
     function bid(uint256 auctionId, uint256 bidValue)
         external
         payable
+        override
         whenContractNotPaused
     {
         AuctionSession storage _auctionSession = auctions[auctionId];
 
         require(
             _auctionSession.status == AuctionStatus.APPROVED,
-            "yet approved"
+            "Check auction approval"
         );
 
         require(
             block.timestamp > _auctionSession.auctionData.startTime,
-            "yet start"
+            "Not started"
         );
 
-        require(block.timestamp < _auctionSession.auctionData.endTime, "ended");
+        require(block.timestamp < _auctionSession.auctionData.endTime, "Ended");
 
         require(
-            msg.sender != _auctionSession.auctionData.owner,
-            "bid owned NFT"
+            _msgSender() != _auctionSession.auctionData.owner,
+            "Bidding owned NFT"
         );
 
         if (_auctionSession.winner == address(0)) {
+            // For first bidder, bid value can be equal or higher than starting price
             require(
                 bidValue >= _auctionSession.auctionData.startingPrice,
-                "bid value"
+                "Bid value"
             );
         }
 
@@ -319,16 +239,16 @@ contract AuctionNFT is
             require(msg.value == bidValue, "Insufficient BNB");
         }
 
-        // calculator priceStep
+        // calculate priceStep
         if (_auctionSession.auctionData.priceStep > 0) {
             require(
                 bidValue >=
                     (_auctionSession.bidValue +
                         _auctionSession.auctionData.priceStep),
-                "higher bid required"
+                "Higher bid required"
             );
         } else {
-            require(bidValue > _auctionSession.bidValue, "higher bid required");
+            require(bidValue > _auctionSession.bidValue, "Higher bid required");
         }
 
         address previousBidder = _auctionSession.winner;
@@ -348,7 +268,7 @@ contract AuctionNFT is
         _auctionSession.winner = _msgSender();
         _auctionSession.bidValue = bidValue;
 
-        // Switch to Buy out flow if bid value > buy out price
+        // Switch to Buy out flow if bid value >= buy out price
         if (
             _auctionSession.auctionData.buyOutPrice > 0 &&
             bidValue >= _auctionSession.auctionData.buyOutPrice
@@ -385,7 +305,7 @@ contract AuctionNFT is
             address marketFeeWallet
         ) = HubInterface(contractHub).getNFTMarketConfig();
 
-        (uint256 _marketFee, uint256 _royaltyFee) = _calculateAuctionFees(
+        (uint256 marketFee, uint256 royaltyFee) = _calculateAuctionFees(
             auctionSession.auctionData.buyOutPrice,
             zoom,
             marketFeeRate,
@@ -394,24 +314,8 @@ contract AuctionNFT is
             auctionSession.auctionData.collectionAddress
         );
 
-        // Transfer the bid value to contract from user wallet
-        // even if it is higher than buy out price
-        CommonLib.safeTransfer(
-            auctionSession.auctionData.currency,
-            _msgSender(),
-            address(this),
-            auctionSession.bidValue
-        );
-
-        // If the bidder bidded higher than buy out price,
-        // the exceeding amount will be transfered to fee wallet
-        uint256 buyOutExceededAmount = auctionSession.bidValue >
-            auctionSession.auctionData.buyOutPrice
-            ? auctionSession.bidValue - auctionSession.auctionData.buyOutPrice
-            : 0;
-
         // calculate total fee charged
-        uint256 _totalFeeCharged = _marketFee + _royaltyFee;
+        uint256 _totalFeeCharged = marketFee + royaltyFee;
         (bool success, uint256 amountPaidToSeller) = auctionSession
             .auctionData
             .buyOutPrice
@@ -419,24 +323,36 @@ contract AuctionNFT is
 
         require(success);
 
-        // Transfer market fee & exceeding amount to fee wallet
+        auctionSession.status = AuctionStatus.FINISHED;
+
+        // Transfer only the buy out value to contract from user wallet
+        // even if the bid value is higher than buy out price
+        CommonLib.safeTransfer(
+            auctionSession.auctionData.currency,
+            _msgSender(),
+            address(this),
+            auctionSession.auctionData.buyOutPrice
+        );
+
+        // Transfer market fee to fee wallet
         CommonLib.safeTransfer(
             auctionSession.auctionData.currency,
             address(this),
             marketFeeWallet,
-            (_marketFee + buyOutExceededAmount)
+            marketFee
         );
 
-        if (_royaltyFee > 0) {
+        if (royaltyFee > 0) {
             // Transfer royalty fee to original creator of the collection
             CommonLib.safeTransfer(
                 auctionSession.auctionData.currency,
                 address(this),
                 DefiForYouNFT(auctionSession.auctionData.collectionAddress)
                     .originalCreator(),
-                _royaltyFee
+                royaltyFee
             );
         }
+
         // Transfer remaining amount to seller after deducting market fee and royalty fee
         CommonLib.safeTransfer(
             auctionSession.auctionData.currency,
@@ -453,12 +369,10 @@ contract AuctionNFT is
                 auctionSession.auctionData.tokenId
             );
 
-        auctionSession.status = AuctionStatus.FINISHED;
-
         emit NFTAuctionBoughtOut(
             auctionId,
             _msgSender(),
-            auctionSession.bidValue,
+            auctionSession.auctionData.buyOutPrice,
             block.timestamp,
             auctionSession.status
         );
@@ -467,8 +381,9 @@ contract AuctionNFT is
     function finishAuction(uint256 auctionId)
         external
         payable
+        override
         whenContractNotPaused
-        onlyRole(OPERATOR_ROLE)
+        onlyOperator
     {
         AuctionSession storage _auctionSession = auctions[auctionId];
         require(
@@ -482,7 +397,7 @@ contract AuctionNFT is
             address marketFeeWallet
         ) = HubInterface(contractHub).getNFTMarketConfig();
 
-        (uint256 _marketFee, uint256 _royaltyFee) = _calculateAuctionFees(
+        (uint256 marketFee, uint256 royaltyFee) = _calculateAuctionFees(
             _auctionSession.bidValue,
             zoom,
             marketFeeRate,
@@ -491,7 +406,7 @@ contract AuctionNFT is
             _auctionSession.auctionData.collectionAddress
         );
 
-        uint256 _totalFeeCharged = _marketFee + _royaltyFee;
+        uint256 _totalFeeCharged = marketFee + royaltyFee;
         (bool success, uint256 amountPaidToSeller) = _auctionSession
             .bidValue
             .trySub(_totalFeeCharged);
@@ -503,16 +418,16 @@ contract AuctionNFT is
                 _auctionSession.auctionData.currency,
                 address(this),
                 marketFeeWallet,
-                _marketFee
+                marketFee
             );
-            if (_royaltyFee > 0) {
+            if (royaltyFee > 0) {
                 // Transfer royalty fee to original creator of the collection
                 CommonLib.safeTransfer(
                     _auctionSession.auctionData.currency,
                     address(this),
                     DefiForYouNFT(_auctionSession.auctionData.collectionAddress)
                         .originalCreator(),
-                    _royaltyFee
+                    royaltyFee
                 );
             }
             // Transfer remaining amount to seller after deducting market fee and royalty fee
@@ -541,11 +456,6 @@ contract AuctionNFT is
 
         _auctionSession.status = AuctionStatus.FINISHED;
 
-        // when auctionSession is end -> reset status of tokenFromCollectionIsOnSalesOrAuction to next owner can put on sale or auctionSession
-        // tokenFromCollectionIsOnSalesOrAuction[_auctionSession.collectionAddress][
-        //     _auctionSession.tokenId
-        // ] = false;
-
         emit NFTAuctionFinished(
             auctionId,
             _auctionSession.winner,
@@ -555,7 +465,11 @@ contract AuctionNFT is
         );
     }
 
-    function cancelAuction(uint256 auctionId) external whenContractNotPaused {
+    function cancelAuction(uint256 auctionId)
+        external
+        override
+        whenContractNotPaused
+    {
         AuctionSession storage _auctionSession = auctions[auctionId];
 
         require(
@@ -563,8 +477,12 @@ contract AuctionNFT is
             "auction has been approved or finished"
         );
         require(
-            (msg.sender == _auctionSession.auctionData.owner ||
-                hasRole(OPERATOR_ROLE, msg.sender)),
+            // (msg.sender == _auctionSession.auctionData.owner || hasRole(OPERATOR_ROLE, msg.sender)),
+            (_msgSender() == _auctionSession.auctionData.owner ||
+                IAccessControlUpgradeable(contractHub).hasRole(
+                    HubRoles.OPERATOR_ROLE,
+                    _msgSender()
+                )),
             "seller or operator"
         );
 
@@ -593,12 +511,8 @@ contract AuctionNFT is
         // calculate market fee base currentbid value
         marketFee = CommonLib.calculateSystemFee(amount, marketFeeRate, zoom);
 
-        // todo : calculate fee based on bidvalue or buyout price
-
-        if (
-            tokenOwner != DefiForYouNFT(collectionAddress).originalCreator()
-        ) // owner nft not seller
-        {
+        // NFT owner is not the original creator
+        if (tokenOwner != DefiForYouNFT(collectionAddress).originalCreator()) {
             // calculate royalty fee
             royaltyFee = CommonLib.calculateSystemFee(
                 amount,
@@ -608,27 +522,22 @@ contract AuctionNFT is
         }
     }
 
-    /** ==================== Standard interface function implementations ==================== */
-
-    function _authorizeUpgrade(address)
+    function _isTokenOnSales(uint256 tokenId, address collectionAddress)
         internal
-        override
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {}
-
-    function supportsInterface(bytes4 interfaceId)
-        public
         view
-        override(AccessControlUpgradeable)
-        returns (bool)
+        returns (bool isOnSales)
     {
-        return super.supportsInterface(interfaceId);
-    }
+        // Query SellNFT contract address from Hub
+        (address nftSales, ) = HubInterface(contractHub).getContractAddress(
+            type(ISellNFT).interfaceId
+        );
 
-    function setContractHub(address _hub)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        contractHub = _hub;
+        require(nftSales != address(0), "Invalid NFT Sales address");
+
+        // Query token's sales status
+        isOnSales = ISellNFT(nftSales).isTokenOnSales(
+            tokenId,
+            collectionAddress
+        );
     }
 }

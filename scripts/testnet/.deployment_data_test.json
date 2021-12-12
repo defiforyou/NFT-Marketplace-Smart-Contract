@@ -1,0 +1,90 @@
+{
+    "HubSettings": {
+        "ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "OPERATOR_ROLE": "0x97667070c54ef182b0f5858b034beac1b6f3089aa2d3188bb1e8929f4fa9b929",
+        "PAUSER_ROLE": "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
+        "REGISTRANT_ROLE": "0x12090aa55130d5a2442eb84fc286ca6e600db6c50b6c5d9b6d0d929f0e2d8ce8",
+        "INTERNAL_CONTRACT": "0x47e9c2c2d9af7236a890299c55d32cf31abf990b4a1de82ef25f24524e361eb3",
+        "SystemAdmin": "0xd2F2Ddb5a013cCa30dBBE64CBbed2FAea6E5a689",
+        "SystemOperator": "0xA120581F875A201E8f779280332a19C0f7974dDd",
+        "EvaluationOperator": "0x317323F1e0b554fBdfD103a34da91e9f22f61bB0",
+        "Operators": [
+            "0x9F07F7D474f2FC46Bf9D1Ab479Ffa575B7D6DDFE",
+            "0xD08b70DbA72514Cba07852BF043551a5980f52E5",
+            "0x6F3d0ca39ebdFf3d80d4E0A4c4B19330d0d05220",
+            "0x317323F1e0b554fBdfD103a34da91e9f22f61bB0",
+            "0xb11307129842E4222b227bF0C78B03FF990fd17f",
+            "0x90758fD0f72184ffb8e5Eb376470901A59abAac7"
+        ],
+        "SystemFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3",
+        "SystemFeeToken": "0x20f1de452e9057fe863b99d33cf82dbee0c45b14"
+    },
+    "DefaultNFTCollectionSettings": {
+        "Name": "Uncategorized DeFiForYou Collection",
+        "Symbol": "DFY-NFT",
+        "Owner": "0xA120581F875A201E8f779280332a19C0f7974dDd",
+        "Royalty": 0,
+        "CollectionCID": "QmdUFEQHZqHXyGpV6EVjkFhQBeQtYeRJBNBisUfBLABfyn"
+    },
+    "PawnSettings": {
+        "ZOOM": 100000,
+        "SystemFee": 2000000,
+        "PenaltyRate": 15000000,
+        "PrepaidFee": 300000,
+        "LateThreshold": 3
+    },
+    "PawnNFTSettings": {
+        "ZOOM": 100000,
+        "SystemFee": 2000000,
+        "PenaltyRate": 15000000,
+        "PrepaidFee": 300000,
+        "LateThreshold": 3
+    },
+    "NFTSettings": {
+        "CollectionCreatingFee": 0,
+        "MintingFee": 10000000000000000000
+    },
+    "MarketSettings": {
+        "ZOOM": 100000,
+        "MarketFeeRate": 250000,
+        "MarketFeeWallet": "0x900929DAa60945aa234F72239a3F75C6E6CAFDB3"
+    },
+    "Proxies": {
+        "BCTest": {
+            "HUB_ADDRESS":              "0x1508a0341b827a565C20A3eC4e2b2E07a2901064",
+            "NFT_FACTORY_ADDRESS":      "0xdD15EddEd5FD7936a98622e4FB59b5E1FBA017DD",
+            "NFT_SALES_ADDRESS":        "0x95A27935bc95a1551FF81D48f54dde24AEcb9bFa",
+            "NFT_AUCTION_ADDRESS":      "0xAfaBAd94f5E2Ef34B66133fc91243099ACE0162e"
+        },
+        "Dev2": {
+            "HUB_ADDRESS":              "0xB17cbc8967715aE90507E3E231Af741a29361114",
+            "NFT_FACTORY_ADDRESS":      "0x0bcA4DCddE35d2F2aC5a3fAF0baD966639e6EB41",
+            "NFT_SALES_ADDRESS":        "0xcE80f7DFEC1589D6cf9a0586446618aAbBC711E7",
+            "NFT_AUCTION_ADDRESS":      "0xdE92A451d22C1D84E874b6B8A5A70AC5f91b6D86"
+        },
+        "Staging": {
+            "HUB_ADDRESS":              "0x957473344B7687A753595c3EdbC705ca472164BD",
+            "NFT_FACTORY_ADDRESS":      "0x4486D212D141bf8Eb52CBb3d202B086C538140E8",
+            "NFT_SALES_ADDRESS":        "0xd3d608Fc5D77418866CC29C82b6931C2e269E6eE",
+            "NFT_AUCTION_ADDRESS":      "0xa9aC42Cf9c3B652E9ce8c15712d6cd2141F0FAc1"
+        },
+        "Beta": {
+            "HUB_ADDRESS":              "0x0F1eE077197D912387c86b57b4cffe936B712Da0",
+            "NFT_FACTORY_ADDRESS":      "0xb1FD91c03CddcE0d488A6B17d5839A1C96bc0b69",
+            "NFT_SALES_ADDRESS":        "0x988b342d1223e01b0d6Ba4F496FD42d47969656b",
+            "NFT_AUCTION_ADDRESS":      "0xFC89E7ADee767Ff50fEFf86775Db7fEb6C943e6D"
+        }
+    },
+    "DefaultNFTCollection": {
+        "Dev2": "0xa9844332cd1e6bf702a3049c70dEa1FB44F298C9",
+        "Staging": "0xdb2590bA490780Bf5403F6c13976374CEf7C8E94",
+        "Beta": "0x65425D25a7B901C86809A4Bd3A3F9c3A722Fadf9"
+    },
+    "Signature": {
+        "BCTest": {
+            "NFT_FACTORY": "0xe2671856",
+            "NFT_SALES": "0xff574eed",
+            "NFT_AUCTION": "0x2323688f"
+        }
+    }
+}

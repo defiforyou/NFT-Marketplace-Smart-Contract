@@ -35,7 +35,6 @@ describe("Deploy DFY Factory", (done) => {
             _originCreator,
             _buyer,
             _buyer2,
-            _feeWallet,
             _marketFeeWallet
 
         ] = await ethers.getSigners();
@@ -54,27 +53,27 @@ describe("Deploy DFY Factory", (done) => {
         const hubContractFactory = await hre.ethers.getContractFactory(artifactHub);
         const hubContract = await hre.upgrades.deployProxy(
             hubContractFactory,
-            [_feeWallet.address, _DFYTokenContract.address],
+            [_marketFeeWallet.address, _DFYTokenContract.address, _deployer.address],
             { kind: "uups" }
 
         );
         _hubContract = await hubContract.deployed();
+        console.log(_hubContract.address, "address hub contract : ");
+
         // set market fee Rate for contract SellNFT 
+        await _hubContract.connect(_deployer).setSystemConfig(_marketFeeWallet.address, _DFYTokenContract.address);
         await _hubContract.setNFTMarketConfig(_zoom, _marketFeeRate, _marketFeeWallet.address);
 
         // DFY Factory 
         const DFYFactory = await hre.ethers.getContractFactory(artifactDFYFactory);
         const DFYFactoryContract = await hre.upgrades.deployProxy(
             DFYFactory,
+            [_hubContract.address],
             { kind: "uups" }
         );
         _DFYFactoryContract = await DFYFactoryContract.deployed();
 
         // DFY NFT
-        // setContractHub 
-        await _DFYFactoryContract.connect(_deployer).setContractHub(_hubContract.address);
-        let getOperatorRole = await _DFYFactoryContract.OPERATOR_ROLE();
-        await _DFYFactoryContract.connect(_deployer).grantRole(getOperatorRole, _originCreator.address);
         await _DFYFactoryContract.connect(_originCreator).createCollection(_tokenName, _symbol, 0, _cidOfCollection.toString());
         this.DFYNFTFactory = await hre.ethers.getContractFactory("DefiForYouNFT");
         let getAddressContractOfCreatetor = await _DFYFactoryContract.collectionsByOwner(_originCreator.address, 0);
@@ -90,16 +89,10 @@ describe("Deploy DFY Factory", (done) => {
         );
         _sellNFTContract = await sellNFTContract.deployed();
         console.log(_sellNFTContract.address, "address SellNFT contract : ");
+        // hub call registerContract  
+        const signatureSell = await _sellNFTContract.signature();
+        await _hubContract.registerContract(signatureSell, _sellNFTContract.address, artifactSellNFT);
 
-        // DFY NFT 1155 
-        // const DFYNFT1155Factory = await hre.ethers.getContractFactory(artifactDFY1155);
-        // const DFYNFT1155Contract = await DFYNFT1155Factory.deploy(
-        //     "DFY-1155NFT",
-        //     "DFY",
-        //     _seller.address,
-        //     250000
-        // );
-        // _DFY1155Contract = await DFYNFT1155Contract.deployed();
 
     });
 
@@ -182,7 +175,7 @@ describe("Deploy DFY Factory", (done) => {
 
             // calculate 
             let info = await _sellNFTContract.orders(1);
-            let feeGasBuy = BigInt(191816906190336);
+            let feeGasBuy = BigInt(192415943786220);
             let newOwner = await _DFYContract.ownerOf(_firstToken);
             let marketFee = BigInt(info.price) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
             let royaltyFee = BigInt(info.price) * BigInt(_royaltyRateDFY) / BigInt(_zoom * 100);
@@ -212,7 +205,7 @@ describe("Deploy DFY Factory", (done) => {
 
             // seller cancel listing 
             await _sellNFTContract.connect(_buyer2).cancelListing(2);
-            let isOnsale = await _sellNFTContract.tokenFromCollectionIsOnSales(_buyer2.address, 2);
+            let isOnsale = await _sellNFTContract.isTokenOnSales(_firstToken, _DFYContract.address);
             expect(isOnsale).to.equal(false);
 
         });

@@ -2,104 +2,42 @@
 
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "../base/BaseContract.sol";
+import "../libs/CommonLib.sol";
+import "./IDFY721Factory.sol";
 import "./DefiForYouNFT.sol";
 
-contract DefiForYouNFTFactory is
-    Initializable,
-    UUPSUpgradeable,
-    AccessControlUpgradeable,
-    PausableUpgradeable
-{
+contract DefiForYouNFTFactory is BaseContract, IDFY721Factory {
     /** ==================== All state variables ==================== */
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-
-    address public feeWallet; // TODO: will be removed on next phase, use data from Hub
-    uint256 public collectionCreatingFee; // TODO: will be removed on next phase, use data from Hub
-    mapping(address => bool) public whitelistedFeeTokens; // TODO: will be removed on next phase, use data from Hub
-
     mapping(address => DefiForYouNFT[]) public collectionsByOwner;
 
     // TODO: New state variables must go below this line -----------------------------
 
-    address public contractHub;
-
     /** ==================== Contract initializing & configuration ==================== */
-    function initialize() public initializer {
-        __UUPSUpgradeable_init();
-        __Pausable_init();
-
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
+    function initialize(address _hub) public initializer {
+        __BaseContract_init(_hub);
     }
 
-    modifier whenContractNotPaused() {
-        _whenNotPaused();
-        _;
-    }
+    /** ==================== Standard interface function implementations ==================== */
 
-    function _whenNotPaused() private view {
-        require(!paused(), "Pausable: paused");
-    }
-
-    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _pause();
-    }
-
-    function unPause() external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _unpause();
-    }
-
-    // TODO: will be removed on next phase, use data from Hub
-    function setCollectionCreatingFee(uint256 _fee)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC165Upgradeable, IERC165Upgradeable)
+        returns (bool)
     {
-        collectionCreatingFee = _fee;
+        return
+            interfaceId == type(IDFY721Factory).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
-    // TODO: will be removed on next phase, use data from Hub
-    function setWhitelistedFeeToken(address _feeToken, bool whitelistStatus)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        whitelistedFeeTokens[_feeToken] = whitelistStatus;
-    }
-
-    // TODO: will be removed on next phase, use data from Hub
-    function setFeeWallet(address wallet)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        feeWallet = wallet;
-    }
-
-    function setContractHub(address hub) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        contractHub = hub;
+    function signature() external pure override returns (bytes4) {
+        return type(IDFY721Factory).interfaceId;
     }
 
     /** ==================== NFT collection operation ==================== */
-    enum CollectionStatus {
-        OPEN
-    }
-
-    event CollectionCreated(
-        address collection,
-        address creator,
-        string name,
-        string symbol,
-        uint256 royaltyRate,
-        string collectionCID,
-        CollectionStatus status
-    );
 
     /**
      * @dev create new collection using DefiForYouNFT template
@@ -113,7 +51,7 @@ contract DefiForYouNFTFactory is
         string memory _symbol,
         uint256 _royaltyRate,
         string memory _collectionCID
-    ) external returns (address newCollection) {
+    ) external override returns (address newCollection) {
         DefiForYouNFT dfyNFT = new DefiForYouNFT(
             _name,
             _symbol,
@@ -127,8 +65,21 @@ contract DefiForYouNFTFactory is
 
         newCollection = address(dfyNFT);
 
+        (uint256 collectionCreatingFee, ) = HubInterface(contractHub)
+            .getNFTCollectionConfig();
+
         if (collectionCreatingFee > 0) {
-            // TODO: transfer minting fee in crypto to fee wallet
+            // Get fee wallet and fee token address
+            (address feeWallet, address feeToken) = HubInterface(contractHub)
+                .getSystemConfig();
+
+            // Transfer collection creating fee to fee wallet
+            CommonLib.safeTransfer(
+                feeToken,
+                _msgSender(),
+                feeWallet,
+                collectionCreatingFee
+            );
         }
 
         emit CollectionCreated(
@@ -140,22 +91,5 @@ contract DefiForYouNFTFactory is
             _collectionCID,
             CollectionStatus.OPEN
         );
-    }
-
-    /** ==================== Standard interface function implementations ==================== */
-
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {}
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(AccessControlUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }

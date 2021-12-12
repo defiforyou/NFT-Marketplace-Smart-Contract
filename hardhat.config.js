@@ -6,7 +6,7 @@ require("@openzeppelin/hardhat-upgrades");
 require("hardhat-contract-sizer");
 require("hardhat-gas-reporter");
 
-const { InfuraKey, mnemonic, Wallet, BscScanApiKey, EtherscanApiKey, PrivateKey } = require('./.secret.json');
+const { InfuraKey, mnemonic, Wallet, BscScanApiKey, EtherscanApiKey, PrivateKey, PrelivePK } = require('./.secret.json');
 
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -58,14 +58,13 @@ module.exports = {
       chainId: 97,
       gas: 8812388,
       // gasPrice: 20000000000,
-      accounts: { mnemonic: mnemonic },
-      from: Wallet
+      accounts: PrivateKey
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
       gasPrice: 20000000000,
-      accounts: { mnemonic: mnemonic }
+      accounts: PrelivePK
     }
   },
   etherscan: {
