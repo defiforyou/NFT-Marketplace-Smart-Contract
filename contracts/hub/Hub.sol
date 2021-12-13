@@ -26,6 +26,7 @@ contract Hub is
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     mapping(bytes4 => Registry) public ContractRegistry;
+    mapping(address => EvaluationConfig) public EvaluationConfigs;
 
     SystemConfig public systemConfig;
     PawnConfig public pawnConfig;
@@ -402,7 +403,7 @@ contract Hub is
 
     /**=============== config Evaluation */
 
-    function setWhiteListEvaluationFee(
+    function setEvaluationConfig(
         address newAddressFee,
         uint256 newEvaluationFee,
         uint256 newMintingFee
@@ -410,19 +411,19 @@ contract Hub is
         if (newAddressFee != address(0)) {
             require(newAddressFee.isContract(), "5"); // Address minting fee is contract
         }
-        WhiteListFee[newAddressFee] = WhiteListEvaluationFee(
+        EvaluationConfigs[newAddressFee] = EvaluationConfig(
             newEvaluationFee,
             newMintingFee
         );
     }
 
-    function getWhiteListEvaluationFee(address addFee)
+    function getEvaluationConfig(address addFee)
         external
         view
         override
         returns (uint256 evaluationFee, uint256 mintingFee)
     {
-        evaluationFee = WhiteListFee[addFee].EvaluationFee;
-        mintingFee = WhiteListFee[addFee].MintingFee;
+        evaluationFee = EvaluationConfigs[addFee].EvaluationFee;
+        mintingFee = EvaluationConfigs[addFee].MintingFee;
     }
 }

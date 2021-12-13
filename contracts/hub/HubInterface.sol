@@ -43,7 +43,7 @@ interface HubInterface {
         address marketFeeWallet;
     }
 
-     struct WhiteListEvaluationFee {
+    struct EvaluationConfig {
         uint256 EvaluationFee;
         uint256 MintingFee;
     }
@@ -128,5 +128,10 @@ interface HubInterface {
     function getWhiteListEvaluationFee(address addFee)
         external
         view
-        returns (uint256 evaluationFee, uint256 mintingFee)
+        returns (uint256 evaluationFee, uint256 mintingFee);
+
+    function getEvaluationConfig(address addFee)
+        external
+        view
+        returns (uint256 evaluationFee, uint256 mintingFee);
 }
