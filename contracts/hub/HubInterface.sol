@@ -125,11 +125,6 @@ interface HubInterface {
         uint256 status
     ) external;
 
-    function getWhiteListEvaluationFee(address addFee)
-        external
-        view
-        returns (uint256 evaluationFee, uint256 mintingFee);
-
     function getEvaluationConfig(address addFee)
         external
         view
