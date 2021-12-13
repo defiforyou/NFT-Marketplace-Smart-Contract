@@ -44,8 +44,8 @@ interface HubInterface {
     }
 
     struct EvaluationConfig {
-        uint256 EvaluationFee;
-        uint256 MintingFee;
+        uint256 evaluationFee;
+        uint256 mintingFee;
     }
 
     /** Functions */

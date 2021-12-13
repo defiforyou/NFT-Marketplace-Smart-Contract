@@ -33,9 +33,9 @@ contract Hub is
     NFTCollectionConfig public nftCollectionConfig;
     NFTMarketConfig public nftMarketConfig;
 
-    mapping(address => EvaluationConfig) public EvaluationConfigs;
-
     // TODO: New state variables must go below this line -----------------------------
+
+    mapping(address => EvaluationConfig) public EvaluationConfigs;
 
     /** ==================== Contract initializing & configuration ==================== */
     function initialize(
@@ -424,7 +424,7 @@ contract Hub is
         override
         returns (uint256 evaluationFee, uint256 mintingFee)
     {
-        evaluationFee = EvaluationConfigs[addFee].EvaluationFee;
-        mintingFee = EvaluationConfigs[addFee].MintingFee;
+        evaluationFee = EvaluationConfigs[addFee].evaluationFee;
+        mintingFee = EvaluationConfigs[addFee].mintingFee;
     }
 }
