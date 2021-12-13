@@ -15,7 +15,7 @@ import "../hub/HubLib.sol";
 import "../hub/HubInterface.sol";
 import "./BaseInterface.sol";
 
-contract BaseContract is
+abstract contract BaseContract is
     Initializable,
     UUPSUpgradeable,
     PausableUpgradeable,

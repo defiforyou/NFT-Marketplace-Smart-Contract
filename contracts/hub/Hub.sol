@@ -399,4 +399,30 @@ contract Hub is
         marketFeeRate = nftMarketConfig.marketFeeRate;
         marketFeeWallet = nftMarketConfig.marketFeeWallet;
     }
+
+    /**=============== config Evaluation */
+
+    function setWhiteListEvaluationFee(
+        address newAddressFee,
+        uint256 newEvaluationFee,
+        uint256 newMintingFee
+    ) external onlyRole(HubRoles.DEFAULT_ADMIN_ROLE) {
+        if (newAddressFee != address(0)) {
+            require(newAddressFee.isContract(), "5"); // Address minting fee is contract
+        }
+        WhiteListFee[newAddressFee] = WhiteListEvaluationFee(
+            newEvaluationFee,
+            newMintingFee
+        );
+    }
+
+    function getWhiteListEvaluationFee(address addFee)
+        external
+        view
+        override
+        returns (uint256 evaluationFee, uint256 mintingFee)
+    {
+        evaluationFee = WhiteListFee[addFee].EvaluationFee;
+        mintingFee = WhiteListFee[addFee].MintingFee;
+    }
 }
