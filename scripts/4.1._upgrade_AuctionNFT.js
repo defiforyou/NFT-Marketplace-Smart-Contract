@@ -2,7 +2,7 @@ require('@nomiclabs/hardhat-ethers');
 
 const { Proxies } = require('./.deployment_data_test.json');
 
-const NFTAuctionProxyAddr = Proxies.Dev2.NFT_AUCTION_ADDRESS;
+const NFTAuctionProxyAddr = Proxies.Staging.NFT_AUCTION_ADDRESS;
 const NFTAuctionBuildNameV1 = "AuctionNFT";
 const NFTAuctionBuildNameV2 = "AuctionNFT";
 

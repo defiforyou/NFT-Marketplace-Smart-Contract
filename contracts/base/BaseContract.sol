@@ -15,7 +15,7 @@ import "../hub/HubLib.sol";
 import "../hub/HubInterface.sol";
 import "./BaseInterface.sol";
 
-abstract contract BaseContract is
+contract BaseContract is
     Initializable,
     UUPSUpgradeable,
     PausableUpgradeable,
@@ -71,7 +71,7 @@ abstract contract BaseContract is
      *
      *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
      */
-     function _checkRole(bytes32 role, address account) private view {
+    function _checkRole(bytes32 role, address account) private view {
         if (!IAccessControlUpgradeable(contractHub).hasRole(role, account)) {
             revert(
                 string(
@@ -98,9 +98,5 @@ abstract contract BaseContract is
         contractHub = _hub;
     }
 
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyAdmin
-    {}
+    function _authorizeUpgrade(address) internal override onlyAdmin {}
 }
