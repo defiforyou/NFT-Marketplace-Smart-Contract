@@ -1,9 +1,10 @@
 require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
-const { Proxies } = require('./.deployment_data_test.json');
+const { Proxies } = require('./.deployment_data_prelive.json');
+const proxiesEnv = Proxies.Prelive;
 
-const HubProxyAddr = Proxies.BCTest.HUB_ADDRESS;
+const HubProxyAddr = proxiesEnv.HUB_ADDRESS;
 const HubBuildName = "Hub";
 
 const decimals      = 10**18;

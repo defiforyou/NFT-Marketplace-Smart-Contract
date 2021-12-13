@@ -69,6 +69,25 @@ library CommonLib {
     }
 
     /**
+     * @dev Calculate balance of wallet address
+     * @param  _token is address of token
+     * @param  from is address wallet
+     */
+    function calculateAmount(address _token, address from)
+        internal
+        view
+        returns (uint256 _amount)
+    {
+        if (_token == address(0)) {
+            // BNB
+            _amount = from.balance;
+        } else {
+            // ERC20
+            _amount = IERC20Upgradeable(_token).balanceOf(from);
+        }
+    }
+
+    /**
      * @dev Calculate fee of system
      * @param  amount amount charged to the system
      * @param  feeRate is system fee rate
@@ -89,7 +108,7 @@ library CommonLib {
     function abs(int256 _input) internal pure returns (uint256) {
         return _input >= 0 ? uint256(_input) : uint256(_input * -1);
     }
-    
+
     function getSecondsOfDuration(DurationType durationType, uint256 duration)
         internal
         pure

@@ -1,7 +1,8 @@
 require('@nomiclabs/hardhat-ethers');
 
 const hre = require('hardhat');
-const { HubSettings } = require('./.deployment_data_test.json');
+const { HubSettings } = require('./.deployment_data_prelive.json');
+
 const decimals = 10 ** 18;
 
 const HubBuildName = "Hub";
@@ -25,7 +26,7 @@ async function main() {
         [
             HubSettings.SystemFeeWallet,
             HubSettings.SystemFeeToken,
-            HubSettings.Operator
+            HubSettings.SystemOperator
         ],
         proxyType);
 

@@ -1,12 +1,14 @@
 require('@nomiclabs/hardhat-ethers');
 
 const hre = require('hardhat');
-const { Proxies } = require('./.deployment_data_test.json');
+const { Proxies } = require('./.deployment_data_prelive.json');
+const proxiesEnv = Proxies.Prelive;
+
 const decimals = 10 ** 18;
 
-const NFTSalesBuildName = "SellNFT";
+const NFTAuctionBuildName = "AuctionNFT";
 const HubBuildName = "Hub";
-const HubProxy = Proxies.Beta.HUB_ADDRESS;
+const HubProxy = proxiesEnv.HUB_ADDRESS;
 
 const proxyType = { kind: "uups" };
 
@@ -19,27 +21,28 @@ async function main() {
     console.log("Account balance:", ((await deployer.getBalance()) / decimals).toString());
     console.log("============================================================\n\r");
     
-    const NFTSalesFactory = await hre.ethers.getContractFactory(NFTSalesBuildName);
-    const NFTSalesArtifact = await hre.artifacts.readArtifact(NFTSalesBuildName);
-    const NFTSalesContract = await hre.upgrades.deployProxy(NFTSalesFactory, [HubProxy], proxyType);
+    const NFTAuctionFactory = await hre.ethers.getContractFactory(NFTAuctionBuildName);
+    const NFTAuctionArtifact = await hre.artifacts.readArtifact(NFTAuctionBuildName);
+    const NFTAuctionContract = await hre.upgrades.deployProxy(NFTAuctionFactory, [HubProxy], proxyType);
 
-    await NFTSalesContract.deployed();
-    const signature  = await NFTSalesContract.signature();
+    await NFTAuctionContract.deployed();
+    const signature  = await NFTAuctionContract.signature();
 
-    console.log(`NFT_SALES_ADDRESS: \x1b[36m${NFTSalesContract.address}\x1b[0m`);
+    console.log(`NFT_AUCTION_ADDRESS: \x1b[36m${NFTAuctionContract.address}\x1b[0m`);
     console.log(`Signature: \x1b[36m${signature}\x1b[0m`);
 
-    const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(NFTSalesContract.address);
-    console.log(`\x1b[36m${NFTSalesArtifact.contractName}\x1b[0m implementation address: \x1b[36m${implementationAddress}\x1b[0m\n\r`);
+    const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(NFTAuctionContract.address);
+    console.log(`\x1b[36m${NFTAuctionArtifact.contractName}\x1b[0m implementation address: \x1b[36m${implementationAddress}\x1b[0m\n\r`);
 
     const HubFactory   = await hre.ethers.getContractFactory(HubBuildName);
     const HubArtifact  = await hre.artifacts.readArtifact(HubBuildName);
     const HubContract  = HubFactory.attach(HubProxy);
 
     console.log(`HUB_ADDRESS: \x1b[31m${HubContract.address}\x1b[0m`);
-    console.log(`Registering \x1b[36m${NFTSalesArtifact.contractName}\x1b[0m to \x1b[31m${HubArtifact.contractName}\x1b[0m...`);
+    console.log(`Registering \x1b[36m${NFTAuctionArtifact.contractName}\x1b[0m to \x1b[31m${HubArtifact.contractName}\x1b[0m...`);
     
-    await HubContract.registerContract(signature, NFTSalesContract.address, NFTSalesArtifact.contractName);
+    let tnx = await HubContract.registerContract(signature, NFTAuctionContract.address, NFTAuctionArtifact.contractName);
+    let receipt = await tnx.wait();
     console.log(`Completed at ${Date(Date.now())}`);
 
     console.log("============================================================\n\r");

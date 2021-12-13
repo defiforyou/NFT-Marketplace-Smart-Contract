@@ -12,3 +12,9 @@ package-lock.json
 .env
 metadata_template/collectionURI-010-test.json
 Bernie-Sanders.json
+AuctionNFT_ABI.json
+DefiForYouNFTFactory_ABI.json
+Hub_ABI.json
+SellNFT_ABI.json
+DefiForYouNFTDefault_ABI.json
+metadata_template/webdesign_vs_webdev.json

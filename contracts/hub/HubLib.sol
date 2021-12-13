@@ -26,4 +26,9 @@ library HubRoles {
      * @dev REGISTRANT: those who have this role can register new contract to the contract Hub
      */
     bytes32 public constant REGISTRANT = keccak256("REGISTRANT");
+
+    /**
+     * @dev INTERNAL_CONTRACT: a role for internal contracts calling each others
+     */
+    bytes32 public constant INTERNAL_CONTRACT = keccak256("INTERNAL_CONTRACT");
 }

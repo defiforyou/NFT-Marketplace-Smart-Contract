@@ -2,6 +2,7 @@ const hre = require("hardhat");
 const artifactDFYFactory = "DefiForYouNFTFactory";
 const artifactDFYToken = "BEP20Token";
 const artifactAuctionNFT = "AuctionNFT";
+const artifactSellNFT = "SellNFT";
 const artifactHub = "Hub";
 const { expect, assert } = require("chai");
 const BNB_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -14,6 +15,7 @@ describe("Deploy DFY Factory", (done) => {
     let _DFYFactoryContract = null;
     let _DFYContract = null;
     let _auctionNFTContract = null;
+    let _sellNFTContract = null;
     let _DFYTokenContract = null;
     let _hubContract = null;
 
@@ -33,6 +35,7 @@ describe("Deploy DFY Factory", (done) => {
         [
             _deployer,
             _originCreator,
+            _adminApproveAuction,
             _bid1,
             _bid2,
             _bid3,
@@ -58,15 +61,14 @@ describe("Deploy DFY Factory", (done) => {
         const hubContractFactory = await hre.ethers.getContractFactory(artifactHub);
         const hubContract = await hre.upgrades.deployProxy(
             hubContractFactory,
-            [_feeWalletHub.address, _feeToken.address],
+            [_feeWalletHub.address, _feeToken.address, _deployer.address],
             { kind: "uups" }
 
         );
         _hubContract = await hubContract.deployed();
         console.log(_hubContract.address, "address hub contract : ");
         // set address token and address wallet 
-        await _hubContract.connect(_deployer).setSystemFeeToken(_DFYTokenContract.address);
-        await _hubContract.connect(_deployer).setSystemFeeWallet(_feeWallet.address);
+        await _hubContract.connect(_deployer).setSystemConfig(_feeWallet.address, _DFYTokenContract.address);
         // set market fee rate auction 
         await _hubContract.setNFTMarketConfig(_zoom, _marketFeeRate, _feeWallet.address);
 
@@ -74,6 +76,7 @@ describe("Deploy DFY Factory", (done) => {
         const DFYFactory = await hre.ethers.getContractFactory(artifactDFYFactory);
         const DFYFactoryContract = await hre.upgrades.deployProxy(
             DFYFactory,
+            [_hubContract.address],
             { kind: "uups" }
         );
         _DFYFactoryContract = await DFYFactoryContract.deployed();
@@ -86,14 +89,29 @@ describe("Deploy DFY Factory", (done) => {
         console.log(getContractHub.toString(), "get contract hub :");
         console.log(_hubContract.address, "hub contract address :");
 
-        let getOperatorRole = await _DFYFactoryContract.OPERATOR_ROLE();
-        await _DFYFactoryContract.connect(_deployer).grantRole(getOperatorRole, _originCreator.address);
+        // let getOperatorRole = await _hubContract.OPERATOR_ROLE();
+        // await _DFYFactoryContract.connect(_deployer).grantRole(getOperatorRole, _originCreator.address);
         await _DFYFactoryContract.connect(_originCreator).createCollection(_tokenName, _symbol, 0, _cidOfCollection.toString());
         this.DFYNFTFactory = await hre.ethers.getContractFactory("DefiForYouNFT");
         let getAddressContractOfCreatetor = await _DFYFactoryContract.collectionsByOwner(_originCreator.address, 0);
         _DFYContract = this.DFYNFTFactory.attach(getAddressContractOfCreatetor);
 
         console.log(_DFYContract.address, "DFY contract address : ")
+
+        // deploy contract SellNFT and registerContract in hub  
+        const sellNFTFactory = await hre.ethers.getContractFactory(artifactSellNFT);
+        const sellNFTContract = await hre.upgrades.deployProxy(
+            sellNFTFactory,
+            [_hubContract.address],
+            { kind: "uups" }
+
+        );
+        _sellNFTContract = await sellNFTContract.deployed();
+        console.log(_sellNFTContract.address, "address SellNFT contract : ");
+        // hub call registerContract  
+        const signatureSell = await _sellNFTContract.signature();
+        await _hubContract.registerContract(signatureSell, _sellNFTContract.address, artifactSellNFT);
+
 
         // Auction NFT 
         const auctionNFTFactory = await hre.ethers.getContractFactory(artifactAuctionNFT);
@@ -104,7 +122,9 @@ describe("Deploy DFY Factory", (done) => {
 
         );
         _auctionNFTContract = await auctionNFTContract.deployed();
-        console.log(_auctionNFTContract.address, "address SellNFT contract : ");
+        console.log(_auctionNFTContract.address, "address of auction contract : ");
+        const signatureAuction = await _auctionNFTContract.signature();
+        await _hubContract.registerContract(signatureAuction, _auctionNFTContract.address, artifactAuctionNFT);
 
     });
 
@@ -126,7 +146,7 @@ describe("Deploy DFY Factory", (done) => {
             console.log(ownerOfFistToken, "owner ");
             console.log(_originCreator.address, "origin creator ");
 
-            let _startTime = Math.floor(Date.now() / 1000) + 255; // 2d 
+            let _startTime = Math.floor(Date.now() / 1000) + 255; // 2d     
             let _endTime = _startTime + 70; // 7d
 
             await _auctionNFTContract.connect(_originCreator).putOnAuction(_firstToken,
@@ -139,11 +159,11 @@ describe("Deploy DFY Factory", (done) => {
                 _endTime
             );
 
-            let getOperatorRole = await _auctionNFTContract.OPERATOR_ROLE();
-            await _auctionNFTContract.connect(_deployer).grantRole(getOperatorRole, _deployer.address);
+            let getOperatorRole = await _hubContract.OperatorRole();
+            await _hubContract.connect(_deployer).grantRole(getOperatorRole, _adminApproveAuction.address);
 
             // admin approve for auction
-            await _auctionNFTContract.connect(_deployer).approveAuction(0, 1);
+            await _auctionNFTContract.connect(_adminApproveAuction).approveAuction(0, 1);
 
             let balanceOfBid1BeforeTXT = await _bid1.getBalance();
             let balanceOfBid2BeforeBidTXT = await _bid2.getBalance();
@@ -187,11 +207,11 @@ describe("Deploy DFY Factory", (done) => {
             infoAuction = await _auctionNFTContract.auctions(0);
             let marketFee = BigInt(infoAuction.bidValue) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
             let amountPaidToSeller = BigInt(infoAuction.bidValue) - BigInt(marketFee);
-            // let feeGasBuyOfBid1 = BigInt(82613483412255);
-            // let feeGasBuyOfBid2 = BigInt(72516462369120);
+            let feeGasBuyOfBid1 = BigInt(82295540331156);
+            let feeGasBuyOfBid2 = BigInt(72275032631934);
 
-            // expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) + BigInt(feeGasBuyOfBid1));
-            // expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) + BigInt(infoAuction.bidValue) + BigInt(feeGasBuyOfBid2));
+            expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) + BigInt(feeGasBuyOfBid1));
+            expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) + BigInt(infoAuction.bidValue) + BigInt(feeGasBuyOfBid2));
             expect(balanceOfFeeWalletAfterTXT).to.equal(BigInt(balanceOfFeeWalletBeforeTXT) + BigInt(marketFee));
             expect(balanceOfOriginCreatorBeforeTXT).to.equal(BigInt(balanceOfOriginCreatorAfterTXT) - BigInt(amountPaidToSeller));
             expect(newOwner === _bid2.address);
