@@ -26,13 +26,14 @@ contract Hub is
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     mapping(bytes4 => Registry) public ContractRegistry;
-    mapping(address => EvaluationConfig) public EvaluationConfigs;
 
     SystemConfig public systemConfig;
     PawnConfig public pawnConfig;
     PawnNFTConfig public pawnNFTConfig;
     NFTCollectionConfig public nftCollectionConfig;
     NFTMarketConfig public nftMarketConfig;
+
+    mapping(address => EvaluationConfig) public EvaluationConfigs;
 
     // TODO: New state variables must go below this line -----------------------------
 
