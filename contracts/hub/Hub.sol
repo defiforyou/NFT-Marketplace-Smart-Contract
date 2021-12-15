@@ -35,7 +35,8 @@ contract Hub is
 
     // TODO: New state variables must go below this line -----------------------------
 
-    mapping(address => EvaluationConfig) public EvaluationConfigs;
+    // CountersUpgradeable.Counter public numberOfContract;
+    mapping(address => EvaluationConfig) public evaluationConfig;
 
     /** ==================== Contract initializing & configuration ==================== */
     function initialize(
@@ -402,29 +403,29 @@ contract Hub is
         marketFeeWallet = nftMarketConfig.marketFeeWallet;
     }
 
-    /**=============== config Evaluation */
+    /* ==================== config Evaluation ==================== */
 
     function setEvaluationConfig(
-        address newAddressFee,
+        address newFeeTokenAddress,
         uint256 newEvaluationFee,
         uint256 newMintingFee
     ) external onlyRole(HubRoles.DEFAULT_ADMIN_ROLE) {
-        if (newAddressFee != address(0)) {
-            require(newAddressFee.isContract(), "5"); // Address minting fee is contract
+        if (newFeeTokenAddress != address(0)) {
+            require(newFeeTokenAddress.isContract(), "5"); // Address minting fee is contract
         }
-        EvaluationConfigs[newAddressFee] = EvaluationConfig(
+        evaluationConfig[newFeeTokenAddress] = EvaluationConfig(
             newEvaluationFee,
             newMintingFee
         );
     }
 
-    function getEvaluationConfig(address addFee)
+    function getEvaluationConfig(address feeTokenAddress)
         external
         view
         override
         returns (uint256 evaluationFee, uint256 mintingFee)
     {
-        evaluationFee = EvaluationConfigs[addFee].evaluationFee;
-        mintingFee = EvaluationConfigs[addFee].mintingFee;
+        evaluationFee = evaluationConfig[feeTokenAddress].evaluationFee;
+        mintingFee = evaluationConfig[feeTokenAddress].mintingFee;
     }
 }

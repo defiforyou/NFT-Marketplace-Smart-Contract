@@ -13,13 +13,11 @@
         "SystemFeeToken": "0xd98560689c6e748dc37bc410b4d3096b1aa3d8c2"
     },
     "DefaultNFTCollectionSettings": {
-        "Name": "DefiForYou_Soft_NFT",
+        "Name": "Uncategorized DeFiForYou Collection",
         "Symbol": "DFY-NFT",
-        "Owner": "0x832dbe8bCB706F6ab0aC1C3d4C13c739FA7B8f6F",
+        "Owner": "0x552dfe8a526feb98e7891ed8677559d44c9fcbb7",
         "Royalty": 0,
-        "CollectionCID": "QmTgmpjvyvenyYw8MkCQYobaWn1qjaKmmec5EDKnPu6ZLx",
-        "MarketFee": "",
-        "ZOOM": 100000
+        "CollectionCID": "QmUjYLVV7zJrYMAmb7YJ4q35LSXeb7k9Q4oR34ChxPi8KW"
     },
     "PawnSettings": {
         "ZOOM": 100000,
@@ -51,6 +49,9 @@
             "NFT_SALES_ADDRESS":        "0x0B918C44977275cE660b6CC9f0801C1cf463eAAB",
             "NFT_AUCTION_ADDRESS":      "0x1888893F3370af06b413D6259D0e420971d07CA0"
         }
+    },
+    "DefaultNFTCollection": {
+        "Prelive": "0xCE7B1D2350F20595a8CB7dF1E67337c6224dea99"
     },
     "Signature": {
         "BCTest": {
