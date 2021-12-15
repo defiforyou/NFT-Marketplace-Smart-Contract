@@ -12,10 +12,7 @@ import "../base/BaseContract.sol";
 import "../dfy-nft/DefiForYouNFT.sol";
 import "./ISellNFT.sol";
 
-contract SellNFT is
-    BaseContract,
-    ISellNFT
-{
+contract SellNFT is BaseContract, ISellNFT {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -247,7 +244,12 @@ contract SellNFT is
         emit NFTBought(_purchase);
     }
 
-    function isTokenOnSales(uint256 tokenId, address collectionAddress) external view override returns (bool) {
+    function isTokenOnSales(uint256 tokenId, address collectionAddress)
+        external
+        view
+        override
+        returns (bool)
+    {
         return _tokenFromCollectionIsOnSales[collectionAddress][tokenId];
     }
 
