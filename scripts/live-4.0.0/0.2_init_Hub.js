@@ -25,17 +25,17 @@ async function main() {
     let txn, receipt;
 
     console.log(`Initializing \x1b[31m${HubArtifact.contractName}\x1b[0m at \x1b[31m${HubContract.address}\x1b[0m\n\r`);
-    // console.log(`Setting NFT Configuration...`);
-    // txn = await HubContract.setNFTConfiguration(NFTSettings.CollectionCreatingFee, BigInt(NFTSettings.MintingFee));
-    // receipt = await txn.wait();
-    // console.log(`Collection creating fee set at: \x1b[31m${NFTSettings.CollectionCreatingFee}\x1b[0m`);
-    // console.log(`Minting fee set at: \x1b[31m${NFTSettings.MintingFee}\x1b[0m\n\r`);
+    console.log(`Setting NFT Configuration...`);
+    txn = await HubContract.setNFTConfiguration(NFTSettings.CollectionCreatingFee, BigInt(NFTSettings.MintingFee));
+    receipt = await txn.wait();
+    console.log(`Collection creating fee set at: \x1b[31m${NFTSettings.CollectionCreatingFee}\x1b[0m`);
+    console.log(`Minting fee set at: \x1b[31m${NFTSettings.MintingFee}\x1b[0m\n\r`);
 
-    // console.log(`Setting NFT Market Configuration...`);
-    // txn = await HubContract.setNFTMarketConfig(MarketSettings.ZOOM, MarketSettings.MarketFeeRate, MarketSettings.MarketFeeWallet);
-    // receipt = await txn.wait();
-    // console.log(`Market fee rate set at: \x1b[31m${MarketSettings.MarketFeeRate}\x1b[0m`);
-    // console.log(`Market fee wallet set at: \x1b[31m${MarketSettings.MarketFeeWallet}\x1b[0m\n\r`);
+    console.log(`Setting NFT Market Configuration...`);
+    txn = await HubContract.setNFTMarketConfig(MarketSettings.ZOOM, MarketSettings.MarketFeeRate, MarketSettings.MarketFeeWallet);
+    receipt = await txn.wait();
+    console.log(`Market fee rate set at: \x1b[31m${MarketSettings.MarketFeeRate}\x1b[0m`);
+    console.log(`Market fee wallet set at: \x1b[31m${MarketSettings.MarketFeeWallet}\x1b[0m\n\r`);
 
     console.log(`Setting NFT Pawn Configuration...`);
     txn = await HubContract.setPawnNFTConfig(PawnNFTSettings.ZOOM, PawnNFTSettings.SystemFee, PawnNFTSettings.PenaltyRate, PawnNFTSettings.PrepaidFee, PawnNFTSettings.LateThreshold);
