@@ -1,0 +1,25 @@
+{
+    "name": "Uncategorized DeFiForYou Collection",
+    "description": "Default collection for Uncategorized NFT ERC-721 of DeFi For You.",
+    "image": "https://defiforyou.mypinata.cloud/ipfs/QmTWz6jvuhn8spYNnDonT3bKNZBQ3wBT9LjapzprBRZxTm",
+    "external_link": "https://defiforyou.mypinata.cloud/ipfs/QmTWz6jvuhn8spYNnDonT3bKNZBQ3wBT9LjapzprBRZxTm",
+    "cover_cid": "QmXaapFqbALK2JzrWNVSbnD35WpVqvVJnv1VpnBGc5YLvp",
+    "avatar_cid": "QmTWz6jvuhn8spYNnDonT3bKNZBQ3wBT9LjapzprBRZxTm",
+    "feature_cid": "QmNSbQKSxKTyevob4JXc4vwP3SiJaZBqr5nZCcSriSZJ9f",
+    "custom_url": "https://marketplace.defiforyou.uk/Uncategorized-DeFiForYou-Collection",
+    "category": "Utilities",
+    "social_links": [
+        {
+            "type": "facebook",
+            "url": "https://www.facebook.com/DeFiForYouDFY"
+        },
+        {
+            "type": "twitter",
+            "url": "https://twitter.com/defiforyou"
+        },
+        {
+            "type": "telegram",
+            "url": "https://t.me/DeFiForYou_English"
+        }
+    ]
+}

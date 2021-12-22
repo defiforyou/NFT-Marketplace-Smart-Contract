@@ -5,10 +5,21 @@
         "PAUSER_ROLE": "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
         "REGISTRANT_ROLE": "0x12090aa55130d5a2442eb84fc286ca6e600db6c50b6c5d9b6d0d929f0e2d8ce8",
         "INTERNAL_CONTRACT": "0x47e9c2c2d9af7236a890299c55d32cf31abf990b4a1de82ef25f24524e361eb3",
-        "SystemAdmin": "0x55773DeeEBA1C75421920e6d4E13D7780547FA25",
+        "SystemAdmin": "0x46627F7DEf8f0E720bAE6D8167619DA2a29685c2",
         "SystemOperator": "0x552dfe8a526feb98e7891ed8677559d44c9fcbb7",
         "EvaluationOperator": "0x317323F1e0b554fBdfD103a34da91e9f22f61bB0",
-        "Operators": [],
+        "Operators": [
+            {
+                "Name": "Evaluation Operator",
+                "Address": "0x317323F1e0b554fBdfD103a34da91e9f22f61bB0"
+            }
+        ],
+        "Registrants": [
+            {
+                "Name": "Main Registrant",
+                "Address": "0x12a3b0A6BEcc2955d2dDdA5fcbf02d6e961F6419"
+            }
+        ],
         "SystemFeeWallet": "0x205f7819486ad8f68a8447a0459da9fb2fa95981",
         "SystemFeeToken": "0xd98560689c6e748dc37bc410b4d3096b1aa3d8c2"
     },
@@ -42,16 +53,32 @@
         "MarketFeeRate": 250000,
         "MarketFeeWallet": "0x205f7819486ad8f68a8447a0459da9fb2fa95981"
     },
+    "EvaluationSettings": [
+        {
+            "Token": "0xd98560689c6e748dc37bc410b4d3096b1aa3d8c2",
+            "Symbol": "DFY",
+            "EvaluationFee": 100000000000000000000,
+            "MintingFee": 50000000000000000000
+        }
+    ],
     "Proxies": {
-        "Prelive": {
-            "HUB_ADDRESS":              "0xa766AD06aa825A167e7a2E0Dd4fDb7F35a4C496F",
-            "NFT_FACTORY_ADDRESS":      "0x2714A6e4219b7aC329C988175C585d587f52a757",
-            "NFT_SALES_ADDRESS":        "0x0B918C44977275cE660b6CC9f0801C1cf463eAAB",
-            "NFT_AUCTION_ADDRESS":      "0x1888893F3370af06b413D6259D0e420971d07CA0"
+        "Live": {
+            "HUB_ADDRESS":              "0x3be5ea712719A986281379023fBAEa99F1e7FcB1",
+            "NFT_FACTORY_ADDRESS":      "0x8d5A02CB0848fe02fDCA35a62dE7408d7C9dD543",
+            "NFT_SALES_ADDRESS":        "0x8b3Ab5CdA6C6249e2c1A75c8122690B366B5aB9A",
+            "NFT_AUCTION_ADDRESS":      "0xA04391885543054E1d92861b97c1933D3E4501DA"
+        }
+    },
+    "Implementations": {
+        "Live": {
+            "HUB_ADDRESS":              "0x626515406b51081E1514FE84b72a4A83DF10eDCa",
+            "NFT_FACTORY_ADDRESS":      "0x2C7A47E084bb6DB1431ae6AEbF93c0bD80d331DB",
+            "NFT_SALES_ADDRESS":        "0x66B6D80878E81fA847ee9E7A24D8e138132Bc2Bd",
+            "NFT_AUCTION_ADDRESS":      "0x73A43C575404E077dfcaC051DFA579e8E0EF68bc"
         }
     },
     "DefaultNFTCollection": {
-        "Prelive": "0xCE7B1D2350F20595a8CB7dF1E67337c6224dea99"
+        "Live": "0x09aCCb349FC981CC096FE929F986aA38A0ab72Ef"
     },
     "Signature": {
         "BCTest": {

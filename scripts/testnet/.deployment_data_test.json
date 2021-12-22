@@ -24,7 +24,7 @@
         "Symbol": "DFY-NFT",
         "Owner": "0xA120581F875A201E8f779280332a19C0f7974dDd",
         "Royalty": 0,
-        "CollectionCID": "QmdUFEQHZqHXyGpV6EVjkFhQBeQtYeRJBNBisUfBLABfyn"
+        "CollectionCID": "QmUjYLVV7zJrYMAmb7YJ4q35LSXeb7k9Q4oR34ChxPi8KW"
     },
     "PawnSettings": {
         "ZOOM": 100000,
@@ -78,7 +78,7 @@
     "DefaultNFTCollection": {
         "Dev2": "0xa9844332cd1e6bf702a3049c70dEa1FB44F298C9",
         "Staging": "0xdb2590bA490780Bf5403F6c13976374CEf7C8E94",
-        "Beta": "0x65425D25a7B901C86809A4Bd3A3F9c3A722Fadf9"
+        "Beta": "0x9b1D6BC60C91857eA7463A182F00Ec4770e3161a"
     },
     "Signature": {
         "BCTest": {

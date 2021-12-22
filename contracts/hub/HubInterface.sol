@@ -43,6 +43,11 @@ interface HubInterface {
         address marketFeeWallet;
     }
 
+    struct EvaluationConfig {
+        uint256 evaluationFee;
+        uint256 mintingFee;
+    }
+
     /** Functions */
     /** ROLES */
     function AdminRole() external pure returns (bytes32);
@@ -119,4 +124,9 @@ interface HubInterface {
         address collectionAddress,
         uint256 status
     ) external;
+
+    function getEvaluationConfig(address addFee)
+        external
+        view
+        returns (uint256 evaluationFee, uint256 mintingFee);
 }

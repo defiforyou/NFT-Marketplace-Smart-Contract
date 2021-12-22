@@ -115,9 +115,9 @@ library CommonLib {
         returns (uint256 inSeconds)
     {
         if (durationType == DurationType.HOUR) {
-            inSeconds = duration * 5; // For testing 1 hour = 5 seconds
+            inSeconds = duration * 3600;
         } else if (durationType == DurationType.DAY) {
-            inSeconds = duration * 120; // For testing 1 day = 120 seconds
+            inSeconds = duration * 24 * 3600;
         }
     }
 }
