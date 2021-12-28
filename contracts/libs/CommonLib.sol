@@ -5,16 +5,27 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeCastUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 enum DurationType {
     HOUR,
     DAY
 }
 
+enum CollectionStandard {
+    UNDEFINED,
+    ERC721,
+    ERC1155
+    // TODO: Add enums for imported collections
+}
+
 library CommonLib {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using SafeCastUpgradeable for uint256;
+    using ERC165CheckerUpgradeable for address;
 
     /**
      * @dev safe transfer BNB or ERC20
@@ -115,9 +126,49 @@ library CommonLib {
         returns (uint256 inSeconds)
     {
         if (durationType == DurationType.HOUR) {
-            inSeconds = duration * 3600;
+            // inSeconds = duration * 3600;
+            inSeconds = duration * 5; // For testing 1 hour = 5 seconds
         } else if (durationType == DurationType.DAY) {
-            inSeconds = duration * 24 * 3600;
+            // inSeconds = duration * 24 * 3600;
+            inSeconds = duration * 120; // For testing 1 day = 120 seconds
         }
+    }
+
+    function verifyTokenInfo(
+        address collectionAddress,
+        uint256 tokenId,
+        uint256 numberOfCopies,
+        address owner
+    ) internal view returns (CollectionStandard _standard) {
+        // Check if collection address differs from the zero address
+        require(
+            collectionAddress != address(0),
+            "Collection address must not be the zero address"
+        );
+
+        // Check for supported NFT standards
+        if (collectionAddress.supportsInterface(type(IERC721).interfaceId)) {
+            _standard = CollectionStandard.ERC721;
+
+            require(numberOfCopies == 1, "ERC-721: Amount not supported");
+        } else if (
+            collectionAddress.supportsInterface(type(IERC1155).interfaceId)
+        ) {
+            _standard = CollectionStandard.ERC1155;
+
+            // Check for seller's balance
+            require(
+                IERC1155(collectionAddress).balanceOf(owner, tokenId) >=
+                    numberOfCopies,
+                "ERC-1155: Insufficient balance"
+            );
+        } else {
+            _standard = CollectionStandard.UNDEFINED;
+        }
+
+        require(
+            _standard != CollectionStandard.UNDEFINED,
+            "ERC-721 or ERC-1155 standard is required"
+        );
     }
 }
