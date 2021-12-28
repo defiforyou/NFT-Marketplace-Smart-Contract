@@ -1,9 +1,11 @@
 const hre = require("hardhat");
+const { expect, assert } = require("chai");
+
 const artifactDFYFactory = "DefiForYouNFTFactory";
-const artifactDFYToken = "BEP20Token";
+const artifactDFYToken = "DFY";
 const artifactSellNFT = "SellNFT";
 const artifactHub = "Hub";
-const { expect, assert } = require("chai");
+const artfactDFYNFT = "contracts/dfy-nft/DefiForYouNFT.sol:DefiForYouNFT";
 const BNB_ADDRESS = "0x0000000000000000000000000000000000000000";
 const decimals = 10 ** 18;
 
@@ -42,11 +44,7 @@ describe("Deploy DFY Factory", (done) => {
 
         // DFY Token 
         const dFYTokenFactory = await hre.ethers.getContractFactory(artifactDFYToken);
-        const dfyContract = await dFYTokenFactory.deploy(
-            "DFY-Token",
-            "DFY",
-            BigInt(1000000000000000000000)
-        );
+        const dfyContract = await dFYTokenFactory.deploy();
         _DFYTokenContract = await dfyContract.deployed();
 
         // contract Hub 
@@ -75,7 +73,7 @@ describe("Deploy DFY Factory", (done) => {
 
         // DFY NFT
         await _DFYFactoryContract.connect(_originCreator).createCollection(_tokenName, _symbol, 0, _cidOfCollection.toString());
-        this.DFYNFTFactory = await hre.ethers.getContractFactory("DefiForYouNFT");
+        this.DFYNFTFactory = await hre.ethers.getContractFactory(artfactDFYNFT);
         let getAddressContractOfCreatetor = await _DFYFactoryContract.collectionsByOwner(_originCreator.address, 0);
         _DFYContract = this.DFYNFTFactory.attach(getAddressContractOfCreatetor);
 
