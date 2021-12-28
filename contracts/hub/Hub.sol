@@ -36,7 +36,9 @@ contract Hub is
     // TODO: New state variables must go below this line -----------------------------
 
     // CountersUpgradeable.Counter public numberOfContract;
-    mapping(address => EvaluationConfig) public evaluationConfig;
+    mapping(address => EvaluationFee) public evaluationConfig; // Unused
+
+    EvaluationFeeConfig public evaluationFeeConfig;
 
     /** ==================== Contract initializing & configuration ==================== */
     function initialize(
@@ -406,14 +408,21 @@ contract Hub is
     /* ==================== config Evaluation ==================== */
 
     function setEvaluationConfig(
+        address feeWallet,
         address newFeeTokenAddress,
         uint256 newEvaluationFee,
         uint256 newMintingFee
     ) external onlyRole(HubRoles.DEFAULT_ADMIN_ROLE) {
-        if (newFeeTokenAddress != address(0)) {
-            require(newFeeTokenAddress.isContract(), "5"); // Address minting fee is contract
+        if (feeWallet != address(0)) {
+            require(!feeWallet.isContract(), "Fee wallet must not be a contract");
+            evaluationFeeConfig.feeWallet = feeWallet;
         }
-        evaluationConfig[newFeeTokenAddress] = EvaluationConfig(
+
+        if (newFeeTokenAddress != address(0)) {
+            require(newFeeTokenAddress.isContract(), "Must be a token address");
+        }
+
+        evaluationFeeConfig.feeConfig[newFeeTokenAddress] = EvaluationFee(
             newEvaluationFee,
             newMintingFee
         );
@@ -423,9 +432,10 @@ contract Hub is
         external
         view
         override
-        returns (uint256 evaluationFee, uint256 mintingFee)
+        returns (address feeWallet, uint256 evaluationFee, uint256 mintingFee)
     {
-        evaluationFee = evaluationConfig[feeTokenAddress].evaluationFee;
-        mintingFee = evaluationConfig[feeTokenAddress].mintingFee;
+        feeWallet = evaluationFeeConfig.feeWallet;
+        evaluationFee = evaluationFeeConfig.feeConfig[feeTokenAddress].evaluationFee;
+        mintingFee = evaluationFeeConfig.feeConfig[feeTokenAddress].mintingFee;
     }
 }
