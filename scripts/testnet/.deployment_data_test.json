@@ -76,6 +76,7 @@
         }
     },
     "DefaultNFTCollection": {
+        "BCTest": "0x251ffcD804FD60E4F4A52206b71e6d308fc5B90B",
         "Dev2": "0xa9844332cd1e6bf702a3049c70dEa1FB44F298C9",
         "Staging": "0xdb2590bA490780Bf5403F6c13976374CEf7C8E94",
         "Beta": "0x9b1D6BC60C91857eA7463A182F00Ec4770e3161a"
