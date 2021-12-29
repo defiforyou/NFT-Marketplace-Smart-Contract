@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 const { expect, assert } = require("chai");
-
+const artifactDFYToken = "contracts/BEP20Token.sol:BEP20Token";
 const artifactDFYFactory = "DefiForYouNFTFactory";
 const artifactDFYToken = "DFY";
 const artifactSellNFT = "SellNFT";
@@ -8,6 +8,7 @@ const artifactHub = "Hub";
 const artfactDFYNFT = "contracts/dfy-nft/DefiForYouNFT.sol:DefiForYouNFT";
 const BNB_ADDRESS = "0x0000000000000000000000000000000000000000";
 const decimals = 10 ** 18;
+
 
 describe("Deploy DFY Factory", (done) => {
 
@@ -170,10 +171,11 @@ describe("Deploy DFY Factory", (done) => {
             let balanceOfSellerBAfterTXT = await _buyer.getBalance();
             let balanceOfBuyerAfterTXT = await _buyer2.getBalance();
 
-
+            // 192661294550088
             // calculate 
             let info = await _sellNFTContract.orders(1);
-            let feeGasBuy = BigInt(192415943786220);
+            let feeGasBuy = BigInt(balanceOfBuyerBeforeTXT) - BigInt(balanceOfBuyerAfterTXT) - BigInt(info.price);
+            console.log("fee gas buy", feeGasBuy.toString());
             let newOwner = await _DFYContract.ownerOf(_firstToken);
             let marketFee = BigInt(info.price) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
             let royaltyFee = BigInt(info.price) * BigInt(_royaltyRateDFY) / BigInt(_zoom * 100);
