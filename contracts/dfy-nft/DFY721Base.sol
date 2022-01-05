@@ -61,6 +61,7 @@ abstract contract DFY721Base is
 
     function supportsInterface(bytes4 interfaceId)
         public
+        virtual
         view
         override(IERC165, ERC721, ERC721Enumerable, AccessControl)
         returns (bool)
