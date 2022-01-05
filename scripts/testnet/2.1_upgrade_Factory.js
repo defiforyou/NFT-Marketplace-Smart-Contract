@@ -2,7 +2,7 @@ require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 
 const { Proxies } = require('./.deployment_data_test.json');
-const proxiesEnv = Proxies.BCTest;
+const proxiesEnv = Proxies.Staging;
 
 const CollectionMgrProxyAddr = proxiesEnv.NFT_FACTORY_ADDRESS;
 const CollectionMgrBuildName = "DefiForYouNFTFactory";
