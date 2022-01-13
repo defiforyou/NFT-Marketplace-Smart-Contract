@@ -82,6 +82,11 @@ contract DefiForYouNFTFactory is BaseContract, IDFY721Factory {
             );
         }
 
+        HubInterface(contractHub).setWhitelistCollateral_NFT(
+            address(dfyNFT),
+            1
+        );
+
         emit CollectionCreated(
             newCollection,
             msg.sender,

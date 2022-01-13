@@ -29,6 +29,7 @@ interface HubInterface {
         uint256 penaltyRate;
         uint256 prepaidFeeRate;
         uint256 lateThreshold;
+        mapping(address => uint256) whitelistedEvaluationContract;
         mapping(address => uint256) whitelistedCollateral;
     }
 
