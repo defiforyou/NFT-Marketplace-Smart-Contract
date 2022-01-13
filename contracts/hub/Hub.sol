@@ -133,10 +133,6 @@ contract Hub is
         return HubRoles.EVALUATOR_ROLE;
     }
 
-    function InternalContractRole() public pure returns (bytes32) {
-        return HubRoles.INTERNAL_CONTRACT;
-    }
-
     event NewContractAdded(
         bytes4 signature,
         address newContractAddress,
