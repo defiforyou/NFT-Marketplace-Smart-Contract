@@ -63,8 +63,8 @@ module.exports = {
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
-      gasPrice: 20000000000,
-      accounts: PrelivePK
+      gasPrice: 5000000000,
+      accounts: PrivateKey
     }
   },
   etherscan: {
