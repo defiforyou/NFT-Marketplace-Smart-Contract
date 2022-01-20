@@ -14,7 +14,7 @@ import "../hub/HubInterface.sol";
 import "../libs/CommonLib.sol";
 
 /**
-* TODO: Make a common interface or contract for both Default collection and User-created collection
+ * TODO: Make a common interface or contract for both Default collection and User-created collection
  */
 contract DefiForYouNFT is
     ERC721,
@@ -89,10 +89,12 @@ contract DefiForYouNFT is
         uint256 tokenID = _tokenIdCounter.current();
 
         // Get fee wallet & fee token address from Hub
-        (address feeWallet, address feeToken) = HubInterface(_contractHub).getSystemConfig();
+        (address feeWallet, address feeToken) = HubInterface(_contractHub)
+            .getSystemConfig();
 
         // Get minting fee from Hub
-        (, uint256 mintingFee) = HubInterface(_contractHub).getNFTCollectionConfig();
+        (, uint256 mintingFee) = HubInterface(_contractHub)
+            .getNFTCollectionConfig();
 
         // Check allowance, balance and transfer minting fee to fee wallet
         CommonLib.safeTransfer(feeToken, msg.sender, feeWallet, mintingFee);
