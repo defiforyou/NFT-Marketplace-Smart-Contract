@@ -12,10 +12,7 @@ import "../base/BaseContract.sol";
 import "../dfy-nft/IDFY721.sol";
 import "./ISellNFT.sol";
 
-contract SellNFT is
-    BaseContract,
-    ISellNFT
-{
+contract SellNFT is BaseContract, ISellNFT {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -122,6 +119,10 @@ contract SellNFT is
         Order storage _order = orders[orderId];
 
         require(_msgSender() == _order.owner, "Order's seller is required");
+        require(
+            _order.status == OrderStatus.ON_SALES,
+            "Order is already selled or canceled"
+        );
 
         // Delete token on sales flag
         _tokenFromCollectionIsOnSales[_order.collectionAddress][
@@ -247,7 +248,12 @@ contract SellNFT is
         emit NFTBought(_purchase);
     }
 
-    function isTokenOnSales(uint256 tokenId, address collectionAddress) external view override returns (bool) {
+    function isTokenOnSales(uint256 tokenId, address collectionAddress)
+        external
+        view
+        override
+        returns (bool)
+    {
         return _tokenFromCollectionIsOnSales[collectionAddress][tokenId];
     }
 
@@ -282,10 +288,7 @@ contract SellNFT is
         // TODO: Make sure imported NFT collection to bypass this check using Collection standard
         // TODO: Add enums for imported collections (CommonLib)
         // If token owner is not the original creator of collection
-        if (
-            order.owner !=
-            IDFY721(order.collectionAddress).originalCreator()
-        ) {
+        if (order.owner != IDFY721(order.collectionAddress).originalCreator()) {
             // Calculate royalty fee
             royaltyFee = CommonLib.calculateSystemFee(
                 order.price,
