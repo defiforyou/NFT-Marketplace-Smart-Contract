@@ -121,7 +121,7 @@ contract SellNFT is BaseContract, ISellNFT {
         require(_msgSender() == _order.owner, "Order's seller is required");
         require(
             _order.status == OrderStatus.ON_SALES,
-            "Order is already selled or canceled"
+            "Already sold or cancelled"
         );
 
         // Delete token on sales flag
