@@ -61,8 +61,8 @@ abstract contract DFY721Base is
 
     function supportsInterface(bytes4 interfaceId)
         public
-        virtual
         view
+        virtual
         override(IERC165, ERC721, ERC721Enumerable, AccessControl)
         returns (bool)
     {
@@ -154,7 +154,12 @@ abstract contract DFY721Base is
         return _originalCreator;
     }
 
-    function royaltyRateByToken(uint256 tokenId) external view override returns (uint256) {
+    function royaltyRateByToken(uint256 tokenId)
+        external
+        view
+        override
+        returns (uint256)
+    {
         return _royaltyRateByToken[tokenId];
     }
 
@@ -189,5 +194,17 @@ abstract contract DFY721Base is
         returns (string memory)
     {
         return super.tokenURI(tokenId);
+    }
+
+    function updateCollectionCID(
+        string memory newCID
+    ) 
+        public 
+        virtual 
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if(bytes(newCID).length > 0) {
+            collectionCID = newCID;
+        }
     }
 }
