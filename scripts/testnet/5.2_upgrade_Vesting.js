@@ -1,7 +1,7 @@
 require('@nomiclabs/hardhat-ethers');
 
 const { Proxies } = require('./.deployment_data_test.json');
-const proxiesEnv = Proxies.Dev2;
+const proxiesEnv = Proxies.Staging;
 
 const VestingProxyAddr = proxiesEnv.VESTING_ADDRESS;
 const VestingBuildNameV1 = "Vesting";

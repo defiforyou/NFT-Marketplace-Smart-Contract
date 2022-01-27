@@ -49,7 +49,7 @@ interface IVesting is BaseInterface {
     );
 
     event AddToken(uint256 amount, uint256 vestingBcId);
-    event Claim(address wallet, uint256 amount, uint256[] vestingIds);
+    event Claim(address wallet, uint256 amount, uint256[] vestingIds, uint256[] amounts);
     event EmergencyWithdraw(address preventiveWallet, uint256 amount);
     event PreventiveWallet(address preventiveWallet);
 
@@ -84,7 +84,8 @@ interface IVesting is BaseInterface {
         address tokenAddress,
         uint256 durationTime,
         uint256 vestTime,
-        uint256 cliffTime
+        uint256 cliffTime,
+        uint256 periodTime
     );
 
     function getVestingInforById(uint256 _vestingId) external view returns(

@@ -168,7 +168,8 @@ contract Vesting is
         address tokenAddress,
         uint256 durationTime,
         uint256 vestTime,
-        uint256 cliffTime
+        uint256 cliffTime,
+        uint256 periodTime
     ) {
         SchemeInformation memory schemeInfo = schemeInfos[_schemeId];
         name = schemeInfo.name;
@@ -176,6 +177,7 @@ contract Vesting is
         durationTime = schemeInfo.durationTime;
         vestTime = schemeInfo.vestTime;
         cliffTime = schemeInfo.cliffTime;
+        periodTime = schemeInfo.periodTime;
     }
 
     function getVestingInforById(uint256 _vestingId) public override view returns(
@@ -195,6 +197,7 @@ contract Vesting is
         startTime = vestingInfo.startTime;
         status = vestingInfo.status;
         withdrawable = _getAmountCanClaim(_vestingId);
+        
     }
 
     function claim(uint256[] memory _vestingIdsList, address tokenAddress) public override nonReentrant whenNotPaused {
@@ -234,7 +237,7 @@ contract Vesting is
             IERC20Upgradeable(tokenAddress).transfer(msg.sender, withdrawable);
         }
         
-        emit Claim(msg.sender, withdrawable, vestIdsList);
+        emit Claim(msg.sender, withdrawable, vestIdsList, amounts);
     }
 
     function _getAmountCanClaim(uint256 _vestingId) internal view returns(uint256) {
