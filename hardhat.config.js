@@ -5,6 +5,7 @@ require("@nomiclabs/hardhat-web3");
 require("@openzeppelin/hardhat-upgrades");
 require("hardhat-contract-sizer");
 require("hardhat-gas-reporter");
+require("solidity-coverage")
 
 const { InfuraKey, mnemonic, Wallet, BscScanApiKey, EtherscanApiKey, PrivateKey, PrelivePK } = require('./.secret.json');
 
