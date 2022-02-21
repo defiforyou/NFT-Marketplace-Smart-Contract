@@ -3,9 +3,12 @@ const ERC20Artifact = "DToken"
 const artifactHub = "Hub"
 const { ethers, upgrades } = require("hardhat")
 const { expect } = require("chai")
+const chai = require("chai")
+chai.use(require("chai-string"))
 require("hardhat-gas-reporter")
 const operatorRole = "0x97667070c54ef182b0f5858b034beac1b6f3089aa2d3188bb1e8929f4fa9b929"
 const registerRole = "0x12090aa55130d5a2442eb84fc286ca6e600db6c50b6c5d9b6d0d929f0e2d8ce8"
+const pauseRole = "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a"
 describe('Vesting', () => {
     let _hubContract
     let _vestingContract
@@ -395,8 +398,8 @@ describe('Vesting', () => {
                 vest.isTesting
             )).to.be.revertedWith("ERC20: insufficient allowance")
         })
-
-        it("create vesting information successfully", async () => {
+        // for dev
+        it("create vesting information successfully with token release equal 0, it should emit event", async () => {
             vest = {
                 wallet: _owner.address,
                 totalAmount: BigInt(1900 * decimals),
@@ -405,6 +408,7 @@ describe('Vesting', () => {
                 schemeId: scheme.schemeId,
                 startTime: 1644318512,
                 tokenRelease: 0,
+                //use a flag to define this data either for testing or not, so that i can set duration in test time faster than duration in real time
                 isTesting: true
             }
             await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
@@ -431,6 +435,332 @@ describe('Vesting', () => {
             expect(event.periodTime).to.equal(vestingInfo.periodTime)
             expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
             vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 1, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1800 * decimals),
+                amountDeposit: BigInt(1800 * decimals),
+                totalClaimed: 0,
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 1,
+                isTesting: true
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 2, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1700 * decimals),
+                amountDeposit: BigInt(1000 * decimals),
+                totalClaimed: BigInt(700 * decimals),
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 2,
+                isTesting: true
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 3, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1700 * decimals),
+                amountDeposit: BigInt(1000 * decimals),
+                totalClaimed: BigInt(700 * decimals),
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 3,
+                isTesting: true
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 4, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1700 * decimals),
+                amountDeposit: BigInt(1000 * decimals),
+                totalClaimed: BigInt(700 * decimals),
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 4,
+                isTesting: true
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        // for prod
+        it("create vesting information successfully with token release equal 0, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1900 * decimals),
+                amountDeposit: BigInt(1900 * decimals),
+                totalClaimed: 0,
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 0,
+                //use a flag to define this data either for testing or not, so that i can set duration in test time faster than duration in real time
+                isTesting: false
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 1, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1800 * decimals),
+                amountDeposit: BigInt(1800 * decimals),
+                totalClaimed: 0,
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 1,
+                isTesting: false
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 2, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1700 * decimals),
+                amountDeposit: BigInt(1000 * decimals),
+                totalClaimed: BigInt(700 * decimals),
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 2,
+                isTesting: false
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 3, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1700 * decimals),
+                amountDeposit: BigInt(1000 * decimals),
+                totalClaimed: BigInt(700 * decimals),
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 3,
+                isTesting: false
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
+        })
+        it("create vesting information successfully with token release equal 4, it should emit event", async () => {
+            vest = {
+                wallet: _owner.address,
+                totalAmount: BigInt(1700 * decimals),
+                amountDeposit: BigInt(1000 * decimals),
+                totalClaimed: BigInt(700 * decimals),
+                schemeId: scheme.schemeId,
+                startTime: 1644318512,
+                tokenRelease: 4,
+                isTesting: false
+            }
+            await _DFYTokenContract.transfer(_deployer.address, BigInt(1900 * decimals))
+            await _DFYTokenContract.approve(_vestingContract.address, BigInt(1900 * decimals))
+            const transaction = await _vestingContract.connect(_deployer).newVestingInformation(
+                vest.wallet, 
+                vest.totalAmount, 
+                vest.amountDeposit, 
+                vest.totalClaimed,
+                vest.schemeId, 
+                vest.startTime,
+                vest.tokenRelease,
+                vest.isTesting
+            )
+            const txData = await transaction.wait()
+            const event = txData.events[3].args
+            const vestingInfo = await _vestingContract.connect(_deployer).getVestingInforById(event.vestingBcId)
+            expect(event.wallet).to.equal(vest.wallet)
+            expect(event.totalAmount).to.equal(vest.totalAmount)
+            expect(event.amountDeposit).to.equal(vest.amountDeposit)
+            expect(event.schemeBcId).to.equal(vest.schemeId)
+            expect(event.status).to.equal(vestingInfo.status)
+            expect(event.durationTime).to.equal(scheme.durationTime)
+            expect(event.periodTime).to.equal(vestingInfo.periodTime)
+            expect(event.numberClaim).to.equal(vestingInfo.numberClaim)
+            // vestingIds.push(event.vestingBcId)
         })
         it("create vesting without amount deposit, it should emit event with amount deposit equal 0 and status equal 0", async () => {
             vest = {
@@ -643,6 +973,25 @@ describe('Vesting', () => {
             expect(event.amount.toString()).to.equal(total)
             expect(event.amounts[0]).to.equal(vestingInfo1.withdrawable)
             expect(event.amounts[1]).to.equal(vestingInfo2.withdrawable)
+        })
+        it("get vesting id by wallet", async () => {
+            const vestingIds = await _vestingContract.getListVestIdsByWallet(_deployer.address)
+            console.log("vestingIds: ", vestingIds)
+        })
+        it("setPreventiveWallet", async () => {
+            const setPreventiveWallet = await _vestingContract.setPreventiveWallet(_user1.address)
+            const txData = await setPreventiveWallet.wait()
+            const event = txData.events[0].args
+            expect(event.preventiveWallet).to.equalIgnoreCase(_user1.address);
+        })
+        it("emergencyWithdraw but contract done have any token", async () => {
+            await _hubContract.connect(_deployer).grantRole(pauseRole, _deployer.address)
+            await _vestingContract.connect(_deployer).pause();
+            const transaction = await _vestingContract.connect(_deployer).emergencyWithdraw(_DFYTokenContract.address)
+            const txData = await transaction.wait()
+            const event = txData.events[1].args
+            console.log("event: ", event)
+            
         })
     })
 })
