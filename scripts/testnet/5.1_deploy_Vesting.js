@@ -8,7 +8,7 @@ const decimals = 10 ** 18;
 
 const VestingBuildName = "Vesting";
 const HubBuildName = "Hub";
-const HubProxy = proxiesEnv.HUB_ADDRESS;
+const HubProxy = "0x3be5ea712719A986281379023fBAEa99F1e7FcB1";
 
 const proxyType = { kind: "uups" };
 
