@@ -1,0 +1,92 @@
+{
+    "HubSettings": {
+        "ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "OPERATOR_ROLE": "0x97667070c54ef182b0f5858b034beac1b6f3089aa2d3188bb1e8929f4fa9b929",
+        "PAUSER_ROLE": "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
+        "REGISTRANT_ROLE": "0x12090aa55130d5a2442eb84fc286ca6e600db6c50b6c5d9b6d0d929f0e2d8ce8",
+        "INTERNAL_CONTRACT": "0x47e9c2c2d9af7236a890299c55d32cf31abf990b4a1de82ef25f24524e361eb3",
+        "SystemAdmin": "0x46627F7DEf8f0E720bAE6D8167619DA2a29685c2",
+        "SystemOperator": "0x552dfe8a526feb98e7891ed8677559d44c9fcbb7",
+        "EvaluationOperator": "0x317323F1e0b554fBdfD103a34da91e9f22f61bB0",
+        "Operators": [
+            {
+                "Name": "Evaluation Operator",
+                "Address": "0x317323F1e0b554fBdfD103a34da91e9f22f61bB0"
+            }
+        ],
+        "Registrants": [
+            {
+                "Name": "Main Registrant",
+                "Address": "0x12a3b0A6BEcc2955d2dDdA5fcbf02d6e961F6419"
+            }
+        ],
+        "SystemFeeWallet": "0x205f7819486ad8f68a8447a0459da9fb2fa95981",
+        "SystemFeeToken": "0xd98560689c6e748dc37bc410b4d3096b1aa3d8c2"
+    },
+    "DefaultNFTCollectionSettings": {
+        "Name": "Uncategorized DeFiForYou Collection",
+        "Symbol": "DFY-NFT",
+        "Owner": "0x552dfe8a526feb98e7891ed8677559d44c9fcbb7",
+        "Royalty": 0,
+        "CollectionCID": "QmUjYLVV7zJrYMAmb7YJ4q35LSXeb7k9Q4oR34ChxPi8KW"
+    },
+    "PawnSettings": {
+        "ZOOM": 100000,
+        "SystemFee": 2000000,
+        "PenaltyRate": 15000000,
+        "PrepaidFee": 300000,
+        "LateThreshold": 3
+    },
+    "PawnNFTSettings": {
+        "ZOOM": 100000,
+        "SystemFee": 2000000,
+        "PenaltyRate": 15000000,
+        "PrepaidFee": 300000,
+        "LateThreshold": 3
+    },
+    "NFTSettings": {
+        "CollectionCreatingFee": 0,
+        "MintingFee": 10000000000000000000
+    },
+    "MarketSettings": {
+        "ZOOM": 100000,
+        "MarketFeeRate": 250000,
+        "MarketFeeWallet": "0x205f7819486ad8f68a8447a0459da9fb2fa95981"
+    },
+    "EvaluationSettings": [
+        {
+            "Token": "0xd98560689c6e748dc37bc410b4d3096b1aa3d8c2",
+            "Symbol": "DFY",
+            "EvaluationFee": 100000000000000000000,
+            "MintingFee": 50000000000000000000
+        }
+    ],
+    "Proxies": {
+        "Live": {
+            "HUB_ADDRESS":              "0x3be5ea712719A986281379023fBAEa99F1e7FcB1",
+            "NFT_FACTORY_ADDRESS":      "0x8d5A02CB0848fe02fDCA35a62dE7408d7C9dD543",
+            "NFT_SALES_ADDRESS":        "0x8b3Ab5CdA6C6249e2c1A75c8122690B366B5aB9A",
+            "NFT_AUCTION_ADDRESS":      "0xA04391885543054E1d92861b97c1933D3E4501DA",
+            "VESTING_ADDRESS":          "0xb4782fa3EE45E2923007168E796Ce51A82A4f9a6"
+        }
+    },
+    "Implementations": {
+        "Live": {
+            "HUB_ADDRESS":              "0x626515406b51081E1514FE84b72a4A83DF10eDCa",
+            "NFT_FACTORY_ADDRESS":      "0x2C7A47E084bb6DB1431ae6AEbF93c0bD80d331DB",
+            "NFT_SALES_ADDRESS":        "0x66B6D80878E81fA847ee9E7A24D8e138132Bc2Bd",
+            "NFT_AUCTION_ADDRESS":      "0x73A43C575404E077dfcaC051DFA579e8E0EF68bc",
+            "VESTING_ADDRESS":          "0x5D58269eF1De9a4a41ae1219e2c13Cfd956120ea"
+        }
+    },
+    "DefaultNFTCollection": {
+        "Live": "0x09aCCb349FC981CC096FE929F986aA38A0ab72Ef"
+    },
+    "Signature": {
+        "BCTest": {
+            "NFT_FACTORY": "0xe2671856",
+            "NFT_SALES": "0xff574eed",
+            "NFT_AUCTION": "0x2323688f"
+        }
+    }
+}
