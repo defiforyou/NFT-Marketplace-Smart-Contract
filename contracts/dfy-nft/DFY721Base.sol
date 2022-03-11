@@ -196,14 +196,12 @@ abstract contract DFY721Base is
         return super.tokenURI(tokenId);
     }
 
-    function updateCollectionCID(
-        string memory newCID
-    ) 
-        public 
-        virtual 
+    function updateCollectionCID(string memory newCID)
+        public
+        virtual
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
-        if(bytes(newCID).length > 0) {
+        if (bytes(newCID).length > 0) {
             collectionCID = newCID;
         }
     }

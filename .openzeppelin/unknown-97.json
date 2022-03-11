@@ -16759,6 +16759,112 @@
           }
         }
       }
+    },
+    "9e7175b2e46fd5fab410aabea4a4779a5023cc22c90bcfa8a9a3f8e5ca9e24a3": {
+      "address": "0x67469FcbFaE3cF39db8a4B7A409C10644de29803",
+      "txHash": "0xbec4883667da6abcb4a1849064424e1b49de525cc49e22e7bbf41e76fc1a1721",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:37"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:42"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\ERC1967\\ERC1967UpgradeUpgradeable.sol:215"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\UUPSUpgradeable.sol:81"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:97"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\introspection\\ERC165Upgradeable.sol:36"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:68"
+          },
+          {
+            "contract": "BaseContract",
+            "label": "contractHub",
+            "type": "t_address",
+            "src": "contracts\\base\\BaseContract.sol:26"
+          },
+          {
+            "contract": "DefiForYouNFTFactory",
+            "label": "collectionsByOwner",
+            "type": "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)9473)dyn_storage)",
+            "src": "contracts\\dfy-nft\\DefiForYouNFTFactory.sol:14"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_array(t_contract(DefiForYouNFT)9473)dyn_storage)": {
+            "label": "mapping(address => contract DefiForYouNFT[])"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_contract(DefiForYouNFT)9473)dyn_storage": {
+            "label": "contract DefiForYouNFT[]"
+          },
+          "t_contract(DefiForYouNFT)9473": {
+            "label": "contract DefiForYouNFT"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
     }
   }
 }
