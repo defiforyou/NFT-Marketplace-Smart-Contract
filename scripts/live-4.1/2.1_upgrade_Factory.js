@@ -1,10 +1,18 @@
 require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
+const fs = require("fs");
 
-const { Proxies } = require('./.deployment_data_test.json');
-const proxiesEnv = Proxies.Beta;
+const datafileName = ".deployment_data.json";
+const datafilePath = "./scripts/live-4.1/";
+const deploymentInfo = require('./' + datafileName);
+const dataFileRelativePath = datafilePath + datafileName;
+
+// const { Proxies } = require('./.deployment_data_live.json');
+const proxiesEnv = deploymentInfo.Proxies.Live;
+const implEnv = deploymentInfo.Implementations.Live;
 
 const CollectionMgrProxyAddr = proxiesEnv.NFT_FACTORY_ADDRESS;
+let CollectionMgrImplAddr  = implEnv.NFT_FACTORY_ADDRESS;
 const CollectionMgrBuildName = "DefiForYouNFTFactory";
 
 const decimals      = 10**18;
@@ -42,6 +50,16 @@ async function main() {
     console.log(`\x1b[36m${CollectionMgrArtifactV2.contractName}\x1b[0m deployed to: \x1b[36m${CollectionMgrContractV2.address}\x1b[0m`);
     console.log(`New implementation Address: \x1b[36m${CollectionMgrImplV2}\x1b[0m`);
     console.log(`New contract SIGNATURE: \x1b[36m${newSignature}\x1b[0m ${newSignature == currentSignature ? "(Signature unchanged)": ""}\n\r`);
+
+    // Write the result to deployment data file
+    CollectionMgrImplAddr = CollectionMgrImplV2;    
+
+    fs.writeFile(dataFileRelativePath, JSON.stringify(deploymentInfo, null, "\t"), err => {
+    if (err)
+        console.log("Error when trying to write to deployment data file.", err);
+    else
+        console.log("Information has been written to deployment data file.");
+    });    
     
     console.log(`Completed at ${Date(Date.now())}`);
 
@@ -49,7 +67,7 @@ async function main() {
 }
   
 main()
-    .then(() => process.exit(0))
+    .then(() => {})
     .catch((error) => {
         console.error(error);
         process.exit(1);

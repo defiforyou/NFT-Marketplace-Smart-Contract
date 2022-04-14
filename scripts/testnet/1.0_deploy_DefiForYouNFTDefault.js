@@ -1,6 +1,6 @@
 const hre = require('hardhat');
 const { DefaultNFTCollectionSettings, Proxies } = require('./.deployment_data_test.json');
-const proxiesEnv = Proxies.Beta;
+const proxiesEnv = Proxies.BCTest;
 
 const NFTCollectionBuildName = "contracts/dfy-nft/DefiForYouNFTDefault.sol:DefiForYouNFT";
 

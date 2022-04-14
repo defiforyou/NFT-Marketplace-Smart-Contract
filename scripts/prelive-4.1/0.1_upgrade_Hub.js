@@ -2,10 +2,10 @@ require('@nomiclabs/hardhat-ethers');
 const hre = require('hardhat');
 const fs = require("fs");
 
-const envKey = "BCTest";
-const datafilePath = "./scripts/testnet/";
+const envKey = "Prelive";
+const datafilePath = "./scripts/prelive-4.1/"
 
-const datafileName = ".deployment_data_test.json";
+const datafileName = ".deployment_data.json";
 const deploymentInfo = require('./' + datafileName);
 const dataFileRelativePath = datafilePath + datafileName;
 

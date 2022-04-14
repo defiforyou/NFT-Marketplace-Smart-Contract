@@ -1,11 +1,14 @@
 const hre = require("hardhat");
+const { expect, assert } = require("chai");
+const artifactDFYToken = "contracts/BEP20Token.sol:BEP20Token";
 const artifactDFYFactory = "DefiForYouNFTFactory";
-const artifactDFYToken = "BEP20Token";
+const artifactDFYToken = "DFY";
 const artifactSellNFT = "SellNFT";
 const artifactHub = "Hub";
-const { expect, assert } = require("chai");
+const artfactDFYNFT = "contracts/dfy-nft/DefiForYouNFT.sol:DefiForYouNFT";
 const BNB_ADDRESS = "0x0000000000000000000000000000000000000000";
 const decimals = 10 ** 18;
+
 
 describe("Deploy DFY Factory", (done) => {
 
@@ -42,11 +45,7 @@ describe("Deploy DFY Factory", (done) => {
 
         // DFY Token 
         const dFYTokenFactory = await hre.ethers.getContractFactory(artifactDFYToken);
-        const dfyContract = await dFYTokenFactory.deploy(
-            "DFY-Token",
-            "DFY",
-            BigInt(1000000000000000000000)
-        );
+        const dfyContract = await dFYTokenFactory.deploy();
         _DFYTokenContract = await dfyContract.deployed();
 
         // contract Hub 
@@ -75,7 +74,7 @@ describe("Deploy DFY Factory", (done) => {
 
         // DFY NFT
         await _DFYFactoryContract.connect(_originCreator).createCollection(_tokenName, _symbol, 0, _cidOfCollection.toString());
-        this.DFYNFTFactory = await hre.ethers.getContractFactory("DefiForYouNFT");
+        this.DFYNFTFactory = await hre.ethers.getContractFactory(artfactDFYNFT);
         let getAddressContractOfCreatetor = await _DFYFactoryContract.collectionsByOwner(_originCreator.address, 0);
         _DFYContract = this.DFYNFTFactory.attach(getAddressContractOfCreatetor);
 
@@ -172,10 +171,11 @@ describe("Deploy DFY Factory", (done) => {
             let balanceOfSellerBAfterTXT = await _buyer.getBalance();
             let balanceOfBuyerAfterTXT = await _buyer2.getBalance();
 
-
+            // 192661294550088
             // calculate 
             let info = await _sellNFTContract.orders(1);
-            let feeGasBuy = BigInt(192415943786220);
+            let feeGasBuy = BigInt(balanceOfBuyerBeforeTXT) - BigInt(balanceOfBuyerAfterTXT) - BigInt(info.price);
+            console.log("fee gas buy", feeGasBuy.toString());
             let newOwner = await _DFYContract.ownerOf(_firstToken);
             let marketFee = BigInt(info.price) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
             let royaltyFee = BigInt(info.price) * BigInt(_royaltyRateDFY) / BigInt(_zoom * 100);

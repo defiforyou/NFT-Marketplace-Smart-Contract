@@ -68,6 +68,8 @@ contract DefiForYouNFTFactory is BaseContract, IDFY721Factory {
         (uint256 collectionCreatingFee, ) = HubInterface(contractHub)
             .getNFTCollectionConfig();
 
+        HubInterface(contractHub).setWhitelistCollateral_NFT(newCollection, 1);
+
         if (collectionCreatingFee > 0) {
             // Get fee wallet and fee token address
             (address feeWallet, address feeToken) = HubInterface(contractHub)

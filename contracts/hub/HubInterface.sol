@@ -29,6 +29,7 @@ interface HubInterface {
         uint256 penaltyRate;
         uint256 prepaidFeeRate;
         uint256 lateThreshold;
+        //  mapping(address => uint256) whitelistedEvaluationContract;
         mapping(address => uint256) whitelistedCollateral;
     }
 
@@ -43,9 +44,14 @@ interface HubInterface {
         address marketFeeWallet;
     }
 
-    struct EvaluationConfig {
+    struct EvaluationFee {
         uint256 evaluationFee;
         uint256 mintingFee;
+    }
+
+    struct EvaluationFeeConfig {
+        address feeWallet;
+        mapping(address => EvaluationFee) feeConfig;
     }
 
     /** Functions */
@@ -125,8 +131,12 @@ interface HubInterface {
         uint256 status
     ) external;
 
-    function getEvaluationConfig(address addFee)
+    function getEvaluationConfig(address feeTokenAddress)
         external
         view
-        returns (uint256 evaluationFee, uint256 mintingFee);
+        returns (
+            address feeWallet,
+            uint256 evaluationFee,
+            uint256 mintingFee
+        );
 }
