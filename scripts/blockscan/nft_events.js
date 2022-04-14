@@ -2,11 +2,11 @@ const yargs = require('yargs');
 const Web3 = require('web3');
 const web3 = new Web3("https://data-seed-prebsc-1-s1.binance.org:8545");
 
-const { Proxies } = require('../.deployment_data_test.json');
+const { Proxies } = require('../testnet/.deployment_data_test.json');
 // const proxies = Proxies.Dev2;
-const collectionAddress = "0x41cBa069c14c5a7F2742Ac15cD0C550D64D76D76";
+const collectionAddress = "0x7b2df7e30ec900e40fbef2414848390319890d25";
 
-var CollectionContract = require('../../artifacts/contracts/DefiForYouNFT.sol/DefiForYouNFT.json');
+var CollectionContract = require('../../artifacts/contracts/dfy-nft/DefiForYouNFT.sol/DefiForYouNFT.json');
 var collection = new web3.eth.Contract(CollectionContract.abi, collectionAddress);
 
 

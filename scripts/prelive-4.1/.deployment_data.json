@@ -58,11 +58,19 @@
             "NFT_AUCTION_ADDRESS":      "0x1888893F3370af06b413D6259D0e420971d07CA0"
         }
     },
+    "Implementations": {
+        "Prelive": {
+            "HUB_ADDRESS":              "0xf30FBa6F9696Ca8A10F29Ff7ed0270D796383935",
+            "NFT_FACTORY_ADDRESS":      "",
+            "NFT_SALES_ADDRESS":        "",
+            "NFT_AUCTION_ADDRESS":      ""
+        }
+    },
     "DefaultNFTCollection": {
         "Prelive": "0xCE7B1D2350F20595a8CB7dF1E67337c6224dea99"
     },
     "Signature": {
-        "BCTest": {
+        "Prelive": {
             "NFT_FACTORY": "0xe2671856",
             "NFT_SALES": "0xff574eed",
             "NFT_AUCTION": "0x2323688f"

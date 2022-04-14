@@ -59,11 +59,12 @@ module.exports = {
       gas: 8812388,
       // gasPrice: 20000000000,
       accounts: PrivateKey
+      // accounts: { mnemonic: mnemonic }
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
-      gasPrice: 20000000000,
+      gasPrice: 5000000000,
       accounts: PrelivePK
     }
   },

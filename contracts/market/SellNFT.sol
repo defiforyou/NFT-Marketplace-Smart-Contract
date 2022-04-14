@@ -9,13 +9,10 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpg
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "../base/BaseContract.sol";
-import "../dfy-nft/DefiForYouNFT.sol";
+import "../dfy-nft/IDFY721.sol";
 import "./ISellNFT.sol";
 
-contract SellNFT is
-    BaseContract,
-    ISellNFT
-{
+contract SellNFT is BaseContract, ISellNFT {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -56,7 +53,7 @@ contract SellNFT is
         address currency,
         address collectionAddress
     ) external override whenContractNotPaused {
-        _verifyOrderInfo(
+        CommonLib.verifyTokenInfo(
             collectionAddress,
             tokenId,
             numberOfCopies,
@@ -71,11 +68,11 @@ contract SellNFT is
 
         //TODO: Extend support to other NFT standards. Only ERC-721 is supported at the moment.
         require(
-            DefiForYouNFT(collectionAddress).ownerOf(tokenId) == _msgSender(),
+            IERC721(collectionAddress).ownerOf(tokenId) == _msgSender(),
             "Not token owner"
         );
         require(
-            DefiForYouNFT(collectionAddress).isApprovedForAll(
+            IERC721(collectionAddress).isApprovedForAll(
                 _msgSender(),
                 address(this)
             ),
@@ -122,6 +119,10 @@ contract SellNFT is
         Order storage _order = orders[orderId];
 
         require(_msgSender() == _order.owner, "Order's seller is required");
+        require(
+            _order.status == OrderStatus.ON_SALES,
+            "Already sold or cancelled"
+        );
 
         // Delete token on sales flag
         _tokenFromCollectionIsOnSales[_order.collectionAddress][
@@ -146,7 +147,7 @@ contract SellNFT is
 
         require(_msgSender() != _order.owner, "Buying owned NFT");
 
-        CollectionStandard _standard = _verifyOrderInfo(
+        CollectionStandard _standard = CommonLib.verifyTokenInfo(
             _order.collectionAddress,
             _order.tokenId,
             _order.numberOfCopies,
@@ -209,7 +210,7 @@ contract SellNFT is
             CommonLib.safeTransfer(
                 _order.currency,
                 address(this),
-                DefiForYouNFT(_order.collectionAddress).originalCreator(),
+                IDFY721(_order.collectionAddress).originalCreator(),
                 _royaltyFee
             );
         }
@@ -224,7 +225,7 @@ contract SellNFT is
 
         // Transfer NFT to buyer
         // TODO: Extend support to ERC-1155
-        DefiForYouNFT(_order.collectionAddress).safeTransferFrom(
+        IERC721(_order.collectionAddress).safeTransferFrom(
             _order.owner,
             _msgSender(),
             _order.tokenId
@@ -247,7 +248,12 @@ contract SellNFT is
         emit NFTBought(_purchase);
     }
 
-    function isTokenOnSales(uint256 tokenId, address collectionAddress) external view override returns (bool) {
+    function isTokenOnSales(uint256 tokenId, address collectionAddress)
+        external
+        view
+        override
+        returns (bool)
+    {
         return _tokenFromCollectionIsOnSales[collectionAddress][tokenId];
     }
 
@@ -279,15 +285,14 @@ contract SellNFT is
             zoom
         );
 
+        // TODO: Make sure imported NFT collection to bypass this check using Collection standard
+        // TODO: Add enums for imported collections (CommonLib)
         // If token owner is not the original creator of collection
-        if (
-            order.owner !=
-            DefiForYouNFT(order.collectionAddress).originalCreator()
-        ) {
+        if (order.owner != IDFY721(order.collectionAddress).originalCreator()) {
             // Calculate royalty fee
             royaltyFee = CommonLib.calculateSystemFee(
                 order.price,
-                DefiForYouNFT(order.collectionAddress).royaltyRateByToken(
+                IDFY721(order.collectionAddress).royaltyRateByToken(
                     order.tokenId
                 ),
                 zoom
@@ -302,37 +307,5 @@ contract SellNFT is
                 ? royaltyFee *= numberOfCopiesPurchased
                 : royaltyFee;
         }
-    }
-
-    function _verifyOrderInfo(
-        address collectionAddress,
-        uint256 tokenId,
-        uint256 numberOfCopies,
-        address owner
-    ) internal view returns (CollectionStandard _standard) {
-        // Check for supported NFT standards
-        if (collectionAddress.supportsInterface(type(IERC721).interfaceId)) {
-            _standard = CollectionStandard.ERC721;
-
-            require(numberOfCopies == 1, "ERC-721: Amount not supported");
-        } else if (
-            collectionAddress.supportsInterface(type(IERC1155).interfaceId)
-        ) {
-            _standard = CollectionStandard.ERC1155;
-
-            // Check for seller's balance
-            require(
-                IERC1155(collectionAddress).balanceOf(owner, tokenId) >=
-                    numberOfCopies,
-                "ERC-1155: Insufficient balance"
-            );
-        } else {
-            _standard = CollectionStandard.UNDEFINED;
-        }
-
-        require(
-            _standard != CollectionStandard.UNDEFINED,
-            "ERC-721 or ERC-1155 standard is required"
-        );
     }
 }

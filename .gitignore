@@ -5,17 +5,19 @@ cache
 artifacts
 
 erc20
-.openzeppelin/unknown-97.json
+.env
+
+#JSON files
 .openzeppelin/unknown-31337.json
 .secret.json
 package-lock.json
-.env
 metadata_template/collectionURI-010-test.json
 Bernie-Sanders.json
 AuctionNFT_ABI.json
 DefiForYouNFTFactory_ABI.json
 Hub_ABI.json
 SellNFT_ABI.json
+DefiForYouNFT_ABI.json
 DefiForYouNFTDefault_ABI.json
 metadata_template/webdesign_vs_webdev.json
 

@@ -1,9 +1,9 @@
 const hre = require("hardhat");
 const artifactDFYFactory = "DefiForYouNFTFactory";
-const artifactDFYToken = "BEP20Token";
 const artifactAuctionNFT = "AuctionNFT";
 const artifactSellNFT = "SellNFT";
 const artifactHub = "Hub";
+const artifactDFYNFT = "contracts/dfy-nft/DefiForYouNFT.sol:DefiForYouNFT";
 const { expect, assert } = require("chai");
 const BNB_ADDRESS = "0x0000000000000000000000000000000000000000";
 const decimals = 10 ** 18;
@@ -92,7 +92,7 @@ describe("Deploy DFY Factory", (done) => {
         // let getOperatorRole = await _hubContract.OPERATOR_ROLE();
         // await _DFYFactoryContract.connect(_deployer).grantRole(getOperatorRole, _originCreator.address);
         await _DFYFactoryContract.connect(_originCreator).createCollection(_tokenName, _symbol, 0, _cidOfCollection.toString());
-        this.DFYNFTFactory = await hre.ethers.getContractFactory("DefiForYouNFT");
+        this.DFYNFTFactory = await hre.ethers.getContractFactory(artifactDFYNFT);
         let getAddressContractOfCreatetor = await _DFYFactoryContract.collectionsByOwner(_originCreator.address, 0);
         _DFYContract = this.DFYNFTFactory.attach(getAddressContractOfCreatetor);
 
@@ -207,8 +207,8 @@ describe("Deploy DFY Factory", (done) => {
             infoAuction = await _auctionNFTContract.auctions(0);
             let marketFee = BigInt(infoAuction.bidValue) * BigInt(_marketFeeRate) / BigInt(_zoom * 100);
             let amountPaidToSeller = BigInt(infoAuction.bidValue) - BigInt(marketFee);
-            let feeGasBuyOfBid1 = BigInt(82295540331156);
-            let feeGasBuyOfBid2 = BigInt(72275032631934);
+            let feeGasBuyOfBid1 = BigInt(balanceOfBid1BeforeTXT) - BigInt(balanceOfBid1AfterTXT);
+            let feeGasBuyOfBid2 = BigInt(balanceOfBid2BeforeBidTXT) - BigInt(balanceOfBid2AfterTXT) - BigInt(infoAuction.bidValue);
 
             expect(balanceOfBid1BeforeTXT).to.equal(BigInt(balanceOfBid1AfterTXT) + BigInt(feeGasBuyOfBid1));
             expect(balanceOfBid2BeforeBidTXT).to.equal(BigInt(balanceOfBid2AfterTXT) + BigInt(infoAuction.bidValue) + BigInt(feeGasBuyOfBid2));

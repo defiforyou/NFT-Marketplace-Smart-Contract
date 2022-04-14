@@ -36,12 +36,6 @@ interface ISellNFT is BaseInterface {
         COMPLETED
     }
 
-    enum CollectionStandard {
-        UNDEFINED,
-        ERC721,
-        ERC1155
-    }
-
     /** Events */
     event NFTPutOnSales(
         uint256 orderId,
